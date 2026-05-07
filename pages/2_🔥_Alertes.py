@@ -6,29 +6,34 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
+from src.styles import inject_css, sidebar_brand
 
-st.set_page_config(page_title="Alertes — Daily Finance Brief", page_icon="🔥", layout="wide")
+st.set_page_config(page_title="Alertes — Daily Finance Brief", page_icon="", layout="wide")
+inject_css()
+sidebar_brand()
 
 ALERT_COLORS = {
-    "MEGA_DEAL": "#16A34A",
-    "FALLEN_ANGEL": "#DC2626",
-    "PROFIT_WARNING": "#EA580C",
+    "MEGA_DEAL":      "#1A5F8C",
+    "FALLEN_ANGEL":   "#8B1A2E",
+    "PROFIT_WARNING": "#9C6000",
+}
+ALERT_LABELS = {
+    "MEGA_DEAL":      "Mega Deal",
+    "FALLEN_ANGEL":   "Fallen Angel",
+    "PROFIT_WARNING": "Profit Warning",
 }
 
-ALERT_ICONS = {
-    "MEGA_DEAL": "💰",
-    "FALLEN_ANGEL": "👼",
-    "PROFIT_WARNING": "⚠️",
-}
-
-st.title("🔥 Alertes chaudes intraday")
+st.markdown(
+    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
+    unsafe_allow_html=True,
+)
+st.title("Alertes intraday")
 
 dates = list_alert_dates()
 if not dates:
     st.info("Aucune alerte déclenchée pour le moment.")
     st.stop()
 
-# Load all alerts from last 90 days for stats
 all_alerts: list[dict] = []
 for d in dates[:90]:
     data = load_alerts(d)
@@ -37,45 +42,41 @@ for d in dates[:90]:
             alert["_date"] = d
             all_alerts.append(alert)
 
-# Sidebar filters
 with st.sidebar:
     st.markdown("### Filtres")
-    alert_types = ["MEGA_DEAL", "FALLEN_ANGEL", "PROFIT_WARNING"]
-    selected_types = st.multiselect("Type d'alerte", alert_types, default=alert_types)
-
+    alert_types    = ["MEGA_DEAL", "FALLEN_ANGEL", "PROFIT_WARNING"]
+    selected_types = st.multiselect("Type", alert_types, default=alert_types)
     period = st.selectbox("Période", ["7 derniers jours", "30 derniers jours", "Tout"], index=1)
-    if period == "7 derniers jours":
-        cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-    elif period == "30 derniers jours":
-        cutoff = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    else:
-        cutoff = "2000-01-01"
 
-# Filter alerts
-def get_alert_types(alert: dict) -> list[str]:
+cutoff = {
+    "7 derniers jours":  (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
+    "30 derniers jours": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
+    "Tout":              "2000-01-01",
+}[period]
+
+
+def get_types(alert: dict) -> list[str]:
     return [f.get("type", "") for f in alert.get("alert_flags", [])]
+
 
 filtered_alerts = [
     a for a in all_alerts
     if a.get("_date", "") >= cutoff
-    and any(t in selected_types for t in get_alert_types(a))
+    and any(t in selected_types for t in get_types(a))
 ]
 
-# Stats
-st.markdown("### Statistiques")
+# ── Stats ──────────────────────────────────────────────────────────────────
+st.markdown("---")
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Total alertes (filtrées)", len(filtered_alerts))
-c2.metric("Mega deals", sum(1 for a in filtered_alerts if "MEGA_DEAL" in get_alert_types(a)))
-c3.metric("Fallen angels", sum(1 for a in filtered_alerts if "FALLEN_ANGEL" in get_alert_types(a)))
-c4.metric("Profit warnings", sum(1 for a in filtered_alerts if "PROFIT_WARNING" in get_alert_types(a)))
+c1.metric("Total",          len(filtered_alerts))
+c2.metric("Mega deals",     sum(1 for a in filtered_alerts if "MEGA_DEAL"      in get_types(a)))
+c3.metric("Fallen angels",  sum(1 for a in filtered_alerts if "FALLEN_ANGEL"   in get_types(a)))
+c4.metric("Profit warnings",sum(1 for a in filtered_alerts if "PROFIT_WARNING" in get_types(a)))
 
-# Weekly evolution chart
+# ── Chart ──────────────────────────────────────────────────────────────────
 if filtered_alerts:
     df = pd.DataFrame([
-        {
-            "date": a.get("_date", ""),
-            "type": get_alert_types(a)[0] if get_alert_types(a) else "UNKNOWN",
-        }
+        {"date": a.get("_date", ""), "type": get_types(a)[0] if get_types(a) else "UNKNOWN"}
         for a in filtered_alerts
     ])
     df["date"] = pd.to_datetime(df["date"])
@@ -85,43 +86,89 @@ if filtered_alerts:
     fig = px.bar(
         weekly, x="week", y="count", color="type",
         color_discrete_map=ALERT_COLORS,
-        title="Évolution hebdomadaire des alertes",
-        labels={"week": "Semaine", "count": "Nb alertes", "type": "Type"},
-        height=300,
+        labels={"week": "", "count": "Alertes", "type": "Type"},
+        height=260,
     )
-    fig.update_layout(margin=dict(t=40, b=20), legend_title_text="")
+    fig.update_layout(
+        margin=dict(t=20, b=20, l=0, r=0),
+        legend_title_text="",
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        font_family="Inter, Helvetica Neue, Arial, sans-serif",
+        font_color="#374151",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+        xaxis=dict(showgrid=False, tickfont=dict(size=10)),
+        yaxis=dict(gridcolor="#F3F4F6", tickfont=dict(size=10)),
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
-st.markdown(f"### {len(filtered_alerts)} alertes")
+st.markdown(f'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:16px">{len(filtered_alerts)} alertes</div>', unsafe_allow_html=True)
 
 if not filtered_alerts:
     st.info("Aucune alerte dans la période sélectionnée.")
     st.stop()
 
-# Timeline
+# ── Alert cards ────────────────────────────────────────────────────────────
 for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=True):
-    flags = alert.get("alert_flags", [{}])
-    atype = flags[0].get("type", "ALERT") if flags else "ALERT"
+    flags  = alert.get("alert_flags", [{}])
+    atype  = flags[0].get("type", "ALERT") if flags else "ALERT"
     areason = flags[0].get("reason", "") if flags else ""
-    color = ALERT_COLORS.get(atype, "#64748b")
-    icon = ALERT_ICONS.get(atype, "🔔")
+    color  = ALERT_COLORS.get(atype, "#374151")
+    label  = ALERT_LABELS.get(atype, atype.replace("_", " "))
+
+    headline = alert.get("headline", alert.get("title", ""))
+    deal_str = ""
+    if alert.get("deal_size_eur"):
+        deal_str = f' <span style="background:#EBF2FF;color:#0B1D2E;padding:2px 6px;border-radius:2px;font-size:10px;font-weight:700">{alert["deal_size_eur"]/1e9:.1f} Md€</span>'
+
+    meta_parts = [alert.get("source", ""), alert.get("_date", ""), alert.get("geography", ""), alert.get("sector", "")]
+    sep = ' <span style="color:#D1D5DB">·</span> '
+    meta = sep.join(p for p in meta_parts if p)
 
     with st.container():
         st.markdown(
-            f'<div style="border-left:4px solid {color};padding:12px 16px;margin-bottom:12px;background:#fafafa;border-radius:0 6px 6px 0">'
-            f'<span style="background:{color};color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">{icon} {atype}</span>'
-            f'&nbsp;<span style="font-size:12px;color:#64748b">{alert.get("_date","")}</span><br>'
-            f'<strong style="font-size:15px">{alert.get("headline", alert.get("title",""))}</strong><br>'
-            f'<span style="font-size:12px;color:#64748b">📰 {alert.get("source","")} &nbsp; 📍 {alert.get("geography","")} &nbsp; 🏭 {alert.get("sector","")}</span><br>'
-            f'<em style="font-size:12px;color:#991B1B">{areason}</em>'
+            f'<div style="padding:16px 0 8px">'
+            f'<span style="background:{color};color:#fff;padding:2px 7px;border-radius:2px;'
+            f'font-size:9px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase">{label}</span>'
+            f'{deal_str}'
             f'</div>',
             unsafe_allow_html=True,
         )
-        with st.expander("Voir détails + So what"):
-            st.markdown(alert.get("summary", ""))
+        url = alert.get("url", "")
+        st.markdown(
+            f'<a href="{url}" target="_blank" style="font-size:16px;font-weight:700;'
+            f'color:#0B1D2E;text-decoration:none;display:block;margin-bottom:5px">{headline}</a>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div style="font-size:11px;color:#9CA3AF;margin-bottom:8px">{meta}</div>',
+            unsafe_allow_html=True,
+        )
+        if areason:
+            st.markdown(
+                f'<div style="font-size:12px;color:#7F1D1D;font-weight:600;'
+                f'background:#FEF2F2;border:1px solid #FECACA;border-radius:2px;'
+                f'padding:6px 10px;margin-bottom:8px">{areason}</div>',
+                unsafe_allow_html=True,
+            )
+
+        with st.expander("Résumé + So What"):
+            st.markdown(
+                f'<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">{alert.get("summary","")}</div>',
+                unsafe_allow_html=True,
+            )
             if alert.get("so_what"):
-                st.info(f"💡 **So what** — {alert['so_what']}")
-            if alert.get("deal_size_eur"):
-                st.metric("Montant", f"{alert['deal_size_eur']/1e9:.1f} Md€")
-            st.markdown(f"[→ Lire l'article source]({alert.get('url', '')})")
+                st.markdown(
+                    f'<div style="background:#F0F6FF;border-left:2px solid #1565C0;'
+                    f'padding:10px 14px;border-radius:0 3px 3px 0">'
+                    f'<span style="font-size:8.5px;font-weight:700;letter-spacing:1.8px;'
+                    f'text-transform:uppercase;color:#1565C0;display:block;margin-bottom:5px">So What</span>'
+                    f'<span style="font-size:13px;line-height:1.65;color:#1E3A5F">{alert["so_what"]}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            if url:
+                st.markdown(f'<a href="{url}" target="_blank" style="font-size:12px;color:#1565C0;font-weight:500;text-decoration:none">Lire l\'article source</a>', unsafe_allow_html=True)
+
+        st.markdown('<div style="border-top:1px solid #E9ECF0;margin-top:12px"></div>', unsafe_allow_html=True)

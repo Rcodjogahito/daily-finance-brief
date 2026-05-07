@@ -1,13 +1,13 @@
 [theme]
-primaryColor = "#0A1F44"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F1F5F9"
-textColor = "#1a1a1a"
-font = "sans serif"
+primaryColor     = "#1565C0"
+backgroundColor  = "#F5F6F8"
+secondaryBackgroundColor = "#F0F2F5"
+textColor        = "#111827"
+font             = "sans serif"
 
 [server]
-headless = true
-enableCORS = true
+headless             = true
+enableCORS           = true
 enableXsrfProtection = true
 
 [browser]
