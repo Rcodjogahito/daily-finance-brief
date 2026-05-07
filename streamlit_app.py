@@ -64,7 +64,7 @@ if _pwd:
         st.stop()
 
 # ── Sidebar ───────────────────────────────────────────────────────────────
-st.sidebar.image("https://img.shields.io/badge/Daily%20Finance%20Brief-Coffee%20Economic%20News-0A1F44?style=for-the-badge", use_container_width=True)
+st.sidebar.image("https://img.shields.io/badge/Daily%20Finance%20Brief-Coffee%20Economics%20News-0A1F44?style=for-the-badge", use_container_width=True)
 st.sidebar.markdown("---")
 
 dates = list_brief_dates()
