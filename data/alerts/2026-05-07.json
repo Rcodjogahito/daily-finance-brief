@@ -1,0 +1,40 @@
+{
+  "date": "2026-05-07",
+  "generated_at": "2026-05-07T11:23:15+02:00",
+  "alerts": [
+    {
+      "title": "S&P cuts Casino to junk status amid liquidity concerns",
+      "headline": "S&P dégrade Casino de BBB- à BB+ : fallen angel",
+      "source": "S&P Ratings",
+      "date": "2026-05-07",
+      "published": "2026-05-07T10:15:00+00:00",
+      "url": "https://spglobal.com/casino-downgrade",
+      "sector": "Consumer",
+      "geography": "France",
+      "deal_size_eur": null,
+      "confidence": "high",
+      "source_count": 4,
+      "summary": "S&P Global Ratings a officiellement abaissé la note long terme de Casino Group de BBB- à BB+, avec perspective stable, suite à la finalisation du plan de restructuring.",
+      "so_what": "Fallen angel déclenche la sortie mécanique des mandats IG et des CLO avec contraintes investment grade. Flush technique attendu sur la dette Casino. Impact sur les spreads HY distribution/retail France.",
+      "alert_flags": [{"type": "FALLEN_ANGEL", "severity": "high", "reason": "Downgrade IG→HY (fallen angel) détecté"}],
+      "_date": "2026-05-07"
+    },
+    {
+      "title": "KKR closes €6.5 billion LBO of SunEnergy France from Engie",
+      "headline": "KKR finalise le LBO de SunEnergy pour 6.5 Md€",
+      "source": "Reuters",
+      "date": "2026-05-07",
+      "published": "2026-05-07T08:45:00+00:00",
+      "url": "https://reuters.com/kkr-sunenergy",
+      "sector": "Energy",
+      "geography": "France",
+      "deal_size_eur": 6500000000,
+      "confidence": "high",
+      "source_count": 3,
+      "summary": "KKR et ses co-investisseurs ont finalisé l'acquisition de SunEnergy France pour 6,5 milliards d'euros. La dette LBO est structurée en TLB 4,2x et un HY bond de 1,5 Md€.",
+      "so_what": "Mega-deal LBO Q2 2026 de référence : pricing E+375 tight confirme l'appétit des CLOs pour les actifs infrastructure renouvelable. Deal team Natixis : suivi du HY bond en co-arrangeur.",
+      "alert_flags": [{"type": "MEGA_DEAL", "severity": "high", "reason": "Deal de 6.5 Md€ détecté"}],
+      "_date": "2026-05-07"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+name: Monthly RSS Health Check
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'   # Premier de chaque mois à 09h00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  rss-health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run RSS health check
+        id: health
+        run: |
+          python scripts/check_rss_health.py > health_output.txt 2>&1 || true
+          cat health_output.txt
+          # Extract dead source count from exit code and output
+          if grep -q "DEAD_SOURCES=" health_output.txt; then
+            DEAD=$(grep "DEAD_SOURCES=" health_output.txt | cut -d= -f2)
+            echo "dead_sources=$DEAD" >> $GITHUB_OUTPUT
+            echo "has_dead=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_dead=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit health report
+        run: |
+          git config user.name "RSS Health Bot"
+          git config user.email "bot@github-actions.local"
+          git add HEALTH_REPORT.md health_results.json 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: RSS health report $(date +%Y-%m-%d)"
+          git pull --rebase || true
+          git push
+
+      - name: Generate sources patch for dead sources
+        if: steps.health.outputs.has_dead == 'true'
+        run: |
+          python - <<'EOF'
+          import json, re
+          from pathlib import Path
+
+          with open("health_results.json") as f:
+              data = json.load(f)
+
+          dead_names = data.get("dead", [])
+          if not dead_names:
+              print("No dead sources to patch")
+              exit(0)
+
+          sources_file = Path("src/collectors/sources.py")
+          content = sources_file.read_text(encoding="utf-8")
+
+          for name in dead_names:
+              # Comment out the dead source line
+              escaped = re.escape(name)
+              pattern = rf'^(\s*"{escaped}".*,\s*)$'
+              content = re.sub(pattern, r"    # [DEAD] \1", content, flags=re.MULTILINE)
+
+          sources_file.write_text(content, encoding="utf-8")
+          print(f"Patched {len(dead_names)} dead source(s): {dead_names}")
+          EOF
+
+      - name: Create PR for dead sources
+        if: steps.health.outputs.has_dead == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="fix/disable-dead-rss-$(date +%Y-%m)"
+          git checkout -b "$BRANCH"
+          git add src/collectors/sources.py
+          git diff --staged --quiet || (
+            git commit -m "fix: disable dead RSS sources $(date +%Y-%m)"
+            git push -u origin "$BRANCH"
+            gh pr create \
+              --title "fix: Disable dead RSS sources ($(date +%Y-%m))" \
+              --body "$(cat HEALTH_REPORT.md)" \
+              --label "maintenance" || true
+          )

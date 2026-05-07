@@ -1,0 +1,57 @@
+name: Hourly Hot Alerts
+
+on:
+  schedule:
+    - cron: '5 7-17 * * 1-5'   # 09h05-19h05 Paris UTC+2 (été), lun-ven
+    - cron: '5 8-18 * * 1-5'   # 09h05-19h05 Paris UTC+1 (hiver), lun-ven
+  workflow_dispatch:
+    inputs:
+      force_send:
+        description: 'Force send even outside trading hours'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hourly-alerts
+  cancel-in-progress: true
+
+jobs:
+  scan-alerts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run hourly alerts pipeline
+        run: python -m src.main_alerts
+        env:
+          GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_USER:          ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENTS:          ${{ secrets.RECIPIENTS }}
+          STREAMLIT_URL:       ${{ secrets.STREAMLIT_URL }}
+          FORCE_SEND:          ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.force_send == 'true' && 'true' || 'false') || 'false' }}
+
+      - name: Commit alerts archive
+        run: |
+          git config user.name "Alert Bot"
+          git config user.email "bot@github-actions.local"
+          git add data/alerts/
+          git diff --staged --quiet || git commit -m "Alerts $(date -u +%Y-%m-%dT%H:%M)"
+          git pull --rebase || true
+          git push

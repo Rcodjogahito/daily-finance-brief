@@ -1,0 +1,34 @@
+# Secrets — never commit
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+
+# Local preview outputs
+brief.html
+alert.html
+brief_preview.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data — keep .gitkeep but not generated JSON (they're committed by the bot)
+# (data/ JSON files ARE committed by the GitHub Actions bot — this is intentional)

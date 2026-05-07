@@ -1,0 +1,63 @@
+name: Daily Finance Brief
+
+on:
+  schedule:
+    - cron: '30 6 * * *'   # 08:30 Paris UTC+2 (heure d'été)
+    - cron: '30 7 * * *'   # 08:30 Paris UTC+1 (heure d'hiver)
+  workflow_dispatch:
+    inputs:
+      force_send:
+        description: 'Force send (ignore time window)'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-brief
+  cancel-in-progress: false
+
+jobs:
+  send-brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system deps (WeasyPrint + PDF)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libpango-1.0-0 libpangoft2-1.0-0 libgdk-pixbuf2.0-0 libffi-dev
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily brief pipeline
+        run: python -m src.main_brief
+        env:
+          GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_USER:          ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENTS:          ${{ secrets.RECIPIENTS }}
+          STREAMLIT_URL:       ${{ secrets.STREAMLIT_URL }}
+          FORCE_SEND:          ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.force_send == 'true' && 'true' || 'false') || 'false' }}
+          CHECK_URLS:          'false'
+
+      - name: Commit archive to repo
+        run: |
+          git config user.name "Daily Brief Bot"
+          git config user.email "bot@github-actions.local"
+          git add data/
+          git diff --staged --quiet || git commit -m "Brief $(date -u +%Y-%m-%d)"
+          git pull --rebase || true
+          git push

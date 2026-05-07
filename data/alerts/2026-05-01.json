@@ -1,0 +1,23 @@
+{
+  "date": "2026-05-01",
+  "generated_at": "2026-05-01T14:05:22+02:00",
+  "alerts": [
+    {
+      "title": "Atos issues profit warning: revenue down 22% in Q1 2026, restructuring accelerated",
+      "headline": "Profit warning Atos : CA en baisse de 22%, restructuring accéléré",
+      "source": "FT Companies",
+      "date": "2026-04-30",
+      "published": "2026-04-30T16:30:00+00:00",
+      "url": "https://ft.com/atos-profit-warning",
+      "sector": "TMT",
+      "geography": "France",
+      "deal_size_eur": null,
+      "confidence": "high",
+      "source_count": 3,
+      "summary": "Atos avertit d'une baisse de son CA de 22% au T1 2026 et accélère son plan de restructuring, avec la cession programmée de ses divisions BPO et infrastructure d'ici fin 2026.",
+      "so_what": "Profit warning >20% déclenche une revue crédit immédiate sur les maturités 2026-2027. Risque de refinancement critique : les obligataires doivent évaluer l'impact des cessions sur l'asset coverage de leur rang.",
+      "alert_flags": [{"type": "PROFIT_WARNING", "severity": "high", "reason": "Profit warning ≥22% détecté"}],
+      "_date": "2026-05-01"
+    }
+  ]
+}
