@@ -73,7 +73,7 @@ def render_email(brief_data: dict, streamlit_url: str) -> tuple[str, str]:
 
 
 def build_subject(news: list[dict], date: str) -> str:
-    top = news[0].get("headline", "") if news else "Veille CIB"
+    top = news[0].get("headline", "") if news else "Coffee Economic News"
     day_str = datetime.strptime(date, "%Y-%m-%d").strftime("%d/%m")
     return f"📊 Daily Finance Brief — {day_str} — {top[:60]}"
 

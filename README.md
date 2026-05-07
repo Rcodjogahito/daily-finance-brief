@@ -1,6 +1,6 @@
 # Daily Finance Brief 📊
 
-Système de veille financière automatisée — CIB Natixis Deal Team.
+Système de veille financière automatisée — Coffee Economic News.
 
 - **Brief quotidien** 7j/7 à 08h30 Paris par email
 - **Alertes chaudes intraday** lun-ven 09h-19h (MEGA_DEAL >5Md€, fallen angel, profit warning ≥20%)
