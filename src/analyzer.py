@@ -150,7 +150,7 @@ def analyze_news(candidates: list[dict]) -> list[dict]:
         for item in candidates
     ]
 
-    prompt = USER_PROMPT_TEMPLATE.format(news_json=json.dumps(news_for_llm, ensure_ascii=False, indent=2))
+    prompt = USER_PROMPT_TEMPLATE.replace("{news_json}", json.dumps(news_for_llm, ensure_ascii=False, indent=2))
 
     try:
         raw = _call_gemini(prompt)
