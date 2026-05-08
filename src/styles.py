@@ -193,65 +193,72 @@ _SIDEBAR_BRAND = """
 """
 
 
-_SIDEBAR_TOGGLE_JS = """
-<script>
-(function () {
-  /* Stored on window so it survives Streamlit React re-renders. */
-  window._dfbToggle = function () {
-    /* Build candidate documents: current page + parent frame if different. */
-    var docs = [document];
-    try { if (window.parent.document !== document) docs.push(window.parent.document); } catch (e) {}
-
-    /* Selectors ordered by likelihood across Streamlit ≥ 1.35.
-       - button[data-testid] : button IS the element (most common in recent Streamlit)
-       - [data-testid] button : button nested inside the testid container (older layout)
-       - Collapsed control   : floating arrow to re-open when sidebar is hidden       */
-    var SELECTORS = [
-      'button[data-testid="stSidebarCollapseButton"]',
-      '[data-testid="stSidebarCollapseButton"] button',
-      '[data-testid="stSidebarCollapsedControl"] button',
-      '[data-testid="stSidebarCollapsedControl"]',
-      'button[aria-label="Close sidebar"]',
-      'button[aria-label="Open sidebar"]',
-    ];
-
-    for (var di = 0; di < docs.length; di++) {
-      for (var si = 0; si < SELECTORS.length; si++) {
-        try {
-          var el = docs[di].querySelector(SELECTORS[si]);
-          if (el) { el.click(); return; }
-        } catch (e) {}
-      }
-    }
-  };
-})();
-</script>
-<button onclick="window._dfbToggle()" title="Afficher / masquer la barre latérale"
-  style="background:#0B1D2E;color:#E2EAF2;border:none;border-radius:2px;
-         padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;
-         letter-spacing:0.04em;line-height:1">&#9776; Barre</button>
-"""
-
-_HOME_BUTTON = """
-<a href="/" target="_self"
-   style="display:inline-block;background:#1A3A5C;color:#E2EAF2;border:none;
-          border-radius:2px;padding:5px 11px;font-size:11px;font-weight:600;
-          text-decoration:none;letter-spacing:0.04em;line-height:1;margin-left:6px">
-  &#8962; Accueil</a>
-"""
-
-
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
     st.markdown(_TWEMOJI_SCRIPT, unsafe_allow_html=True)
 
 
+_TOOLBAR_HTML = """<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+.bar { display: flex; gap: 6px; align-items: center; padding: 4px 0 8px 0; }
+button {
+  background: #0B1D2E; color: #E2EAF2; border: none; border-radius: 2px;
+  padding: 5px 11px; font-size: 11px; font-weight: 600; cursor: pointer;
+  letter-spacing: 0.04em; line-height: 1.4;
+}
+button:hover { background: #1A3A5C; }
+a {
+  display: inline-block; background: #1A3A5C; color: #E2EAF2;
+  border-radius: 2px; padding: 5px 11px; font-size: 11px; font-weight: 600;
+  text-decoration: none; letter-spacing: 0.04em; line-height: 1.4;
+}
+a:hover { background: #243E5C; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button onclick="toggleSidebar()">&#9776; Menu</button>
+  <a href="/" target="_parent">&#8962; Accueil</a>
+</div>
+<script>
+function toggleSidebar() {
+  /* window.parent is the Streamlit app window — guaranteed in an iframe component. */
+  try {
+    var d = window.parent.document;
+    var sel = [
+      'button[data-testid="stSidebarCollapseButton"]',
+      '[data-testid="stSidebarCollapseButton"] button',
+      '[data-testid="stSidebarCollapsedControl"] button',
+      '[data-testid="stSidebarCollapsedControl"]',
+    ];
+    for (var i = 0; i < sel.length; i++) {
+      var el = d.querySelector(sel[i]);
+      if (el) { el.click(); return; }
+    }
+  } catch (e) {}
+}
+</script>
+</body>
+</html>"""
+
+
 def page_toolbar() -> None:
-    """Render a small toolbar with sidebar toggle + home button at the top of main content."""
-    st.markdown(
-        f'<div style="margin-bottom:12px">{_SIDEBAR_TOGGLE_JS}{_HOME_BUTTON}</div>',
-        unsafe_allow_html=True,
-    )
+    """Sidebar toggle + home button rendered in a real iframe component.
+
+    st.components.v1.html() guarantees script execution and correct
+    window.parent access to the Streamlit DOM — unlike st.markdown() scripts
+    which run in React's dangerouslySetInnerHTML scope (unreliable for parent access).
+    """
+    import streamlit.components.v1 as components
+    components.html(_TOOLBAR_HTML, height=40, scrolling=False)
 
 
 def sidebar_brand() -> None:
