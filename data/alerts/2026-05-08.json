@@ -1,0 +1,321 @@
+{
+  "date": "2026-05-08",
+  "generated_at": "2026-05-08T14:00:08.743939+02:00",
+  "alerts": [
+    {
+      "source": "FT Companies",
+      "url": "https://www.ft.com/content/ae053d2c-de07-47a8-92fa-3310b20eae19",
+      "publisher_domain": "",
+      "title": "How GSK is rebuilding its cancer business",
+      "summary": "A decade after exiting oncology, the UK pharma group is betting that R&amp;D and acquisitions will help it hit sales of £40bn",
+      "published": "2026-05-08T04:00:04+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 46.8 Md€ détecté"
+        }
+      ],
+      "sector": "Healthcare",
+      "geography": "UK",
+      "region": "Europe",
+      "deal_size_eur": 46800000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQVUZtUHlfRDN6U2NyNmtQanczd01fRk01VzVRTWctZ2JMVVI5UmhuQlpYSEdkd2lmYWFGUXNZOEdFMFE0NnN2Q0VrY2dPN3pOVElrUWxQTThOSHM2Ul9uQmhzSVNBRW9aV1JyZ3ZodXVSaFNza0MtU3FaWm9uWG1id0tzdEdhcEpidC1RczVvbHNsMHE4S3V6WktzaEtNUQ?oc=5",
+      "publisher_domain": "https://finance.yahoo.com",
+      "title": "Devon Launches $8 Billion Buyback After Coterra Merger - Yahoo Finance",
+      "summary": "Devon Launches $8 Billion Buyback After Coterra Merger &nbsp;&nbsp; Yahoo Finance",
+      "published": "2026-05-08T02:10:00+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 7.4 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 7360000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQN2N3WFAzYzVNQU9TUkh6VHQ0UE05RTV4VDZFdlE0cXVqdVhKZ0ZXbjNjSWJMenhvRFRuY3l4M3NPRV9FQlhHcFFUSzdMQ1ZPNExEeUNKYzJycFlwUGYxeW40cWp3RG10YVZZNzVWVmkwbDVrcFo4YUpUOXlyaWFMeUREeHkzOVV2cW9pYnh2Sk9sR2FYaEtUS09vVS1nQjJLY1JIa2dqbk93aUlTYWhteEJERzRNY3hxZGc?oc=5",
+      "publisher_domain": "https://www.investing.com",
+      "title": "Devon Energy approves dividend, $8 billion buyback after merger - Investing.com",
+      "summary": "Devon Energy approves dividend, $8 billion buyback after merger &nbsp;&nbsp; Investing.com",
+      "published": "2026-05-07T21:06:50+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 7.4 Md€ détecté"
+        }
+      ],
+      "sector": "Energy",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 7360000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPUmhIdXhTRWY1OE5ld0VLTWNydnlDYlZSWUMya1Zad3NJZDE5NFRmRzVoSjlmLS1iV2hIcG1xRWQ3Z284b0RfaWttc1dheGtHeTN5U3M0a0xsZEJGMXBSQkNqQmVRelRJeGppejIxalEwdWVxUnBMUUJrb3Z0WVliVE5YNGY3Tk1LM0tnTUl2VXZSbFZ3TDRyWEZOaDRCdXc?oc=5",
+      "publisher_domain": "https://www.upstreamonline.com",
+      "title": "$58 billion US shale merger reaches finish line - Upstream Online",
+      "summary": "$58 billion US shale merger reaches finish line &nbsp;&nbsp; Upstream Online",
+      "published": "2026-05-07T20:34:54+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 53.4 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "USA",
+      "region": "Amériques",
+      "deal_size_eur": 53360000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQTmNreXVSc0JyY2V5eERaQURJRm4yS21hX09SVExZSGFZWDFYU3FzMmZPNFJqSlJ6LTRwa0w0Mk5KODhqUFhnNDFpbkpfdGdVTEpwUzY4UHhXNlNZUlRGTGV3cXVvcTVWbEc0aUt0czRjZm53SHVrWGxSeG02S1VxNTRBVmxJLXh3TlE4UHQwdkx0LW5xeW1zWHo3MzBySlJjMjJ3cnZrZGhqMm90dTZMUW1XUzdHOEsza29hQUc0bmV1VTVtdWxR?oc=5",
+      "publisher_domain": "https://m.uk.investing.com",
+      "title": "Clearwater Analytics earnings on deck as $8.4 billion buyout looms - Investing.com UK",
+      "summary": "Clearwater Analytics earnings on deck as $8.4 billion buyout looms &nbsp;&nbsp; Investing.com UK",
+      "published": "2026-05-07T18:08:17+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 7.7 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "UK",
+      "region": "Europe",
+      "deal_size_eur": 7728000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMi4gJBVV95cUxObzdicWh0ZlFUaGJNMGhXYkRnOS1KMGpaWWRVaEt1TXJQTWNfSDJWdWk2N3FOYVVxblZSZlREcHUxUDhlalVsZnBkSkpnYTU0MHRQX1gtNzdrRUZibzdhWnJCWWJWd19LY1hRVGlic0ZVTVV5MnhGdWp3VlZ5YnBvdUh3LWthTXp4M0NyVklIMm1TSVRnbzg4bEZ4cnlYSmhMLXZPMmZoSmhNTkJ1Snd4dkxpVDNOQWNsTVVQOFJseGZFckVtWnNXVjJjd0tFM3RyT3FKaFhSbFNubVpKdXM2b0sybk9PWGpjX0t3WGpnSUFJV1NrOWtBdHlXZ19xWUNuRUdiUzViVkZZZmwyRzZ3cXNjX3ZsSGYzU0dTUnQxRTBJOFluWnZieFJzN2V6SXVKQlJOSGdZamREcFV4TnlqTTgxbEZXNTN3SWpFRHJRYzFvTkhkaUNjNVJUS0tHOTNsLUE?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Ebay shares surge amid $56 billion buyout proposal from GameStop's Ryan Cohen - MSN",
+      "summary": "Ebay shares surge amid $56 billion buyout proposal from GameStop's Ryan Cohen &nbsp;&nbsp; MSN",
+      "published": "2026-05-08T10:10:31+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 51.5 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 51520000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxQc2pQS1hPTjNEWDVwWmNfNkpOZG80QTFpYUFvVkhQQmkycUdMeXZEYXlMOEt5amZDRE12QmU0QUM3SmlJeW1YdnRSNDg5ZW9RQjVOVjNsYmM3bWlJM1NhdEFxZVpDYWFyVzV6TEYyMFRhakQwN0NXT0JPTW5BZkhDY1FSYi16Zk5yV1hOakg1Y0lSLVlYWkZTVXlmYzRYNUY4Tm54V084NHcwN0xVbGpJQXZFaFVtQkJjWDdlTXh4U3RIZnQ3b1JWWXh0Vi1GNUZnT2tReA?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Union Pacific advocates for $85 billion Norfolk Southern acquisition in merger application - MSN",
+      "summary": "Union Pacific advocates for $85 billion Norfolk Southern acquisition in merger application &nbsp;&nbsp; MSN",
+      "published": "2026-05-08T04:57:34+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 78.2 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 78200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMiiwNBVV95cUxNMmpsZVMyOE5hdmtLZEZqdTI5eXdwUEhoLWk1ZUt4S1pqeW5QdXVPSENFenYzWWRBby1nZGM1TVhwbVBPRjRBRWtaSUdlYWNpRmRFZWdPd1dNdDh4MGV4TUVqYU5xQ0IxUEV0c2lTc2otYlJyRTE3amt6T2JMa2hFWWtjaW9JRlVESlpFQ1lNQ0xQMjZoRko5cDQtdm4tWkw3N2VOWUhoVVprMVlycVdwcXlwbE5STmNtdXhjSDlHT2g4M1drM2Jzb2x5RGVsbW1DemtKWndWNndwRjlqWURTYUdkcHRsTU1LVUVscHBKZUFwQkpqbDF4azYyMlJTX2ZWc3VCNGlvb2syQlYwWW8xSkRnNS1LTVBxR2ZTWWl2bzVjNE5PcUNxeU5KUllxZ0pnSFY3NWJtbUt5RWxVRXFiM3UxTUxjd2VrX3IyYzN3ck02dEREQ0hsT2V3NjFUQ0JfbnZPZG83R0Z2eUlWcUtpRUg0cGZMbEZZd2RMSDJub09ON3EwUDVuWmF4NA?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Warner Bros. investors approve $110 billion Paramount merger - MSN",
+      "summary": "Warner Bros. investors approve $110 billion Paramount merger &nbsp;&nbsp; MSN",
+      "published": "2026-05-07T22:26:56+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPOF9jNDd4N1NlQVhGVTFlWGhSWFQ5ZnlTakJpVUxuNFY4TS1nWG5NVW9LQ0p2ZkhYMjhma1habzE3NkZqbHl0aEtNemtVQUxmNHc0ei0tY0R5eUNaUEQ0QzRlUkxVWTdTY1ZHdVNnWV9KSDg1Y0dvRjhENFRfX3VaZjcwNllXeFNRX1ZtdmZGVlRjQTA1dFFtcUdtczZPdXM?oc=5",
+      "publisher_domain": "https://www.firstonline.info",
+      "title": "Angelini Pharma buys Catalyst for $4,1 billion and enters the U.S. - firstonline.info",
+      "summary": "Angelini Pharma buys Catalyst for $4,1 billion and enters the U.S. &nbsp;&nbsp; firstonline.info",
+      "published": "2026-05-07T11:59:28+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 37.7 Md€ détecté"
+        }
+      ],
+      "sector": "Healthcare",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 37720000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOcVpzSGFxNTJoNU5ZbmkwWU93WjNlbU1SM1RHMVhXT3pKQ2ZZaDFaaFdhOXl4SFNmekMzNlZscUlPR0xFUEdiY2trOEh5SU5MMXJNRW96LWN5enhtYWtlYnRaX3UyOEpTaTVmazhhWkhpQjU3VTdLZEF3OGU4VzEwU01mZ0xmbTdPcXhMaGp2MnVSZFAydmJ6cGw5Z0RvWmJRZHp5b1R3dWdSbk5L?oc=5",
+      "publisher_domain": "https://news.inbox.lv",
+      "title": "Paramount seals a $110 billion mega‑merger to take over Warner Bros - Inbox.lv",
+      "summary": "Paramount seals a $110 billion mega‑merger to take over Warner Bros &nbsp;&nbsp; Inbox.lv",
+      "published": "2026-05-07T16:46:16+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "DCM / Bonds",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxOelZUQWFOS0JybUpuTmRqWmYzZmhrd25hRU16RHZCLVI3OU5pdWhTN1lSc1BHaDA0WmhlNXo5UjYxdzZNOEFtMU50LWVKLW96eGk3QVVJdkpDdlhtTGlWcmhGR1d0ZUlteG9SdGxJWlZDZE82blJYS0JIVS15UmhMYXNHTkpZMXp0MlJ0a1hpNktlWGM0aGYwSWZoVi01Q2plT2k4cHhJQWdhcW42MDFia0ZxR2FBREgtSWJqazVfcmYtcjRHam5PTlh6cDhFTi0yUUdKalE3U2VMNDDSAdsBQVVfeXFMTnpWVEFhTktCcm1Kbk5kalpmM2Zoa3duYUVNekR2Qi1SNzlOaXVoUzdZUnNQR2gwNFpoZTV6OVI2MXc2TThBbTFOdC1lSi1venhpN0FVSXZKQ3ZYbUxpVnJoRkdXdGVJbXhvUnRsSVpWQ2RPNm5SWEtCSFUteVJoTGFzR05KWTF6dDJSdGtYaTZLZVhjNGhmMElmaFYtNUNqZU9pOHB4SUFnYXFuNjAxYmtGcUdhQURILUliams1X3JmLXI0R2puT05YenA4RU4tMlFHSmpRN1NlTDQw?oc=5",
+      "publisher_domain": "https://www.devdiscourse.com",
+      "title": "IFC Launches Public Green Bond in Hong Kong’s ‘Wonton Bond’ Market with HK$6 Billion Deal - Devdiscourse",
+      "summary": "IFC Launches Public Green Bond in Hong Kong’s ‘Wonton Bond’ Market with HK$6 Billion Deal &nbsp;&nbsp; Devdiscourse",
+      "published": "2026-05-08T10:20:52+00:00",
+      "source_count": 2,
+      "confidence": "high",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 5.5 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Asia",
+      "region": "APAC",
+      "deal_size_eur": 5520000000.0
+    },
+    {
+      "source": "Defense",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQQzR4TFRCREdjMXJYWHFITGtsek50TExoUG1xM0I3UkhJeDRwbGdtV0FhN01iRHpmd0N4Mm44ZDIxTnBVbXNKQkdGdGN5ajdYYW5kdHJCWkItZkRTZXRIdVpGNkRJNEljNlFBVnNHaDVLTXpvTjdBbmItbV9NVnpmMWlFRGlaNWVxVl9MVWRXTmJBeks0anlZeFdaSnBPZw?oc=5",
+      "publisher_domain": "https://defencesecurityasia.com",
+      "title": "Pakistan’s US$12 Billion HQ-19 Missile Shield Deal With China Could Redraw South Asia’s Nuclear Balance - Defence Security Asia",
+      "summary": "Pakistan’s US$12 Billion HQ-19 Missile Shield Deal With China Could Redraw South Asia’s Nuclear Balance &nbsp;&nbsp; Defence Security Asia",
+      "published": "2026-05-08T10:27:34+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 11.0 Md€ détecté"
+        }
+      ],
+      "sector": "Energy",
+      "geography": "Asia",
+      "region": "APAC",
+      "deal_size_eur": 11040000000.0
+    },
+    {
+      "source": "Distressed",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxOZnlrZXZsbjdqcFdwNFh0eE1yTmlSYnN5YkFHU1JhZlhwempLVzl2TkxoRDhWRm94elMyWnpHbUZOQ1hXa0RzNjVCQkhYMHV0ejlFTjY2N3BtaUE5QV8xNHVBZFRCUmhCaENaZ0FxVnpEcDZKX0d0RmpyeDVJZGVNdlIyQnZHckI4TF9kWGtzM2lyVm44eDAyaEZlVkRNREpHOG1fbXZrbjRORGZ6d0JnQ1RTNE1GZE00OEwycDhDcFM4R2NSMjItNmpn?oc=5",
+      "publisher_domain": "https://www.crunchyroll.com",
+      "title": "Japan Box Office: Detective Conan: Fallen Angel of the Highway Ranks No.3 in 4th Weekend - Crunchyroll",
+      "summary": "Japan Box Office: Detective Conan: Fallen Angel of the Highway Ranks No.3 in 4th Weekend &nbsp;&nbsp; Crunchyroll",
+      "published": "2026-05-08T01:40:00+00:00",
+      "source_count": 2,
+      "confidence": "high",
+      "alert_flags": [
+        {
+          "type": "FALLEN_ANGEL",
+          "severity": "high",
+          "reason": "Downgrade IG→HY (fallen angel) détecté"
+        }
+      ],
+      "sector": "Real Estate",
+      "geography": "Asia",
+      "region": "APAC",
+      "deal_size_eur": null
+    },
+    {
+      "source": "Retail / Luxe",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOeHNyZkEzY2hqOTJHMmNZLUdNaHN2YWF4QjBIb3Q2aVR0dTJpWHIyWUdKYTVJbVI5S0puWDJhZmFvbFVNbXJ5Qk9waEs0OE52QjBmNlZVOGxqUGg0aWpDZmhLaE5ZUV9HQ3RjXzBjMUk3YlpMUk9fNGdSSFl4aS1PR3h4bVdkX1FJRjd1Rm9sdmFmWEJvMXVTck96NTFjVGJGQ2xB?oc=5",
+      "publisher_domain": "https://www.thecity.nyc",
+      "title": "Deal or No Deal? Confusion Over Hochul’s $268 Billion Budget - THE CITY - NYC News",
+      "summary": "Deal or No Deal? Confusion Over Hochul’s $268 Billion Budget &nbsp;&nbsp; THE CITY - NYC News",
+      "published": "2026-05-07T14:32:27+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 246.6 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 246560000000.0
+    },
+    {
+      "source": "Banking M&A",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQLTRrbk4tSFdvUDVTSFBkRy1WcHM3a1JsOF9PS0FjTXFEZU9MeFZsNFBHSkhHajhFdnNBblhBd3hEVzFhcXg3TVYwVXZuc01XdmxyT1l6cG01eVFZdzhEcjBSQXNHb3A4WkUyMl9ZaUdPVmRaaHV3OGs1TFdPNkl6RldrQ3BZNGJkVGFHeGotOEs3N2doS083NE1IVXlIOEtGX0VoenNsVDRIOG9qVjdXcTlKU3hqNVIzREpCeWtWd2VzWDA?oc=5",
+      "publisher_domain": "https://www.businessdailyafrica.com",
+      "title": "Nigerian lender paid Sh15.8bn in National Bank acquisition - Business Daily",
+      "summary": "Nigerian lender paid Sh15.8bn in National Bank acquisition &nbsp;&nbsp; Business Daily",
+      "published": "2026-05-07T17:30:00+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 15.8 Md€ détecté"
+        }
+      ],
+      "sector": "Financials",
+      "geography": "Africa",
+      "region": "EMEA",
+      "deal_size_eur": 15800000000.0
+    }
+  ]
+}
