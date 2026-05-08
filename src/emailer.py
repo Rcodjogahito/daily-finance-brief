@@ -53,6 +53,15 @@ def send_email(
 
 
 def get_recipients() -> list[str]:
-    """Parse RECIPIENTS env var (comma-separated)."""
-    raw = os.environ.get("RECIPIENTS", "")
-    return [r.strip() for r in raw.split(",") if r.strip()]
+    """Merge RECIPIENTS env var with data/subscribers.json (deduped)."""
+    from src.subscribers import load_subscribers
+    env_raw = os.environ.get("RECIPIENTS", "")
+    env_list = [r.strip().lower() for r in env_raw.split(",") if r.strip()]
+    sub_list = [e.lower() for e in load_subscribers()]
+    seen: set[str] = set()
+    merged: list[str] = []
+    for e in env_list + sub_list:
+        if e not in seen:
+            seen.add(e)
+            merged.append(e)
+    return merged

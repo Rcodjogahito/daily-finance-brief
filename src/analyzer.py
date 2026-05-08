@@ -13,36 +13,38 @@ logger = logging.getLogger(__name__)
 
 _MODEL_NAME = "gemini-2.5-flash"  # Check https://ai.google.dev for latest free model
 
-SYSTEM_PROMPT = """Tu es un analyste senior en banque d'investissement (Leveraged Finance / M&A / Energy) au sein d'un CIB Tier-1.
-Tu prépares un brief quotidien pour ton équipe deal team.
-Style : dense, factuel, technique. Pas de bla-bla, pas d'évidences, pas de paraphrase creuse.
+SYSTEM_PROMPT = """Tu es un analyste senior en banque d'investissement (Leveraged Finance / M&A / Energy / DCM) au sein d'un CIB Tier-1 européen.
+Tu prépares un brief quotidien pour ton équipe deal team et tes seniors.
+Style : dense, factuel, technique, direct. Pas de bla-bla, pas d'évidences, pas de paraphrase creuse.
 
 RÈGLES DE FIABILITÉ ABSOLUES :
-- N'invente JAMAIS un fait, un chiffre, un nom ou un montant qui n'apparaît pas explicitement dans la news source fournie
-- Si une donnée est ambiguë ou incertaine, écris "à confirmer" plutôt que d'affirmer
-- Le "So what?" doit s'appuyer UNIQUEMENT sur les faits du résumé, jamais en extrapoler de nouveaux
-- Si tu n'as pas assez de matière fiable pour 10 news, mets-en moins (5, 7, etc.) plutôt que de remplir avec du faible"""
+- N'invente JAMAIS un fait, un chiffre, un nom ou un montant qui n'apparaît pas explicitement dans la source
+- Si une donnée est ambiguë, écris "à confirmer" plutôt que d'affirmer
+- Si tu n'as pas assez de matière fiable pour 10 news, mets-en moins (5-9 OK) plutôt que de remplir avec du faible
+- Pour l'analyse d'impact : tu peux faire des déductions raisonnables à partir des faits (ex: "ce downgrade implique une sortie des mandats IG") mais sans inventer de nouveaux faits"""
 
-USER_PROMPT_TEMPLATE = """À partir des news ci-dessous (collectées dans les dernières 24h), sélectionne les 10 max les plus pertinentes pour un professionnel CIB. Mets MOINS si le matériel ne le justifie pas.
+USER_PROMPT_TEMPLATE = """À partir des news ci-dessous (dernières 24h), sélectionne les 10 max les plus pertinentes pour un professionnel CIB. Mets MOINS si le matériel ne le justifie pas.
 
 CRITÈRES DE SÉLECTION (priorité décroissante) :
-1. Deal flow structurant : M&A >500M€, LBO majeurs, IPO sizables, mandates exclusifs
-2. Leveraged Finance / DCM : refis HY, leveraged loans, distressed, breach covenants
-3. Énergie : O&G majors, project finance, renewables, transition
-4. Crédit & ratings : downgrades/upgrades grands corporates, profit warnings
-5. Macro & banques centrales : décisions BCE/Fed/BoE, inflation, FX, taux
-6. Géopolitique à impact financier immédiat (sanctions, tariffs, conflits)
-7. Sectoriel structurant : défense (méga-contrats), tech (deals/earnings Big Tech), aviation (commandes >2Md€), luxe (M&A, profit warnings), retail/divertissement (consolidation), healthcare (deals pharma/biotech)
-8. Régulation financière à impact deal/marché
+1. Deal flow structurant : M&A >500M€, LBO, IPO, mandats exclusifs
+2. Leveraged Finance / DCM : refis HY, TLB, distressed, breach covenants, CLO
+3. Énergie : O&G majors, project finance, renewables, transition énergétique
+4. Crédit & ratings : downgrades/upgrades grands corporates, profit warnings, fallen angels
+5. Macro & banques centrales : BCE/Fed/BoE, inflation, CPI, taux directeurs, FX
+6. Géopolitique à impact financier direct : sanctions, tariffs, conflits, reshoring
+7. Nominations importantes : CEOs/CFOs/DGs de grandes institutions financières ou corporates
+8. Actualité bancaire : résultats banques, consolidation bancaire, régulation prudentielle, CET1, MREL
+9. Sectoriel structurant : défense, tech (deals/earnings Big Tech), aviation, luxe, pharma, real estate
+10. Régulation financière à impact deal/marché : Bâle IV, CSRD, taxonomie
 
-EXCLURE : politique non-éco, faits divers, sport, lifestyle, tech grand public sans angle financier, news redondantes.
+EXCLURE : politique sans angle économique, faits divers, sport, lifestyle, tech grand public sans angle financier.
 
-BONUS PERTINENCE : privilégie les news avec source_count ≥ 2 (corroborées).
+BONUS : privilégie les news avec source_count ≥ 2 (corroborées par plusieurs sources).
 
 POUR CHAQUE NEWS RETENUE, FORMAT JSON STRICT :
-{
+{{
   "rank": <int, 1=plus important>,
-  "category": <"M&A"|"LevFin"|"Energy"|"Credit"|"Macro"|"Geo"|"Reg"|"Sector">,
+  "category": <"M&A"|"LevFin"|"Energy"|"Credit"|"Macro"|"Geo"|"Reg"|"Sector"|"Nominations"|"Banking">,
   "headline": "<titre concis et impactant en français, 12 mots max>",
   "source": "<nom du média original>",
   "date": "<YYYY-MM-DD>",
@@ -51,23 +53,22 @@ POUR CHAQUE NEWS RETENUE, FORMAT JSON STRICT :
   "geography": "<géographie>",
   "deal_size_eur": <null OU montant EUR si EXPLICITEMENT dans la source>,
   "confidence": <"high"|"medium">,
-  "summary": "<2-3 phrases factuelles : qui, quoi, combien, quand. PARAPHRASE uniquement. UNIQUEMENT faits présents dans la source.>",
-  "so_what": "<2-3 phrases analyse niveau senior banker. S'appuie UNIQUEMENT sur les faits du summary.>"
-}
+  "summary": "<2-3 phrases factuelles : qui, quoi, combien, quand. Paraphrase uniquement des faits de la source.>",
+  "so_what": "<Analyse structurée en 3 points : (1) Impact immédiat sur les marchés ou l'opération concernée. (2) Conséquences potentielles pour les acteurs (banques, investisseurs, emprunteurs, concurrents). (3) Signal pour le deal flow CIB — opportunité ou risque à surveiller. Déductions raisonnables autorisées si fondées sur les faits du résumé.>"
+}}
 
 CONTRAINTES :
-- Réponds UNIQUEMENT en JSON valide : {"news": [...]}
+- Réponds UNIQUEMENT en JSON valide : {{"news": [...]}}
 - Aucun texte hors JSON, aucun markdown, aucun ```
-- Si <10 news pertinentes : ne mets que ce qui mérite (5-9 OK)
-- Si incohérences : confidence "medium" et "à confirmer" dans le summary
+- Analyse so_what : 3-5 phrases structurées, niveau banquier senior, directes et actionnables
 
 NEWS À ANALYSER :
 {news_json}
 """
 
-ALERT_PROMPT_TEMPLATE = """Tu es un analyste senior CIB. Rédige un "So what?" pour l'alerte suivante.
+ALERT_PROMPT_TEMPLATE = """Tu es un analyste senior CIB. Rédige une analyse d'impact pour l'alerte suivante.
 
-RÈGLE ABSOLUE : Appuie-toi UNIQUEMENT sur les faits présents dans le résumé. N'invente aucun fait.
+RÈGLES : Appuie-toi sur les faits du résumé. Des déductions raisonnables sont autorisées (ex: impact CLO pour un fallen angel) mais n'invente aucun fait nouveau.
 
 News :
 - Titre : {title}
@@ -77,7 +78,7 @@ News :
 - Raison : {alert_reason}
 
 Réponds en JSON valide UNIQUEMENT :
-{{"so_what": "<2-3 phrases d'analyse. Précis, technique, actionnable pour un banquier CIB.>"}}
+{{"so_what": "<Analyse en 3-4 phrases : (1) Impact immédiat. (2) Conséquences pour les acteurs. (3) Signal deal flow CIB. Précis, technique, actionnable.>"}}
 """
 
 
@@ -122,7 +123,7 @@ def _call_gemini(prompt: str) -> str:
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
             temperature=0.2,
-            max_output_tokens=4096,
+            max_output_tokens=16000,
             response_mime_type="application/json",
         ),
     )
@@ -186,19 +187,58 @@ def generate_alert_so_what(item: dict) -> str:
         return "Analyse indisponible — vérifier la source directement."
 
 
+def _heuristic_so_what(item: dict) -> str:
+    """Generate a category-based heuristic analysis when Gemini is unavailable."""
+    cat    = item.get("category", "Sector")
+    sector = item.get("sector", "Other")
+    geo    = item.get("geography", "Global")
+    deal   = item.get("deal_size_eur")
+    sc     = item.get("source_count", 1)
+
+    deal_str = f" ({deal/1e9:.1f} Md€)" if deal else ""
+    multi    = f" — corroboré par {sc} sources" if sc >= 2 else ""
+
+    templates = {
+        "M&A":         f"Transaction M&A{deal_str} dans le secteur {sector} ({geo}){multi}. Évaluer structure de financement, valorisation et timeline de closing. Impact deal flow à surveiller.",
+        "LevFin":      f"Event crédit leveraged{deal_str} ({sector}, {geo}){multi}. Surveiller les conditions de pricing HY, l'appétit du marché et les implications pour le pipeline DCM.",
+        "Credit":      f"Event de crédit affectant {sector} ({geo}){multi}. Analyser l'impact sur les spreads, les mandats IG/HY et le repricing des actifs comparables.",
+        "Energy":      f"Développement énergétique{deal_str} ({geo}). Watch : project finance, conditions d'offtake, implications commodités et financement transition.",
+        "Macro":       f"Signal macro ({geo}). Implications pour les conditions de financement, les taux de référence et le sentiment de marché à court terme.",
+        "Geo":         f"Risque géopolitique ({geo}). Surveiller l'impact sur les flux de capitaux, les spreads souverains et les opérations exposées à cette zone.",
+        "Reg":         f"Développement réglementaire impactant {sector} ({geo}). Évaluer les effets sur les structures de deal, les exigences de capital et les délais d'exécution.",
+        "Nominations": f"Nomination dans le secteur {sector} ({geo}). Signal d'orientation stratégique : surveiller la continuité ou l'inflexion de la politique d'allocation et de risque.",
+        "Banking":     f"Actualité bancaire ({geo}). Impact potentiel sur les conditions de crédit, les ratios de capital et la posture de risque des établissements concernés.",
+        "Sector":      f"Développement sectoriel — {sector} ({geo}){deal_str}{multi}. Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+    }
+    return templates.get(cat, f"News {sector}/{geo} — vérifier les implications pour le deal flow et les actifs exposés.")
+
+
 def _fallback_selection(candidates: list[dict]) -> list[dict]:
-    """Fallback when Gemini is unavailable: return top N by source priority + source_count."""
+    """Fallback when Gemini is unavailable: return top N by source priority + source_count.
+    Caps at 2 items per source to enforce diversity."""
     from src.filters import _source_priority
 
     def score(item: dict) -> float:
         return _source_priority(item.get("source", "")) + item.get("source_count", 1) * 0.5
 
-    sorted_items = sorted(candidates, key=score, reverse=True)[:10]
+    sorted_candidates = sorted(candidates, key=score, reverse=True)
+
+    # Apply per-source cap (max 2 per source) for diversity
+    source_counts: dict[str, int] = {}
+    diverse: list[dict] = []
+    for item in sorted_candidates:
+        src = item.get("source", "")
+        if source_counts.get(src, 0) < 2:
+            diverse.append(item)
+            source_counts[src] = source_counts.get(src, 0) + 1
+        if len(diverse) >= 10:
+            break
+
     result = []
-    for i, item in enumerate(sorted_items, 1):
-        result.append({
+    for i, item in enumerate(diverse, 1):
+        enriched = {
             "rank": i,
-            "category": "Sector",
+            "category": item.get("category", "Sector"),
             "headline": item.get("title", "")[:80],
             "source": item.get("source", ""),
             "date": item.get("published", "")[:10],
@@ -209,9 +249,10 @@ def _fallback_selection(candidates: list[dict]) -> list[dict]:
             "confidence": item.get("confidence", "medium"),
             "source_count": item.get("source_count", 1),
             "summary": item.get("summary", "")[:300],
-            "so_what": "[Analyse LLM indisponible — Gemini API hors service]",
             "alert_flags": [],
-        })
+        }
+        enriched["so_what"] = _heuristic_so_what(enriched)
+        result.append(enriched)
     return result
 
 

@@ -7,17 +7,22 @@ import pandas as pd
 import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
-from src.styles import inject_css, sidebar_brand, news_card
+from src.enrichment import REGION_GEO_MAP
+from src.styles import inject_css, sidebar_brand, page_toolbar, news_card, CATEGORY_LABELS
 
 st.set_page_config(page_title="Recherche — Daily Finance Brief", page_icon="", layout="wide")
 inject_css()
 sidebar_brand()
+
+page_toolbar()
 
 st.markdown(
     '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
     unsafe_allow_html=True,
 )
 st.title("Recherche")
+
+_ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
 
 
 @st.cache_data(ttl=3600)
@@ -36,6 +41,7 @@ def load_all_news_flat() -> list[dict]:
                 "source":       item.get("source", ""),
                 "sector":       item.get("sector", "Other"),
                 "geography":    item.get("geography", "Global"),
+                "region":       item.get("region", "Global"),
                 "confidence":   item.get("confidence", "medium"),
                 "deal_size_eur":item.get("deal_size_eur"),
                 "url":          item.get("url", ""),
@@ -52,27 +58,42 @@ if not all_news:
     st.warning("Aucune donnée disponible.")
     st.stop()
 
-# ── Search ─────────────────────────────────────────────────────────────────
+# ── Sidebar filters ────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("### Filtres")
+
+    date_min = st.date_input("Date min", value=datetime.now() - timedelta(days=90))
+    date_max = st.date_input("Date max", value=datetime.now())
+
+    st.markdown("---")
+
+    all_cat_keys = sorted({n["category"] for n in all_news})
+    cat_label_map = {CATEGORY_LABELS.get(c, c): c for c in all_cat_keys}
+    selected_cat_labels = st.multiselect(
+        "Type d'information", list(cat_label_map.keys()), default=list(cat_label_map.keys())
+    )
+    selected_cats = [cat_label_map[l] for l in selected_cat_labels]
+
+    selected_regions = st.multiselect("Région", _ALL_REGIONS, default=_ALL_REGIONS)
+
+    sources = sorted({n["source"] for n in all_news})
+    selected_sources = st.multiselect("Sources", sources, default=sources)
+
+    sectors = sorted({n["sector"] for n in all_news})
+    selected_sectors = st.multiselect("Secteurs", sectors, default=sectors)
+
+    confidence_filter = st.radio("Fiabilité", ["Toutes", "High only"], horizontal=True)
+
+# ── Search bar ─────────────────────────────────────────────────────────────
 query = st.text_input(
     "Recherche",
-    placeholder="ex: LBO, TotalEnergies, BCE, refinancement...",
+    placeholder="ex: LBO, TotalEnergies, BCE, refinancement, nominated...",
 )
 
-with st.expander("Filtres avancés", expanded=bool(query)):
-    col1, col2 = st.columns(2)
-    with col1:
-        date_min       = st.date_input("Date min", value=datetime.now() - timedelta(days=90))
-        cats           = sorted({n["category"] for n in all_news})
-        selected_cats  = st.multiselect("Catégories", cats, default=cats)
-        sectors        = sorted({n["sector"] for n in all_news})
-        selected_sectors = st.multiselect("Secteurs", sectors, default=sectors)
-    with col2:
-        date_max       = st.date_input("Date max", value=datetime.now())
-        sources        = sorted({n["source"] for n in all_news})
-        selected_sources = st.multiselect("Sources", sources, default=sources)
-        geos           = sorted({n["geography"] for n in all_news})
-        selected_geos  = st.multiselect("Géographies", geos, default=geos)
-    confidence_filter = st.radio("Fiabilité", ["Toutes", "High only"], horizontal=True)
+# Build allowed geos from region filter
+allowed_geos: set[str] = set()
+for r in selected_regions:
+    allowed_geos |= REGION_GEO_MAP.get(r, set())
 
 
 def matches(item: dict, q: str) -> bool:
@@ -102,7 +123,7 @@ results = [
     and n.get("category", "") in selected_cats
     and n.get("sector", "") in selected_sectors
     and n.get("source", "") in selected_sources
-    and n.get("geography", "") in selected_geos
+    and (not selected_regions or n.get("geography", "Global") in allowed_geos)
     and (confidence_filter == "Toutes" or n.get("confidence") == "high")
 ]
 results.sort(key=lambda n: n.get("date", ""), reverse=True)
@@ -130,12 +151,13 @@ with col_e1:
 with col_e2:
     buf = _io.StringIO()
     w   = _csv.writer(buf, quoting=_csv.QUOTE_ALL)
-    w.writerow(["Date", "Category", "Headline", "Source", "Sector", "Geography", "Deal_Size_Bn_EUR", "Confidence", "URL"])
+    w.writerow(["Date", "Category", "Headline", "Source", "Sector", "Geography", "Region", "Deal_Size_Bn_EUR", "Confidence", "URL"])
     for r in results:
         deal = r.get("deal_size_eur")
         w.writerow([
             r.get("date",""), r.get("category",""), r.get("headline",""),
             r.get("source",""), r.get("sector",""), r.get("geography",""),
+            r.get("region",""),
             f"{deal/1e9:.2f}" if deal else "", r.get("confidence",""), r.get("url",""),
         ])
     st.download_button(

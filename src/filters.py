@@ -17,27 +17,40 @@ SOURCE_PRIORITY: dict[str, int] = {
 }
 
 WHITELIST: list[str] = [
-    # M&A
+    # M&A / Deals
     "m&a", "merger", "acquisition", "acquires", "acquired", "buyout", "lbo",
     "private equity", "sponsor", "carve-out", "spin-off", "ipo", "tender offer",
-    "fusion", "rachat", "opa", "ope",
+    "fusion", "rachat", "opa", "ope", "takeover", "bid",
     # LevFin/DCM
     "leveraged loan", "high yield", "refinancing", "refinanced", "covenant",
     "term loan", "tlb", "syndicated", "bond issuance", "clo", "pik", "distressed",
-    "restructuring", "chapter 11", "default", "refinancement",
+    "restructuring", "chapter 11", "default", "refinancement", "mrel", "at1",
+    "schuldschein", "green bond", "sustainability-linked",
     # Crédit/Ratings
     "downgrade", "upgrade", "outlook negative", "outlook positive", "profit warning",
     "guidance cut", "degradation", "rehaussement", "avertissement sur resultats",
+    "fallen angel", "investment grade", "speculative grade", "junk",
     # Énergie
     "offtake", "ppa", "project finance", "fid", "lng", "oil major", "renewables",
     "wind farm", "solar", "transition energetique", "hydrogen",
     # Macro
     "ecb", "fed ", "boe", "bce", "rate hike", "rate cut", "inflation", "cpi", "pmi",
-    "taux directeur",
+    "taux directeur", "quantitative", "yield curve", "basis points", "bps",
+    # Nominations importantes
+    "appointed ceo", "appointed cfo", "named ceo", "named cfo", "nommé directeur",
+    "new chief executive", "new cfo", "president appointed", "chairman named",
+    "chief financial officer", "chief executive officer", "directeur général",
+    # Actualité bancaire
+    "bank results", "banking sector", "cet1", "tier 1", "capital ratio",
+    "stress test", "eba ", "ecb supervision", "npls", "non-performing",
+    "bale iv", "basel iv", "banking union", "consolidation bancaire",
+    "merger of banks", "bank acquisition", "banco", "résultats bancaires",
     # Sectoriel
     "earnings", "revenue", "guidance", "contract", "mandate", "order book", "backlog",
     "defense", "defence", "aerospace", "pharma", "luxury", "retail", "streaming",
     "dividend", "capital raise", "rights issue", "bond", "debt",
+    # Géopolitique
+    "sanctions", "tariffs", "trade war", "geopolitical", "reshoring", "conflict",
 ]
 
 BLACKLIST: list[str] = [

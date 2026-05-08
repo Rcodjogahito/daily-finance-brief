@@ -6,7 +6,7 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
-from src.styles import inject_css, sidebar_brand
+from src.styles import inject_css, sidebar_brand, page_toolbar
 
 st.set_page_config(page_title="Alertes — Daily Finance Brief", page_icon="", layout="wide")
 inject_css()
@@ -22,6 +22,8 @@ ALERT_LABELS = {
     "FALLEN_ANGEL":   "Fallen Angel",
     "PROFIT_WARNING": "Profit Warning",
 }
+
+page_toolbar()
 
 st.markdown(
     '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
@@ -111,11 +113,11 @@ if not filtered_alerts:
 
 # ── Alert cards ────────────────────────────────────────────────────────────
 for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=True):
-    flags  = alert.get("alert_flags", [{}])
-    atype  = flags[0].get("type", "ALERT") if flags else "ALERT"
+    flags   = alert.get("alert_flags", [{}])
+    atype   = flags[0].get("type", "ALERT") if flags else "ALERT"
     areason = flags[0].get("reason", "") if flags else ""
-    color  = ALERT_COLORS.get(atype, "#374151")
-    label  = ALERT_LABELS.get(atype, atype.replace("_", " "))
+    color   = ALERT_COLORS.get(atype, "#374151")
+    label   = ALERT_LABELS.get(atype, atype.replace("_", " "))
 
     headline = alert.get("headline", alert.get("title", ""))
     deal_str = ""
@@ -126,6 +128,8 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
     sep = ' <span style="color:#D1D5DB">·</span> '
     meta = sep.join(p for p in meta_parts if p)
 
+    url = alert.get("url", "")
+
     with st.container():
         st.markdown(
             f'<div style="padding:16px 0 8px">'
@@ -135,40 +139,59 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
             f'</div>',
             unsafe_allow_html=True,
         )
-        url = alert.get("url", "")
         st.markdown(
             f'<a href="{url}" target="_blank" style="font-size:16px;font-weight:700;'
             f'color:#0B1D2E;text-decoration:none;display:block;margin-bottom:5px">{headline}</a>',
             unsafe_allow_html=True,
         )
         st.markdown(
-            f'<div style="font-size:11px;color:#9CA3AF;margin-bottom:8px">{meta}</div>',
+            f'<div style="font-size:11px;color:#9CA3AF;margin-bottom:10px">{meta}</div>',
             unsafe_allow_html=True,
         )
+
+        # Alert reason — always visible
         if areason:
             st.markdown(
                 f'<div style="font-size:12px;color:#7F1D1D;font-weight:600;'
                 f'background:#FEF2F2;border:1px solid #FECACA;border-radius:2px;'
-                f'padding:6px 10px;margin-bottom:8px">{areason}</div>',
+                f'padding:6px 10px;margin-bottom:10px">{areason}</div>',
                 unsafe_allow_html=True,
             )
 
-        with st.expander("Résumé + So What"):
+        # Summary — always visible
+        if alert.get("summary"):
             st.markdown(
                 f'<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">{alert.get("summary","")}</div>',
                 unsafe_allow_html=True,
             )
-            if alert.get("so_what"):
-                st.markdown(
-                    f'<div style="background:#F0F6FF;border-left:2px solid #1565C0;'
-                    f'padding:10px 14px;border-radius:0 3px 3px 0">'
-                    f'<span style="font-size:8.5px;font-weight:700;letter-spacing:1.8px;'
-                    f'text-transform:uppercase;color:#1565C0;display:block;margin-bottom:5px">So What</span>'
-                    f'<span style="font-size:13px;line-height:1.65;color:#1E3A5F">{alert["so_what"]}</span>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-            if url:
-                st.markdown(f'<a href="{url}" target="_blank" style="font-size:12px;color:#1565C0;font-weight:500;text-decoration:none">Lire l\'article source</a>', unsafe_allow_html=True)
+
+        # Analyse d'impact — always visible, prominent
+        so_what = alert.get("so_what", "")
+        if so_what:
+            st.markdown(
+                f'<div style="background:#FEF9F5;border-left:3px solid {color};'
+                f'padding:12px 16px;border-radius:0 3px 3px 0;margin-bottom:10px">'
+                f'<span style="font-size:8px;font-weight:700;letter-spacing:2px;'
+                f'text-transform:uppercase;color:{color};display:block;margin-bottom:7px">'
+                f'Analyse d\'impact &amp; conséquences</span>'
+                f'<span style="font-size:13px;line-height:1.7;color:#1E1E1E">{so_what}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                '<div style="background:#F9FAFB;border-left:3px solid #D1D5DB;'
+                'padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:10px">'
+                '<span style="font-size:11px;color:#9CA3AF;font-style:italic">'
+                'Analyse d\'impact en cours de génération.</span>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+
+        if url:
+            st.markdown(
+                f'<a href="{url}" target="_blank" style="font-size:12px;color:#1565C0;font-weight:500;text-decoration:none">Lire l\'article source</a>',
+                unsafe_allow_html=True,
+            )
 
         st.markdown('<div style="border-top:1px solid #E9ECF0;margin-top:12px"></div>', unsafe_allow_html=True)

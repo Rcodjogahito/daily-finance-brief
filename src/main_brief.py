@@ -10,7 +10,7 @@ import pytz
 from src.alert_detector import detect_hot_alerts
 from src.analyzer import analyze_news, post_verify_llm_output
 from src.archiver import git_commit_and_push, save_brief
-from src.collectors.rss_collector import collect_all_sources
+from src.collectors.rss_collector import collect_all_sources, resolve_gnews_urls
 from src.emailer import get_recipients, send_email
 from src.enrichment import enrich_all
 from src.filters import apply_filters
@@ -122,6 +122,9 @@ def main() -> None:
     # 7. Post-verify LLM output
     final = post_verify_llm_output(selected, enriched)
     stats["post_verified"] = len(final)
+
+    # 7b. Resolve Google News proxy URLs → real article URLs
+    final = resolve_gnews_urls(final)
 
     # Fallback banner if low volume
     low_volume = len(final) < 3

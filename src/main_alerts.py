@@ -10,7 +10,7 @@ import pytz
 from src.alert_detector import detect_hot_alerts
 from src.analyzer import generate_alert_so_what
 from src.archiver import git_commit_and_push, save_alerts
-from src.collectors.rss_collector import collect_all_sources
+from src.collectors.rss_collector import collect_all_sources, resolve_gnews_urls
 from src.emailer import get_recipients, send_email
 from src.enrichment import enrich_all
 from src.filters import apply_filters
@@ -106,6 +106,7 @@ def main() -> None:
 
     # 5. Detect hot alerts (pure heuristics — no LLM)
     alerts = detect_hot_alerts(enriched)
+    alerts = resolve_gnews_urls(alerts)
     logger.info('"Alerts detected: %d"', len(alerts))
 
     if not alerts:

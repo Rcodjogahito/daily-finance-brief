@@ -7,7 +7,19 @@ from pathlib import Path
 import streamlit as st
 
 from src.archiver import list_brief_dates, list_alert_dates, load_brief, load_alerts
-from src.styles import inject_css, sidebar_brand, news_card, CATEGORY_COLORS
+from src.enrichment import REGION_GEO_MAP
+from src.styles import inject_css, sidebar_brand, page_toolbar, news_card, CATEGORY_COLORS, CATEGORY_LABELS, ALL_CATEGORIES
+
+
+_ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
+
+
+def _geos_for_regions(selected_regions: list[str]) -> set[str]:
+    """Return the set of geographies that fall within any of the selected regions."""
+    geos: set[str] = set()
+    for r in selected_regions:
+        geos |= REGION_GEO_MAP.get(r, set())
+    return geos
 
 
 def _build_bloomberg_csv(news: list[dict], date: str) -> bytes:
@@ -15,7 +27,7 @@ def _build_bloomberg_csv(news: list[dict], date: str) -> bytes:
     writer = _csv.writer(buf, quoting=_csv.QUOTE_ALL)
     writer.writerow([
         "Date", "Rank", "Category", "Headline", "Source",
-        "Sector", "Geography", "Deal_Size_Bn_EUR", "Confidence",
+        "Sector", "Geography", "Region", "Deal_Size_Bn_EUR", "Confidence",
         "Source_Count", "URL", "Summary",
     ])
     for item in news:
@@ -24,7 +36,8 @@ def _build_bloomberg_csv(news: list[dict], date: str) -> bytes:
             item.get("date", date), item.get("rank", ""),
             item.get("category", ""), item.get("headline", ""),
             item.get("source", ""), item.get("sector", ""),
-            item.get("geography", ""), f"{deal/1e9:.2f}" if deal else "",
+            item.get("geography", ""), item.get("region", ""),
+            f"{deal/1e9:.2f}" if deal else "",
             item.get("confidence", ""), item.get("source_count", 1),
             item.get("url", ""), item.get("summary", "")[:200].replace("\n", " "),
         ])
@@ -71,6 +84,7 @@ st.sidebar.page_link("pages/1_📅_Historique.py",     label="Historique")
 st.sidebar.page_link("pages/2_🔥_Alertes.py",        label="Alertes")
 st.sidebar.page_link("pages/3_🌍_Heatmap.py",        label="Heatmap deals")
 st.sidebar.page_link("pages/4_🔍_Recherche.py",      label="Recherche")
+st.sidebar.page_link("pages/5_📧_Abonnement.py",     label="Abonnement email")
 st.sidebar.markdown("---")
 
 total_alerts = sum(
@@ -82,6 +96,13 @@ st.sidebar.metric("Alertes (30 j)", total_alerts)
 st.sidebar.metric("Dernière MAJ", dates[0] if dates else "—")
 
 # ── Header ─────────────────────────────────────────────────────────────────
+page_toolbar()
+
+# Handle subscription query param (?page=abonnement)
+_qp = st.query_params
+if _qp.get("page") == "abonnement":
+    st.switch_page("pages/5_📧_Abonnement.py")
+
 st.markdown(
     '<div style="margin-bottom:4px">'
     '<span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF">Coffee Economics News</span>'
@@ -149,10 +170,53 @@ if brief.get("low_volume"):
 
 st.markdown("---")
 
-# ── Category filter ────────────────────────────────────────────────────────
-cats          = sorted({item.get("category", "Sector") for item in news})
-selected_cats = st.multiselect("Catégories", cats, default=cats, key="main_cat_filter")
-filtered_news = [n for n in news if n.get("category", "Sector") in selected_cats]
+# ── Filters ────────────────────────────────────────────────────────────────
+fcol1, fcol2, fcol3 = st.columns(3)
+
+with fcol1:
+    st.markdown(
+        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Région</div>',
+        unsafe_allow_html=True,
+    )
+    selected_regions = st.multiselect(
+        "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region", label_visibility="collapsed",
+    )
+
+with fcol2:
+    st.markdown(
+        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Type d\'information</div>',
+        unsafe_allow_html=True,
+    )
+    cats_present  = sorted({item.get("category", "Sector") for item in news})
+    cat_options   = {CATEGORY_LABELS.get(c, c): c for c in cats_present}
+    selected_labels = st.multiselect(
+        "Type", list(cat_options.keys()), default=list(cat_options.keys()), key="main_cat", label_visibility="collapsed",
+    )
+    selected_cats = [cat_options[l] for l in selected_labels]
+
+with fcol3:
+    st.markdown(
+        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Secteur</div>',
+        unsafe_allow_html=True,
+    )
+    sectors_present = sorted({item.get("sector", "Other") for item in news})
+    selected_sectors = st.multiselect(
+        "Secteur", sectors_present, default=sectors_present, key="main_sector", label_visibility="collapsed",
+    )
+
+# Apply filters
+allowed_geos = _geos_for_regions(selected_regions) if selected_regions else set()
+filtered_news = [
+    n for n in news
+    if n.get("category", "Sector") in selected_cats
+    and n.get("sector", "Other") in selected_sectors
+    and (not selected_regions or n.get("geography", "Global") in allowed_geos)
+]
+
+st.markdown(
+    f'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:8px 0 12px">{len(filtered_news)} news affichées</div>',
+    unsafe_allow_html=True,
+)
 
 # ── News cards ─────────────────────────────────────────────────────────────
 for item in filtered_news:

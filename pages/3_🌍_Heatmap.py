@@ -7,10 +7,18 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
+from src.styles import inject_css, sidebar_brand, page_toolbar
 
-st.set_page_config(page_title="Heatmap — Daily Finance Brief", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="Heatmap — Daily Finance Brief", page_icon="", layout="wide")
+inject_css()
+sidebar_brand()
+page_toolbar()
 
-st.title("🌍 Heatmap Deals Secteur × Géographie")
+st.markdown(
+    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
+    unsafe_allow_html=True,
+)
+st.title("Heatmap Deals Secteur x Géographie")
 
 # Load all news from all briefs
 @st.cache_data(ttl=3600)
@@ -148,12 +156,15 @@ if not df_detail.empty:
         deal_str = f" — **{row['deal_size_eur']/1e9:.1f} Md€**" if pd.notna(row.get("deal_size_eur")) else ""
         st.markdown(
             f"- [{row['headline'][:80]}]({row['url']}){deal_str}  \n"
-            f"  📰 {row['source']} &nbsp; 📍 {row['geography']} &nbsp; 🗓 {str(row['date'])[:10]}"
+            f"  {row['source']} · {row['geography']} · {str(row['date'])[:10]}"
         )
 
 # ── Top 10 deals ───────────────────────────────────────────────────────────
 st.markdown("---")
-st.markdown("### Top 10 deals par montant (période sélectionnée)")
+st.markdown(
+    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:12px">Top 10 deals par montant</div>',
+    unsafe_allow_html=True,
+)
 
 df_top = df[df["deal_size_eur"].notna()].copy()
 df_top = df_top.sort_values("deal_size_eur", ascending=False).head(10)

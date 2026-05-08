@@ -6,17 +6,22 @@ from pathlib import Path
 import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
-from src.styles import inject_css, sidebar_brand, news_card
+from src.enrichment import REGION_GEO_MAP
+from src.styles import inject_css, sidebar_brand, page_toolbar, news_card, CATEGORY_LABELS
 
 st.set_page_config(page_title="Historique — Daily Finance Brief", page_icon="", layout="wide")
 inject_css()
 sidebar_brand()
+
+page_toolbar()
 
 st.markdown(
     '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
     unsafe_allow_html=True,
 )
 st.title("Historique des briefs")
+
+_ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
 
 dates = list_brief_dates()
 if not dates:
@@ -30,35 +35,48 @@ with st.sidebar:
         options=dates,
         format_func=lambda d: datetime.strptime(d, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize(),
     )
-    all_cats = ["M&A", "LevFin", "Energy", "Credit", "Macro", "Geo", "Reg", "Sector"]
-    selected_cats = st.multiselect("Catégories", all_cats, default=all_cats)
+    st.markdown("---")
+
+    all_cats = [
+        "M&A", "LevFin", "Energy", "Credit", "Macro", "Geo", "Reg", "Sector", "Nominations", "Banking",
+    ]
+    cat_label_map = {CATEGORY_LABELS.get(c, c): c for c in all_cats}
+    selected_cat_labels = st.multiselect(
+        "Type d'information", list(cat_label_map.keys()), default=list(cat_label_map.keys()),
+    )
+    selected_cats = [cat_label_map[l] for l in selected_cat_labels]
+
+    all_regions = _ALL_REGIONS
+    selected_regions = st.multiselect("Région", all_regions, default=all_regions)
+
     all_sectors = [
         "Energy", "Financials", "Healthcare", "TMT", "Industrials",
         "Aviation", "Defense", "Consumer", "Luxury", "Entertainment",
         "Real Estate", "Materials", "Services", "Other",
     ]
     selected_sectors = st.multiselect("Secteurs", all_sectors, default=all_sectors)
-    all_geos = [
-        "France", "UK", "Germany", "Italy", "Spain", "Nordics", "Benelux",
-        "Other Europe", "USA", "Canada", "MENA", "Africa", "Asia", "LatAm", "Global",
-    ]
-    selected_geos = st.multiselect("Géographies", all_geos, default=all_geos)
 
 brief = load_brief(selected_date)
 if not brief:
     st.error(f"Brief du {selected_date} introuvable.")
     st.stop()
 
-news     = brief.get("news", [])
+news = brief.get("news", [])
+
+# Resolve region filter to geographies
+allowed_geos: set[str] = set()
+for r in selected_regions:
+    allowed_geos |= REGION_GEO_MAP.get(r, set())
+
 filtered = [
     n for n in news
     if n.get("category", "Sector") in selected_cats
     and n.get("sector", "Other") in selected_sectors
-    and n.get("geography", "Global") in selected_geos
+    and (not selected_regions or n.get("geography", "Global") in allowed_geos)
 ]
 
 date_fmt = datetime.strptime(selected_date, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize()
-st.markdown(f'<div style="color:#6B7A8E;font-size:13px;margin-bottom:16px">{date_fmt} &nbsp;·&nbsp; {len(filtered)} news</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="color:#6B7A8E;font-size:13px;margin-bottom:16px">{date_fmt} &nbsp;·&nbsp; {len(filtered)} news affichées</div>', unsafe_allow_html=True)
 
 s = brief.get("stats", {})
 c1, c2, c3 = st.columns(3)

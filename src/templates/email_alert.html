@@ -92,7 +92,7 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-brand">Coffee Economics News</div>
-    <div class="alert-badge">&#9888; {{ alert_type | replace('_', ' ') }}</div>
+    <div class="alert-badge">HOT ALERT &mdash; {{ alert_type | replace('_', ' ') }}</div>
     <div class="header-headline">{{ item.get('headline', item.get('title', '')) }}</div>
   </div>
 
@@ -126,6 +126,11 @@
   <div class="footer">
     <a href="{{ streamlit_url }}" class="footer-link">Dashboard &nbsp;&middot;&nbsp; Historique &nbsp;&middot;&nbsp; Toutes les alertes</a>
     <div class="footer-copy">Coffee Economics News &nbsp;&middot;&nbsp; {{ generated_at }}</div>
+    {% if streamlit_url %}
+    <div style="margin-top:10px;font-size:9px;color:#2A4A62;letter-spacing:0.5px">
+      <a href="{{ streamlit_url }}?page=abonnement" style="color:#3A6480;text-decoration:none">G&eacute;rer mon abonnement &nbsp;&middot;&nbsp; Se d&eacute;sinscrire</a>
+    </div>
+    {% endif %}
   </div>
 
 </div>

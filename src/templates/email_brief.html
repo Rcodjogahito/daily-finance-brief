@@ -159,7 +159,7 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-brand">Coffee Economics News</div>
-    <div class="header-title">Daily Finance Brief</div>
+    <h1 class="header-title">Daily Finance Brief</h1>
     <div class="header-date">{{ brief.date | replace('-', ' · ') }}</div>
     {% if streamlit_url %}
     <hr class="header-divider">
@@ -240,6 +240,11 @@
   <div class="footer">
     <a href="{{ streamlit_url }}" class="footer-link">Historique &nbsp;&middot;&nbsp; Alertes &nbsp;&middot;&nbsp; Heatmap &nbsp;&middot;&nbsp; Recherche &nbsp;&middot;&nbsp; Export PDF</a>
     <div class="footer-copy">Coffee Economics News &nbsp;&middot;&nbsp; Veille automatis&eacute;e</div>
+    {% if streamlit_url %}
+    <div style="margin-top:10px;font-size:9px;color:#2A4A62;letter-spacing:0.5px">
+      <a href="{{ streamlit_url }}?page=abonnement" style="color:#3A6480;text-decoration:none">G&eacute;rer mon abonnement &nbsp;&middot;&nbsp; Se d&eacute;sinscrire</a>
+    </div>
+    {% endif %}
   </div>
 
 </div>

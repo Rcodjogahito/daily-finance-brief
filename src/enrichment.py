@@ -1,4 +1,4 @@
-"""Sector, geography, and deal size extraction from news text."""
+"""Sector, geography, deal size extraction, and regional grouping."""
 import re
 from typing import Optional
 
@@ -33,6 +33,26 @@ SECTOR_MAP: dict[str, list[str]] = {
     "Materials":     ["mining", "steel", "cement", "commodity", "copper", "lithium",
                       "aluminium", "aluminum"],
     "Services":      ["consulting", "outsourcing", "services", "facility management"],
+}
+
+# Mapping geography → macro-region for the UI region filter
+GEO_TO_REGION: dict[str, str] = {
+    "France": "Europe", "UK": "Europe", "Germany": "Europe", "Italy": "Europe",
+    "Spain": "Europe", "Nordics": "Europe", "Benelux": "Europe", "Other Europe": "Europe",
+    "MENA": "EMEA", "Africa": "EMEA",
+    "USA": "Amériques", "Canada": "Amériques", "LatAm": "Amériques",
+    "Asia": "APAC",
+    "Global": "Global",
+}
+
+# Region → set of geographies (used by Streamlit filters)
+REGION_GEO_MAP: dict[str, set[str]] = {
+    "Europe":    {"France", "UK", "Germany", "Italy", "Spain", "Nordics", "Benelux", "Other Europe"},
+    "EMEA":      {"France", "UK", "Germany", "Italy", "Spain", "Nordics", "Benelux", "Other Europe", "MENA", "Africa"},
+    "APAC":      {"Asia"},
+    "Afrique":   {"Africa"},
+    "Amériques": {"USA", "Canada", "LatAm"},
+    "Global":    {"Global"},
 }
 
 GEO_MAP: dict[str, list[str]] = {
@@ -131,12 +151,18 @@ def detect_geography(text: str, geo_map: dict) -> Optional[str]:
     return None
 
 
+def detect_region(geography: str) -> str:
+    """Map a geography string to its macro-region."""
+    return GEO_TO_REGION.get(geography, "Global")
+
+
 def enrich_news(item: dict) -> dict:
-    """Enrich a news item with sector, geography, and deal size."""
+    """Enrich a news item with sector, geography, region, and deal size."""
     text = (item.get("title", "") + " " + item.get("summary", "")).lower()
 
-    item["sector"] = detect_sector(text, SECTOR_MAP) or "Other"
-    item["geography"] = detect_geography(text, GEO_MAP) or "Global"
+    item["sector"]      = detect_sector(text, SECTOR_MAP) or "Other"
+    item["geography"]   = detect_geography(text, GEO_MAP) or "Global"
+    item["region"]      = detect_region(item["geography"])
     item["deal_size_eur"] = extract_amount_eur(text)
 
     return item
