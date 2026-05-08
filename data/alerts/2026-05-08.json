@@ -1,6 +1,6 @@
 {
   "date": "2026-05-08",
-  "generated_at": "2026-05-08T14:19:14.396236+02:00",
+  "generated_at": "2026-05-08T18:56:33.993632+02:00",
   "alerts": [
     {
       "source": "FT Companies",
@@ -358,6 +358,132 @@
       "geography": "Global",
       "region": "Global",
       "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "FT Companies",
+      "url": "https://www.ft.com/content/c0023a3e-08ec-44e8-80a6-f9abb343c52e",
+      "publisher_domain": "",
+      "title": "Ryan Cohen, GameStop’s rebel CEO",
+      "summary": "His $56bn hostile bid for eBay has baffled Wall Street, but it could be the world’s first meme stock-driven deal",
+      "published": "2026-05-08T14:43:52+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 51.5 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "USA",
+      "region": "Amériques",
+      "deal_size_eur": 51520000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNaDkwZVQ2UW9GaEp1QUo2dkk3Ul9ZeTcyVlJIQUxWN3luUHo0Q0pnU2RBYWpoOWFxV2xvMXl2bGhsZFBOODdLdHJqYWxJZHJTQUpteWhJcTh1R25zU29nV0xlUHVXb2g4eWJkZTMtNy03ejJtSE9CMnFrY2NETEh6NWo4cGFzNkd5OFVtMWlmcGdPLVlDMHBUVjFEMlBCREVGYlVxendiY2VVa3FBd2VreW9R?oc=5",
+      "publisher_domain": "https://www.bloomberg.com",
+      "title": "Elliott Loses Fight Over $8.7 Billion Buyout of China’s 58.com - Bloomberg.com",
+      "summary": "Elliott Loses Fight Over $8.7 Billion Buyout of China’s 58.com &nbsp;&nbsp; Bloomberg.com",
+      "published": "2026-05-08T12:10:00+00:00",
+      "source_count": 3,
+      "confidence": "high",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 8.0 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Asia",
+      "region": "APAC",
+      "deal_size_eur": 8004000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE9WZmdmQXpaZDl4LUJwMTh5azdOR1RLZkVMVDJPVjVIeGxWdXpoZG10OTF1NG5idGZ0LW5pYnptbmczYXJYRmdQRlRhUzEzcFFXcmVBcmxDb1ZxbzQyTUVjWkE0SmZYWWoxOThUd2NVaWJiNXlYMlRYM1lobHA?oc=5",
+      "publisher_domain": "https://www.aol.com",
+      "title": "Home Depot acquires building material distributor GMS in $5.5 billion deal - AOL.com",
+      "summary": "Home Depot acquires building material distributor GMS in $5.5 billion deal &nbsp;&nbsp; AOL.com",
+      "published": "2026-05-08T02:11:56+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 5.1 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 5060000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNTUZ1ZUlmWDJRVm01MHhqSHJLV0pBa0plN0NnUGFXMnVpMkpBMDFmMjNycDY2eW5ySmdvSkFPSFpMX2FyNzRscHpfQlo0MlhzWFBGNlFoZ1d3OHVUdVNVaGJScGZ5aUQ0N2dKQUtCNi12cFZWbHdQSWswR0MzRlVvNWV6azBzTTJzRjlnZk5Ic0FJLWJhbkNmbzd4blo4eHAtcjZ3TFJXcVNjNlFUSHpvNVFDZldFTzhHR3huTVl3QWNBOUF4YjUtdnh3cw?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Ebay shares surge amid $56 billion buyout proposal from GameStop's Ryan Cohen - MSN",
+      "summary": "Ebay shares surge amid $56 billion buyout proposal from GameStop's Ryan Cohen &nbsp;&nbsp; MSN",
+      "published": "2026-05-08T12:07:28+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 51.5 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 51520000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPOTg1X0JRek00U0xocFMtanJFelpsa2VGRWRqQmJyajcxZVV3X2FOWUpMaUpUYUZxR2NUTjc0ZE1HWExDZFBIcHk0VHpJZTZ4czFwLUFwSld2NF9pS2pIU01jM2k1T2tSak13U3ZSc2dZaEtDbzlKNWhIXzItYm9oM1pqdndyTWY2ZmxJVTdkcHBaaTJKdXM4N2hZd1RCcEl5NEE?oc=5",
+      "publisher_domain": "https://businesspost.ng",
+      "title": "Warner Bros Discovery Shareholders Approve Paramount Skydance $110 Billion Merger - Business Post Nigeria",
+      "summary": "Warner Bros Discovery Shareholders Approve Paramount Skydance $110 Billion Merger &nbsp;&nbsp; Business Post Nigeria",
+      "published": "2026-05-08T04:10:48+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Africa",
+      "region": "EMEA",
+      "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5acWFHbTJ0NmdrdVNhemM3c19RZnZkQnlPSjBuU1Y5WGpvenRfTzZoRElLcnpETEZEUzIyMVdtOUUzNThJaW44cGZuemdCWDlOZHBUcWZnM1U4UWpqN0FJVE5qOWxwblNQTEZpOTZFVmtaelZt?oc=5",
+      "publisher_domain": "https://www.harianbasis.co",
+      "title": "Banner Bank and Bank of the Pacific Announce 18 Billion Merger - HarianBasis.co",
+      "summary": "Banner Bank and Bank of the Pacific Announce 18 Billion Merger &nbsp;&nbsp; HarianBasis.co",
+      "published": "2026-05-08T10:37:34+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 18.0 Md€ détecté"
+        }
+      ],
+      "sector": "Financials",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 18000000000.0
     }
   ]
 }
