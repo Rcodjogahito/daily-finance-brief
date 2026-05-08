@@ -1,6 +1,6 @@
 {
   "date": "2026-05-08",
-  "generated_at": "2026-05-08T14:00:08.743939+02:00",
+  "generated_at": "2026-05-08T14:19:14.396236+02:00",
   "alerts": [
     {
       "source": "FT Companies",
@@ -316,6 +316,48 @@
       "geography": "Africa",
       "region": "EMEA",
       "deal_size_eur": 15800000000.0
+    },
+    {
+      "source": "DCM / Bonds",
+      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQcHVzOXJkMGxWRUlva3F0NjFhcWpndEQyelNLNXNiNUltN2htdjBqZWlkOWQ5RHRGRG9vRkl0N09SQkp1UjdJbFlnbzNDU1ZNY3lwVFZiWUtZWENicWRMYzNWR05WUUF1eGN4YzUwb25EMGVONkdCSXZUZGlNTnFFbjF0MEFTQjJ0T3BpSXozbEh4WWpWUzlKZEJSTUxCWHFjSFM2WjJyS0p3V3JtQ0liZHBJMFg5OVlBbW95em1zY3lhQUYtMi1jbUFvVVZHeHc0R2dNVjl30gHbAUFVX3lxTE56VlRBYU5LQnJtSm5OZGpaZjNmaGt3bmFFTXpEdkItUjc5Tml1aFM3WVJzUEdoMDRaaGU1ejlSNjF3Nk04QW0xTnQtZUotb3p4aTdBVUl2SkN2WG1MaVZyaEZHV3RlSW14b1J0bElaVkNkTzZuUlhLQkhVLXlSaExhc0dOSlkxenQyUnRrWGk2S2VYYzRoZjBJZmhWLTVDamVPaThweElBZ2FxbjYwMWJrRnFHYUFESC1JYmprNV9yZi1yNEdqbk9OWHpwOEVOLTJRR0pqUTdTZUw0MA?oc=5",
+      "publisher_domain": "https://www.devdiscourse.com",
+      "title": "IFC Launches Public Green Bond in Hong Kong’s ‘Wonton Bond’ Market with HK$6 Billion Deal - Devdiscourse",
+      "summary": "IFC Launches Public Green Bond in Hong Kong’s ‘Wonton Bond’ Market with HK$6 Billion Deal &nbsp;&nbsp; Devdiscourse",
+      "published": "2026-05-08T10:20:52+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 5.5 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Asia",
+      "region": "APAC",
+      "deal_size_eur": 5520000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNSUpqUVA2Y214VGlNY2xlRGFMYUdmU2VDLUZKVE5Qb0d6UEI0SDR5TS13S0Vxd2FMODNzZmN2bXFPLVRlSmxEWnF1MUZweVBGSmF4LXp6Mmh2Ynh5WHQ0N1pJUVhPWWtJdm82eUxhZDcxU19fT3BJdjZacVFWV2F3MC11YkxUTU9pZTBwVm5uSlNTSkg0QkdaNXp3ajEwenQ1aEdSeXFJenRFUEhf?oc=5",
+      "publisher_domain": "https://news.inbox.lv",
+      "title": "Paramount seals a $110 billion mega‑merger to take over Warner Bros - Inbox.lv",
+      "summary": "Paramount seals a $110 billion mega‑merger to take over Warner Bros &nbsp;&nbsp; Inbox.lv",
+      "published": "2026-05-07T16:35:00+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 101200000000.0
     }
   ]
 }
