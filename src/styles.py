@@ -195,13 +195,38 @@ _SIDEBAR_BRAND = """
 
 _SIDEBAR_TOGGLE_JS = """
 <script>
-function toggleSidebar() {
-  var btn = window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button');
-  if (!btn) btn = window.parent.document.querySelector('[data-testid="stSidebarCollapsedControl"]');
-  if (btn) btn.click();
-}
+(function () {
+  /* Stored on window so it survives Streamlit React re-renders. */
+  window._dfbToggle = function () {
+    /* Build candidate documents: current page + parent frame if different. */
+    var docs = [document];
+    try { if (window.parent.document !== document) docs.push(window.parent.document); } catch (e) {}
+
+    /* Selectors ordered by likelihood across Streamlit ≥ 1.35.
+       - button[data-testid] : button IS the element (most common in recent Streamlit)
+       - [data-testid] button : button nested inside the testid container (older layout)
+       - Collapsed control   : floating arrow to re-open when sidebar is hidden       */
+    var SELECTORS = [
+      'button[data-testid="stSidebarCollapseButton"]',
+      '[data-testid="stSidebarCollapseButton"] button',
+      '[data-testid="stSidebarCollapsedControl"] button',
+      '[data-testid="stSidebarCollapsedControl"]',
+      'button[aria-label="Close sidebar"]',
+      'button[aria-label="Open sidebar"]',
+    ];
+
+    for (var di = 0; di < docs.length; di++) {
+      for (var si = 0; si < SELECTORS.length; si++) {
+        try {
+          var el = docs[di].querySelector(SELECTORS[si]);
+          if (el) { el.click(); return; }
+        } catch (e) {}
+      }
+    }
+  };
+})();
 </script>
-<button onclick="toggleSidebar()" title="Afficher / masquer la barre latérale"
+<button onclick="window._dfbToggle()" title="Afficher / masquer la barre latérale"
   style="background:#0B1D2E;color:#E2EAF2;border:none;border-radius:2px;
          padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;
          letter-spacing:0.04em;line-height:1">&#9776; Barre</button>
