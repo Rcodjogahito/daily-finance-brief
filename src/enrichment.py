@@ -30,8 +30,17 @@ SECTOR_MAP: dict[str, list[str]] = {
                       "warner", "universal", "music", "gaming", "videogam"],
     "Real Estate":   ["real estate", "reit", "property", "immobilier", "mortgage",
                       "commercial property", "office", "logistics park"],
+    "Commodities":   ["gold price", "silver price", "copper price", "commodity price",
+                      "crude oil price", "brent crude", "wti", "opec", "oil market",
+                      "lng price", "natural gas price", "coal price",
+                      "wheat price", "corn price", "soybean", "sugar price",
+                      "cocoa price", "coffee price", "palm oil",
+                      "precious metal", "base metal", "iron ore", "nickel",
+                      "zinc price", "aluminium price", "platinum", "palladium",
+                      "lme ", "cme group", "cftc", "commodity futures",
+                      "commodity market", "commodity index"],
     "Materials":     ["mining", "steel", "cement", "commodity", "copper", "lithium",
-                      "aluminium", "aluminum"],
+                      "aluminium", "aluminum", "mining deal", "mining merger"],
     "Services":      ["consulting", "outsourcing", "services", "facility management"],
 }
 

@@ -51,6 +51,14 @@ WHITELIST: list[str] = [
     "dividend", "capital raise", "rights issue", "bond", "debt",
     # Géopolitique
     "sanctions", "tariffs", "trade war", "geopolitical", "reshoring", "conflict",
+    # Commodities
+    "opec", "wti", "brent crude", "crude oil price", "natural gas price", "lng price",
+    "coal price", "gold price", "silver price", "copper price", "nickel price",
+    "aluminium price", "zinc price", "iron ore", "platinum", "palladium",
+    "wheat price", "corn price", "soybean", "cocoa price", "coffee price",
+    "sugar price", "palm oil", "precious metal", "base metal",
+    "lme ", "cme group", "cftc", "commodity futures", "commodity market",
+    "commodity index", "oil market", "oil supply", "oil demand", "oil production",
 ]
 
 BLACKLIST: list[str] = [

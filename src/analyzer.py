@@ -29,13 +29,14 @@ CRITÈRES DE SÉLECTION (priorité décroissante) :
 1. Deal flow structurant : M&A >500M€, LBO, IPO, mandats exclusifs
 2. Leveraged Finance / DCM : refis HY, TLB, distressed, breach covenants, CLO
 3. Énergie : O&G majors, project finance, renewables, transition énergétique
-4. Crédit & ratings : downgrades/upgrades grands corporates, profit warnings, fallen angels
-5. Macro & banques centrales : BCE/Fed/BoE, inflation, CPI, taux directeurs, FX
-6. Géopolitique à impact financier direct : sanctions, tariffs, conflits, reshoring
-7. Nominations importantes : CEOs/CFOs/DGs de grandes institutions financières ou corporates
-8. Actualité bancaire : résultats banques, consolidation bancaire, régulation prudentielle, CET1, MREL
-9. Sectoriel structurant : défense, tech (deals/earnings Big Tech), aviation, luxe, pharma, real estate
-10. Régulation financière à impact deal/marché : Bâle IV, CSRD, taxonomie
+4. Commodities : mouvements OPEC, prix pétrole/gaz/métaux, marchés agricoles, LME, CFTC, chocs offre/demande sur matières premières
+5. Crédit & ratings : downgrades/upgrades grands corporates, profit warnings, fallen angels
+6. Macro & banques centrales : BCE/Fed/BoE, inflation, CPI, taux directeurs, FX
+7. Géopolitique à impact financier direct : sanctions, tariffs, conflits, reshoring
+8. Nominations importantes : CEOs/CFOs/DGs de grandes institutions financières ou corporates
+9. Actualité bancaire : résultats banques, consolidation bancaire, régulation prudentielle, CET1, MREL
+10. Sectoriel structurant : défense, tech (deals/earnings Big Tech), aviation, luxe, pharma, real estate
+11. Régulation financière à impact deal/marché : Bâle IV, CSRD, taxonomie
 
 EXCLURE : politique sans angle économique, faits divers, sport, lifestyle, tech grand public sans angle financier.
 

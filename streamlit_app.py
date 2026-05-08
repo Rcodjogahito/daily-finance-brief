@@ -158,12 +158,7 @@ if market:
         )
     st.markdown("---")
 
-# ── Pipeline stats ─────────────────────────────────────────────────────────
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Collectées",   stats.get("collected", "—"))
-c2.metric("Filtrées",     stats.get("filtered", "—"))
-c3.metric("Sélectionnées", stats.get("post_verified", len(news)))
-c4.metric("Généré à",     brief.get("generated_at", "")[:16].replace("T", " "))
+st.caption(f"Généré le {brief.get('generated_at', '')[:10]} à {brief.get('generated_at', '')[11:16]}")
 
 if brief.get("low_volume"):
     st.warning("Volume réduit — seules les news les plus pertinentes ont été retenues.")

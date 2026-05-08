@@ -74,4 +74,12 @@ SOURCES: dict[str, str] = {
 
     # ── ESG / Finance durable ─────────────────────────────────────────────
     "ESG / Green Finance": "https://news.google.com/rss/search?q=(%22green+bond%22+OR+%22sustainability-linked%22+OR+ESG+OR+%22transition+bond%22+OR+CSRD)+when:1d&hl=en",
+
+    # ── Commodities ───────────────────────────────────────────────────────
+    "Reuters Commodities":       "https://www.reutersagency.com/feed/?best-topics=commodities",
+    "Commodities / Métaux":      "https://news.google.com/rss/search?q=(gold+OR+silver+OR+copper+OR+nickel+OR+aluminium+OR+zinc+OR+%22iron+ore%22+OR+platinum+OR+LME)+(price+OR+market+OR+rally+OR+slump+OR+demand+OR+supply+OR+shortage)+when:1d&hl=en",
+    "Commodities / Agri":        "https://news.google.com/rss/search?q=(wheat+OR+corn+OR+soybean+OR+sugar+OR+cocoa+OR+coffee+OR+%22palm+oil%22+OR+%22agricultural+commodity%22+OR+CBOT)+price+when:1d&hl=en",
+    "Commodities / Énergie Prix":"https://news.google.com/rss/search?q=(WTI+OR+%22Brent+crude%22+OR+%22natural+gas+price%22+OR+%22crude+oil+price%22+OR+%22LNG+price%22+OR+%22coal+price%22)+when:1d&hl=en",
+    "OPEC / Oil Market":         "https://news.google.com/rss/search?q=(OPEC+OR+%22oil+production%22+OR+%22oil+supply+cut%22+OR+%22oil+demand%22+OR+%22OPEC+decision%22)+when:1d&hl=en",
+    "Commodities / Marchés":     "https://news.google.com/rss/search?q=(commodity+OR+commodities)+(market+OR+futures+OR+%22supply+chain%22+OR+%22commodity+index%22+OR+CFTC+OR+CME)+when:1d&hl=en",
 }

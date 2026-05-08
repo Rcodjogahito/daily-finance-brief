@@ -86,7 +86,7 @@ if df.empty:
     st.stop()
 
 # ── Heatmap ────────────────────────────────────────────────────────────────
-SECTOR_ORDER = ["Energy", "Financials", "TMT", "Healthcare", "Industrials",
+SECTOR_ORDER = ["Energy", "Commodities", "Financials", "TMT", "Healthcare", "Industrials",
                 "Aviation", "Defense", "Consumer", "Luxury", "Entertainment",
                 "Real Estate", "Materials", "Services", "Other"]
 GEO_ORDER = ["France", "UK", "Germany", "Italy", "Spain", "Nordics", "Benelux",
