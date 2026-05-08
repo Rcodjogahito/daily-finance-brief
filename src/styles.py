@@ -136,7 +136,53 @@ details summary {
 
 /* ── Divider ────────────────────────────────────── */
 hr { border: none !important; border-top: 1px solid #E9ECF0 !important; margin: 0.5rem 0 !important; }
+
+/* ── Twemoji — taille et alignement des SVG emoji ── */
+img.emoji {
+    height: 1.15em;
+    width: 1.15em;
+    margin: 0 0.04em 0 0.04em;
+    vertical-align: -0.2em;
+    display: inline;
+    pointer-events: none;
+}
 </style>
+"""
+
+_TWEMOJI_SCRIPT = """
+<script>
+(function () {
+  /* Replace browser emoji with Twemoji SVGs (Twitter open-source set, v14).
+     Uses jsDelivr CDN — no external dependency on twemoji.maxcdn.com.
+     MutationObserver + rAF debounce handles Streamlit's React re-renders. */
+  var _tw_pending = false;
+
+  function applyTwemoji() {
+    if (typeof twemoji === "undefined" || _tw_pending) return;
+    _tw_pending = true;
+    requestAnimationFrame(function () {
+      twemoji.parse(document.body, {
+        folder: "svg",
+        ext: ".svg",
+        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@v14.0.0/assets/"
+      });
+      _tw_pending = false;
+    });
+  }
+
+  var s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js";
+  s.crossOrigin = "anonymous";
+  s.onload = function () {
+    applyTwemoji();
+    new MutationObserver(applyTwemoji).observe(
+      document.body,
+      { childList: true, subtree: true }
+    );
+  };
+  document.head.appendChild(s);
+})();
+</script>
 """
 
 _SIDEBAR_BRAND = """
@@ -172,6 +218,7 @@ _HOME_BUTTON = """
 
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
+    st.markdown(_TWEMOJI_SCRIPT, unsafe_allow_html=True)
 
 
 def page_toolbar() -> None:
