@@ -1,11 +1,11 @@
 {
   "date": "2026-05-08",
-  "generated_at": "2026-05-08T08:05:57.354270+02:00",
+  "generated_at": "2026-05-08T08:13:48.085734+02:00",
   "stats": {
     "collected": 1030,
     "verified": 869,
-    "filtered": 466,
-    "deduplicated": 466,
+    "filtered": 469,
+    "deduplicated": 469,
     "sent_to_llm": 80,
     "returned": 10,
     "post_verified": 10
@@ -26,18 +26,18 @@
       "raw": 7337.10986328125
     },
     "EUR/USD": {
-      "value": "1.1744",
+      "value": "1.1748",
       "unit": "",
-      "change": "-0.03%",
-      "trend": "down",
-      "raw": 1.1743981838226318
+      "change": "+0.01%",
+      "trend": "up",
+      "raw": 1.1748120784759521
     },
     "Brent": {
-      "value": "101.0",
+      "value": "101.3",
       "unit": "$/bl",
-      "change": "+0.98%",
+      "change": "+1.26%",
       "trend": "up",
-      "raw": 101.04000091552734
+      "raw": 101.31999969482422
     },
     "UST 10Y": {
       "value": "4.39%",
