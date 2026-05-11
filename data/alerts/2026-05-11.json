@@ -1,0 +1,279 @@
+{
+  "date": "2026-05-11",
+  "generated_at": "2026-05-11T18:52:18.506455+02:00",
+  "alerts": [
+    {
+      "source": "FT Companies",
+      "url": "https://www.ft.com/content/88d1b396-9cf9-4f29-9ac1-5664334d515d",
+      "publisher_domain": "",
+      "title": "GameStop’s bid for eBay is wild — and it might just work",
+      "summary": "Shareholders in the ecommerce company are getting a good deal, at least on paper, with an offer of $28bn of cash",
+      "published": "2026-05-11T16:43:15+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 25.8 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 25760000000.0
+    },
+    {
+      "source": "S&P Ratings",
+      "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQd1VXOW5TeGFVS1JnVzZoNmJXVzBJUjVVT29vZ1ZHVDFkS052MmlLS2hvZk9janRyRUlldlBkYnNka2VQTi1BMHhkUGNrVUg1a2tjSXdjeE5yMWp2QlMwOU9ieThnckNWTlFKVVFZckUzMmEtMEVEMTkza210UEhLU2JRLVhIVXZMYlVnNHJlTG9nQWZZUXR2Uk9adEpvaTFiUkM4Y1dDT0FMZ1FwNlFMTHluTzM?oc=5",
+      "publisher_domain": "https://www.stocktitan.net",
+      "title": "S&P downgrades Grupo Televisa (TV) ratings to BBB- with negative outlook - Stock Titan",
+      "summary": "S&amp;P downgrades Grupo Televisa (TV) ratings to BBB- with negative outlook &nbsp;&nbsp; Stock Titan",
+      "published": "2026-05-11T10:01:05+00:00",
+      "source_count": 2,
+      "confidence": "high",
+      "alert_flags": [
+        {
+          "type": "FALLEN_ANGEL",
+          "severity": "high",
+          "reason": "Downgrade IG→HY (fallen angel) détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": null
+    },
+    {
+      "source": "S&P Ratings",
+      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNdE1td3B3TnFYdEkyM29qcHNHNVFrQ0JrVEJockl1dkplbnAzVU9Ec1VGMHBEbUI4bVdRTV9XZnhzRW1QVkJxeER6TWFOVEFvbG5Db0J2R210cnBmVEtBTzZuRS0xQk02UzhPdy1qYzQwX0FqOEtXQkxjekhRWmFadkRJOC15SVlTYTVBXzdlb3Zfc1BPVDFZTW5OZkRPYlNaM3c0em9UTE54dWpvT25J?oc=5",
+      "publisher_domain": "https://www.tipranks.com",
+      "title": "Televisa Hit With S&P Downgrade to BBB- and Negative Outlook - TipRanks",
+      "summary": "Televisa Hit With S&amp;P Downgrade to BBB- and Negative Outlook &nbsp;&nbsp; TipRanks",
+      "published": "2026-05-11T10:35:30+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "FALLEN_ANGEL",
+          "severity": "high",
+          "reason": "Downgrade IG→HY (fallen angel) détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": null
+    },
+    {
+      "source": "PE / Buyouts",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUXN1ektQcUlhTE5HZ3Axa2xHOWdDaWhlVFVkeHlna2xVencyaHdSVGdjQ1pETE93dWtRVWgzX0VMRk5aUHRvcWdxTGZpYzdlbHNkc1N4eU12V2plY3Rua2JQa1hGZUVJQ0tTckpoWXZFWlA1WTdfTVpldWF0Z2VXa2cwUmRBQU04T2hfc1hfaWg4X1h4Mk9uSm1BekRMR2d6dTNQT1YzdEU5b2ZOaWdwalAxZ3lBaEd4?oc=5",
+      "publisher_domain": "https://www.theinformation.com",
+      "title": "OpenAI Launches $10 Billion Private-Equity Joint Venture, Acquires Consultancy - The Information",
+      "summary": "OpenAI Launches $10 Billion Private-Equity Joint Venture, Acquires Consultancy &nbsp;&nbsp; The Information",
+      "published": "2026-05-11T15:43:00+00:00",
+      "source_count": 2,
+      "confidence": "high",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 9.2 Md€ détecté"
+        }
+      ],
+      "sector": "TMT",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 9200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMihgNBVV95cUxQNDBLYUJUTFR4UE1teTFLMWhMWVhZemt2WTVEZUFtd0l0N0Z2a3hkcVNiZElKNEJvZW80QVlSLVFMNGFpUTFhTGdIc0cybTAyZkVoUmQzdzB3cnNnWFJYN3ktX29GcXJNUU1PX1hrU1dBcjh5UmJhb1ZqQWxxbWZWd29sNUxwSDNwQ0lwajU5dUlFTW81VFA5a3FaSWhpb3RzN3F2Wmo0ejByWUhTNWhrVGFmWGtWUGh6alR6TVctYVFuR252Wi1RTDBXYmNacE45SjRIcHlPU1BNZFE5TzlOajZwZndOV0xUWkVlMFlHcjVndFpsbWhGcU5uT042ck1lTlBZSWlfcV9xSDdnNzZFMzZDQzQ3WTlKWXFnU0xkUkpTMHdyWnRrZEtEc1hkNUxETzd5cHBiMDNXTkNZR0RFeXpNT3ZxM0hmdVVhd1ZpdGRyME9ZMjUyQ3ZUbnFTcG9HMUQ4YkRHWkVvbDFKcmtwdDJ2TFFwSEFuZGg1azRYVFBFRkowdWc?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Union Pacific advocates for $85 billion Norfolk Southern acquisition in merger application - MSN",
+      "summary": "Union Pacific advocates for $85 billion Norfolk Southern acquisition in merger application &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T14:53:53+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 78.2 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 78200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE9oaUVhR1VtaE55UjJpNmM4Ym12MUVwTjRWeDljMTk4N0FIOVZmTlNYN1EtQmY2QkdGV2c1Y1dwak5OZ0ZwZzhKdDZWVlJ2ZDhaMEtRclVnc3pKbmtqRExXMVo4Qnk3c0dKRjE0TjRfNXNGU05JRHpVVWFINA?oc=5",
+      "publisher_domain": "https://simscommunity.info",
+      "title": "EA Barricades Their Headquarters Ahead Of Announced EA Raid In Protest To $55 Billion Buyout - Sims Community",
+      "summary": "EA Barricades Their Headquarters Ahead Of Announced EA Raid In Protest To $55 Billion Buyout &nbsp;&nbsp; Sims Community",
+      "published": "2026-05-11T13:39:45+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 50.6 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 50600000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOT3RKUkpsRHI2RU5XOURROWhmSlNXTlNzQmR4VlFTQ3BTdWpmWVBicDdBc2VWeEFFRUNvaXlPTU5NZEdvNWtianJpbmNRaUZfWnlrN0pJdEVSb2dUQ040Z1pkTzRfMEhfc0Fibm96QWxmcEtvZU9YVVg1XzRtaEZqeUM1R0ZWWldjSkd4SmFINExpRXVGb0xXem82Z09VNjNvdThSdmdqUzFQTGluQnFmLWo2QlpsaDkzWVItbkJlUjROUFJpZGlqSGJVTjQydw?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "McCormick acquires Unilever food arm in $44.8 billion merger - MSN",
+      "summary": "McCormick acquires Unilever food arm in $44.8 billion merger &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T05:33:14+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 41.2 Md€ détecté"
+        }
+      ],
+      "sector": "Consumer",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 41216000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMi3AJBVV95cUxOZkZfdkxKb3pUQXNXdE5PaGltN2dTZ1Jyb2RVSGdSREZsb2l4NE1QS1V0VWlhMmhTLTh4THBZTUpZMzJFWEZGaXgwUkF1a0pKZWNoaTJaLURqTWcyckRoNFlvNGk0Nm55Q2JwY2ctcWJ1MTZJelp6czZKWlV0MjMxWVQ0WDF1bks0MHZGV0FyUlZHaHZHNHFxVklBVlp2MUxtUFJlWWxCTDNwR08yM1ptOTFxUzlVZTYycWNTcTJUT2VhQWNjblJHZXFPVlhsYW5USEF1MGpOS05XbXpiNG5JWFVrZ1JZSWkwa2trYWdNUWpocWRfeWdYV3QzTVZnU1ljMm9XLVcycTlMX09EM2pXZjdUeDZWWmhuSnNrRmJod1JRMk1ldTZQeXZad1V4S1RXMWI0VWtpMDRJbmtYN09XaHhDZWdabXhVQ1Y0SkpKS2ZNc0dhem9CVUhBQUY?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Devon Energy, Coterra complete $26 billion merger - MSN",
+      "summary": "Devon Energy, Coterra complete $26 billion merger &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T06:45:14+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 23.9 Md€ détecté"
+        }
+      ],
+      "sector": "Energy",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 23920000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQUmNsNzAyTUgzRmhpU3pnMGRvLTBpZzVIQzlLM0RBUG9RZnhya3ZwNXp3dnFQWE9yTHc2UW9GOWpMczJKRkw3TFpzNzFucE9vNUowSTItLVZ3VHRTWWQxN0Q5Qk15YWJQczdkZ0FIVzRKNlRLYjNnSUJ2U2ctWVgxdUJMOFhBdWNVNk96MnY4QkpTNVhYT2x2NTNjdW9xRnNwWFJVTHlkem9jQXFmUlhTR2lkVkZXWDRSa0QzX1owOFFCXy15SWxkLUoyRE0yYUxjd3ZLMkZQblZnSUtZb1FFTlZtZnAzeE1wQWFuSEFvY2plZlNDelVwVVhiV1E2dEhL?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Warner Bros shareholders back $110 billion merger with Paramount Skydance - MSN",
+      "summary": "Warner Bros shareholders back $110 billion merger with Paramount Skydance &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T01:31:32+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPb3RCaWtOamhLaVFrYnFIQmYtX2gtMUhFRkRzeGNwSmVLc2N3U2ZuUG5KdS1icnpraGt2UndlQTRKakYzcURDWGc1UFpQa1FOSmxWV1l3X1BSVXJ1MW9aSUxwUXdTWHk5TnRaejZ3QVJDV1lWQTh2bGJDQUV0RndOWjI5TUJ2YnhNR213OWM0S2xqUQ?oc=5",
+      "publisher_domain": "https://leadership.ng",
+      "title": "Pension Firm Records N42.4bn Revenue, Pays N2 Dividend Post-merger - LEADERSHIP Newspapers",
+      "summary": "Pension Firm Records N42.4bn Revenue, Pays N2 Dividend Post-merger &nbsp;&nbsp; LEADERSHIP Newspapers",
+      "published": "2026-05-11T04:56:58+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 42.4 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 42400000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMi0wJBVV95cUxOTm0wOEtDRDlINnNaN1FJRFN5V0J0NlJxRkpDZUdhUmtnMU1SWXBWazNMTFFBQ3FLeTRjc244ejVaSVgxaE10WUQ0aVJuRHZsXzE0ejE3Q0V0NlA5ZmV3MkUtZEtZYmdzOUk4Q0pYT2VxbmpBNEtHM1NzQmJ4b3dPREo5UHc5UVpFaVNDdEhWVjBSdU1oTzAtdDM3ZldYNDRVaEswQ2ZHRjBrcXFtangyQWstdXloaUpXWmt0bVQ2NWc2RjVKSjk1NFU2OTdjVVVkZ2QzZ0x2NUZVaUJIcDdqWjJySmpjMVR4NXYyOHhuSUU4MVR3WHpyLURiQ1o2ZmlqNHl4MURBeHo5YXo2a1Ewdlo0blN6cFpKQXJoU1o0NHI4cnllVEJmWHBYM3MzRVVGZnJFOVdMQjFJT09yczItN29hS1VrdTZ6aWZoLWpEZFFYR2M?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Warner Bros. shareholders approve Paramount's $81 billion acquisition deal - MSN",
+      "summary": "Warner Bros. shareholders approve Paramount's $81 billion acquisition deal &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T05:39:21+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 74.5 Md€ détecté"
+        }
+      ],
+      "sector": "Entertainment",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 74520000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMi3gJBVV95cUxOeDFrblo2eDV3R2xuNlNyeUNWeVF2ekNSZTBGeHEzLUlyNXVhYWVQdngweWlESVJiM3BKclhmRFR0Rl9KU2ExWjJlRGxLRy1UYnlBVEZVQlpkWndubF9mUWF4UWlBT0lzbGJxUHNGaG42VnA3Y2dsbDdpSEQyYjhwLWxEYlBRNkx5aU5IRjdwZTdDZUVReDFHZmJnN3FVOERwczVMdTUtRjh2NnZ3UkRrd1ZhckhXZ3U3YXA5eFloSUFRVTVvb2N1MERJcEFDYWt5RWRZMVVRczFERTZEbXA2bFZEVXVvcVVxdEFLWlN1dDh2Y3h5b2I0RXFqVndXejhwUFF6S1dyV2VwTGtnS2k5MjlaMHNnaUVZSkJCekR6UGc2ZWIzMWMzVnZicnpQdlU3ZFJweXZucllKMUV0akhjRHlrbi1DMkx6ZktqcjloanZHcmlEYXZBNC1rNGFXdw?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "EA headquarters being raided by protesters over $55 billion Saudi Arabia buyout - MSN",
+      "summary": "EA headquarters being raided by protesters over $55 billion Saudi Arabia buyout &nbsp;&nbsp; MSN",
+      "published": "2026-05-10T19:54:13+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 50.6 Md€ détecté"
+        }
+      ],
+      "sector": "Other",
+      "geography": "MENA",
+      "region": "EMEA",
+      "deal_size_eur": 50600000000.0
+    },
+    {
+      "source": "Defense",
+      "url": "https://news.google.com/rss/articles/CBMi9gJBVV95cUxPcHEwekZUQUFpb0l0Z2RvbHVUSENRZjUxWUluRGtfNEltaFktMXp6Zm1zQnUzdWRuNEd6Uk9xWlBRMkEwc3JYUG52Z0c2VmxmaWJTWXVCWVE4YnhubFlaVWw5WW1ZeW5vTFpjaV9ETW5jWGNubF9hdmRKWE9zQlhiQlp4c0J2R2JBbElmdW1RMkdtd2h6N3YxbWdMNWQwdDRuRnBnaHFsdFk4M0xjX1JFZ0tRYWRjQTJvaVlrZFpnRDU2eEprdndrRHBGSlNNb0ozdzNtN2N6SWEwaUM3ZnlrczN5N1lPUXA3WkV6TVJudnJzblpKZkFYRkd1Qk1YdmduM2x3UjFIWGtFU284ZWc3aGR3Q2htQ3hfRFdzeDJBVWZyMERJb1BXSDhIQzU0NnRPTU5uQ2cxYzFRbFVGVTJSNFhYN1haV3YtSkNlTnpTQWRJQkJVMzRhWkRxQ0JfcmJqbGNYaHI3dGxrdHFzWEhsRmRTakZKUQ?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "BAE leads defence surge after Norway unveils £10bn deal to buy UK-built submarine-hunting warships - MSN",
+      "summary": "BAE leads defence surge after Norway unveils £10bn deal to buy UK-built submarine-hunting warships &nbsp;&nbsp; MSN",
+      "published": "2026-05-11T02:45:21+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 11.7 Md€ détecté"
+        }
+      ],
+      "sector": "Defense",
+      "geography": "UK",
+      "region": "Europe",
+      "deal_size_eur": 11700000000.0
+    }
+  ]
+}
