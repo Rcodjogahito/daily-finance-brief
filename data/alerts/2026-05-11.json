@@ -1,6 +1,6 @@
 {
   "date": "2026-05-11",
-  "generated_at": "2026-05-11T18:52:18.506455+02:00",
+  "generated_at": "2026-05-11T19:16:19.629842+02:00",
   "alerts": [
     {
       "source": "FT Companies",
@@ -274,6 +274,48 @@
       "geography": "UK",
       "region": "Europe",
       "deal_size_eur": 11700000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9NU1JacHdWZW5ZdmJ0TUVOblptWm1Jd3plMjBCNHRGUHRmTldkb3lPNDFPWk95OWdDalpkM3piUjIwNkFBbnROLUphTXg5YzZMRy00anM3TVEtRDNwbUtvYjVmSWVxR3hvcU9Rdmx3T3k?oc=5",
+      "publisher_domain": "https://fathomjournal.org",
+      "title": "Warner Bros. Shareholders Back $110 Billion Merger With Paramount-Skydance Media | Screen (aYWP3eQM7e) - Fathom Journal",
+      "summary": "Warner Bros. Shareholders Back $110 Billion Merger With Paramount-Skydance Media | Screen (aYWP3eQM7e) &nbsp;&nbsp; Fathom Journal",
+      "published": "2026-05-11T07:45:02+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 101.2 Md€ détecté"
+        }
+      ],
+      "sector": "TMT",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 101200000000.0
+    },
+    {
+      "source": "M&A Deals",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQeHlhVTRwODQ4bzk3LW83NTBYN2x5VHdFeDlydDBadWh2ajZYak5ibDNzLVU4cFVwR3ZPVUFzRDVpdk1TX01ZX1BIdXRIZEI2SGNvSmRjanlvd3Y4b2dIa1B2UnlHQl9RU0tTdmF1dHJPcHN1TWF0NE1qWXFoX0EzRUt0RGxqTkVWdE54c2NGNFNpY25OTEMzcW00U2s3SjQ0?oc=5",
+      "publisher_domain": "https://www.msn.com",
+      "title": "Devon Energy, Coterra complete $26 billion merger - MSN",
+      "summary": "Devon Energy, Coterra complete $26 billion merger &nbsp;&nbsp; MSN",
+      "published": "2026-05-10T20:20:36+00:00",
+      "source_count": 1,
+      "confidence": "medium",
+      "alert_flags": [
+        {
+          "type": "MEGA_DEAL",
+          "severity": "high",
+          "reason": "Deal de 23.9 Md€ détecté"
+        }
+      ],
+      "sector": "Energy",
+      "geography": "Global",
+      "region": "Global",
+      "deal_size_eur": 23920000000.0
     }
   ]
 }
