@@ -9,7 +9,7 @@ import pytz
 
 from src.alert_detector import detect_hot_alerts
 from src.analyzer import analyze_news, post_verify_llm_output
-from src.archiver import git_commit_and_push, save_brief
+from src.archiver import git_commit_and_push, load_brief, mark_brief_sent, save_brief
 from src.collectors.rss_collector import collect_all_sources, resolve_gnews_urls
 from src.emailer import get_recipients, send_email
 from src.enrichment import enrich_all
@@ -28,10 +28,12 @@ _PARIS = pytz.timezone("Europe/Paris")
 _MAX_CANDIDATES = 80
 
 
-def _is_in_send_window() -> bool:
-    """Check we're in the 08:25–08:45 Paris window (avoids double-send from UTC+1/+2 crons)."""
-    now = datetime.now(_PARIS)
-    return (8, 25) <= (now.hour, now.minute) <= (8, 45)
+def _already_sent_today(date_str: str) -> bool:
+    """Return True if today's brief was already successfully emailed (dedup guard).
+    Prevents double-sends when both UTC+1/+2 crons fire on the same day.
+    """
+    brief = load_brief(date_str)
+    return bool(brief and brief.get("stats", {}).get("email_sent"))
 
 
 def render_email(brief_data: dict, streamlit_url: str) -> tuple[str, str]:
@@ -81,8 +83,13 @@ def build_subject(news: list[dict], date: str) -> str:
 def main() -> None:
     force_send = os.environ.get("FORCE_SEND", "false").lower() == "true"
 
-    if not force_send and not _is_in_send_window():
-        logger.info('"Brief outside send window — skipping (use FORCE_SEND=true to override)"')
+    # Compute today's date early for dedup check
+    paris = pytz.timezone("Europe/Paris")
+    date_str = datetime.now(paris).strftime("%Y-%m-%d")
+
+    # Dedup guard: skip if brief was already sent today (handles both UTC+1/+2 crons)
+    if not force_send and _already_sent_today(date_str):
+        logger.info('"Brief already sent today (%s) — skipping duplicate run"', date_str)
         sys.exit(0)
 
     streamlit_url = os.environ.get("STREAMLIT_URL", "https://your-app.streamlit.app")
@@ -130,8 +137,6 @@ def main() -> None:
     low_volume = len(final) < 3
 
     # 8. Archive
-    paris = pytz.timezone("Europe/Paris")
-    date_str = datetime.now(paris).strftime("%Y-%m-%d")
     save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
     stats["archive_written"] = True
 
@@ -150,6 +155,10 @@ def main() -> None:
     subject = build_subject(final, date_str)
     sent = send_email(subject, html, plain, recipients)
     stats["email_sent"] = sent
+
+    # Mark brief as sent so duplicate cron runs skip cleanly
+    if sent:
+        mark_brief_sent(date_str)
 
     # 11. Git push
     pushed = git_commit_and_push(f"Brief {date_str}")

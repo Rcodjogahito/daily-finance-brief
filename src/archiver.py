@@ -41,7 +41,21 @@ def save_brief(news: list[dict], stats: dict, date: str | None = None, market_sn
     return path
 
 
-def save_alerts(alerts: list[dict], date: str | None = None) -> Path:
+def mark_brief_sent(date_str: str) -> None:
+    """Update brief JSON to record that email was successfully sent (dedup guard)."""
+    path = BRIEFS_DIR / f"{date_str}.json"
+    if not path.exists():
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        data.setdefault("stats", {})["email_sent"] = True
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info("Brief marked as sent: %s", date_str)
+    except Exception as exc:
+        logger.warning("Could not mark brief as sent: %s", exc)
+
+
+def save_alerts(alerts: list[dict], date: str | None = None) -> tuple[Path, list[dict]]:
     """Append new alerts to data/alerts/YYYY-MM-DD.json."""
     date = date or _today()
     path = ALERTS_DIR / f"{date}.json"

@@ -1,0 +1,26 @@
+name: Streamlit Keep-Alive
+
+# Streamlit Community Cloud endort les apps inactives après ~7 jours.
+# Ce workflow les réveille chaque jour en envoyant une requête HTTP.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 08:00 Paris (UTC+2 été) — avant le brief
+    - cron: '0 7 * * *'   # 08:00 Paris (UTC+1 hiver)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Wake up Streamlit app
+        run: |
+          URL="https://daily-finance-brief-cib.streamlit.app"
+          echo "Pinging $URL ..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL" || echo "000")
+          echo "HTTP status: $STATUS"
+          # Also ping the health endpoint if available
+          curl -s -o /dev/null --max-time 10 "$URL/_stcore/health" || true
+          echo "Keep-alive complete"

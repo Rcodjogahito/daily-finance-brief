@@ -1,9 +1,8 @@
 name: Hourly Hot Alerts
 
+# Alertes email désactivées (trop nombreuses) — archivage seul via daily-brief
+# Déclenchement manuel uniquement via workflow_dispatch
 on:
-  schedule:
-    - cron: '5 7-17 * * 1-5'   # 09h05-19h05 Paris UTC+2 (été), lun-ven
-    - cron: '5 8-18 * * 1-5'   # 09h05-19h05 Paris UTC+1 (hiver), lun-ven
   workflow_dispatch:
     inputs:
       force_send:
