@@ -114,12 +114,17 @@ if not dates:
     st.warning("Aucun brief disponible. Le premier sera généré à 08h30.")
     st.stop()
 
-selected_date = st.selectbox(
-    "Date",
-    options=dates,
-    index=0,
-    format_func=lambda d: datetime.strptime(d, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize(),
-)
+dcol1, dcol2 = st.columns([2, 1])
+with dcol1:
+    selected_date = st.selectbox(
+        "Édition",
+        options=dates,
+        index=0,
+        format_func=lambda d: datetime.strptime(d, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize(),
+    )
+with dcol2:
+    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+    st.caption(f"{len(dates)} éditions archivées")
 
 brief  = load_brief(selected_date)
 if not brief:
@@ -157,7 +162,8 @@ if market:
         )
     st.markdown("---")
 
-st.caption(f"Généré le {brief.get('generated_at', '')[:10]} à {brief.get('generated_at', '')[11:16]}")
+_gen = brief.get("generated_at", "")
+st.caption(f"Généré le {_gen[:10]} à {_gen[11:16]} · {stats.get('collected', '?')} sources scannées")
 
 if brief.get("low_volume"):
     st.warning("Volume réduit — seules les news les plus pertinentes ont été retenues.")
@@ -165,38 +171,37 @@ if brief.get("low_volume"):
 st.markdown("---")
 
 # ── Filters ────────────────────────────────────────────────────────────────
-fcol1, fcol2, fcol3 = st.columns(3)
+cats_present    = sorted({item.get("category", "Sector") for item in news})
+cat_options     = {CATEGORY_LABELS.get(c, c): c for c in cats_present}
+sectors_present = sorted({item.get("sector", "Other") for item in news})
 
-with fcol1:
-    st.markdown(
-        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Région</div>',
-        unsafe_allow_html=True,
-    )
-    selected_regions = st.multiselect(
-        "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region", label_visibility="collapsed",
-    )
+# Reset guard
+if st.session_state.get("_reset_filters"):
+    for k in ["main_region", "main_cat", "main_sector"]:
+        st.session_state.pop(k, None)
+    st.session_state.pop("_reset_filters", None)
 
-with fcol2:
-    st.markdown(
-        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Type d\'information</div>',
-        unsafe_allow_html=True,
-    )
-    cats_present  = sorted({item.get("category", "Sector") for item in news})
-    cat_options   = {CATEGORY_LABELS.get(c, c): c for c in cats_present}
-    selected_labels = st.multiselect(
-        "Type", list(cat_options.keys()), default=list(cat_options.keys()), key="main_cat", label_visibility="collapsed",
-    )
-    selected_cats = [cat_options[l] for l in selected_labels]
-
-with fcol3:
-    st.markdown(
-        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Secteur</div>',
-        unsafe_allow_html=True,
-    )
-    sectors_present = sorted({item.get("sector", "Other") for item in news})
-    selected_sectors = st.multiselect(
-        "Secteur", sectors_present, default=sectors_present, key="main_sector", label_visibility="collapsed",
-    )
+with st.expander("Filtres", expanded=True):
+    fcol1, fcol2, fcol3, fcol_reset = st.columns([1, 1, 1, 0.28])
+    with fcol1:
+        selected_regions = st.multiselect(
+            "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region",
+        )
+    with fcol2:
+        selected_labels = st.multiselect(
+            "Type d'information", list(cat_options.keys()),
+            default=list(cat_options.keys()), key="main_cat",
+        )
+        selected_cats = [cat_options[l] for l in selected_labels]
+    with fcol3:
+        selected_sectors = st.multiselect(
+            "Secteur", sectors_present, default=sectors_present, key="main_sector",
+        )
+    with fcol_reset:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        if st.button("↺ Reset", use_container_width=True, help="Réinitialiser tous les filtres"):
+            st.session_state["_reset_filters"] = True
+            st.rerun()
 
 # Apply filters
 allowed_geos = _geos_for_regions(selected_regions) if selected_regions else set()
@@ -207,8 +212,18 @@ filtered_news = [
     and (not selected_regions or n.get("geography", "Global") in allowed_geos)
 ]
 
+_filters_active = (
+    len(selected_regions) < len(_ALL_REGIONS)
+    or len(selected_cats) < len(cat_options)
+    or len(selected_sectors) < len(sectors_present)
+)
+_filter_label = (
+    f"{len(filtered_news)} news — filtrées" if _filters_active
+    else f"{len(filtered_news)} news"
+)
 st.markdown(
-    f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin:8px 0 12px">{len(filtered_news)} news</div>',
+    f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;'
+    f'text-transform:uppercase;color:#C9A84C;margin:10px 0 14px">{_filter_label}</div>',
     unsafe_allow_html=True,
 )
 
@@ -231,7 +246,4 @@ with col_csv:
         )
 
 with col_info:
-    st.caption(
-        f"Brief du {selected_date} · {len(news)} news · "
-        f"{stats.get('collected', '?')} sources scannées"
-    )
+    st.caption(f"Brief du {selected_date} · {len(news)} news")

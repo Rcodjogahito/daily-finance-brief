@@ -184,6 +184,98 @@ hr {
     margin: 0.75rem 0 !important;
 }
 
+/* ── Sidebar nav links ──────────────────────────── */
+[data-testid="stSidebar"] [data-testid="stPageLink"] a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 7px 10px !important;
+    border-radius: 3px !important;
+    border-left: 2px solid transparent !important;
+    color: #7FAACC !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    transition: all 0.15s ease !important;
+}
+[data-testid="stSidebar"] [data-testid="stPageLink"] a:hover {
+    border-left-color: #C9A84C !important;
+    color: #E2EAF2 !important;
+    background: rgba(255,255,255,0.05) !important;
+}
+
+/* ── Multiselect tags ───────────────────────────── */
+[data-baseweb="tag"] {
+    background-color: #EBF4FF !important;
+    color: #0B2545 !important;
+    border-radius: 2px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    height: 22px !important;
+    line-height: 22px !important;
+    padding: 0 6px !important;
+    margin: 2px !important;
+}
+[data-baseweb="tag"] svg { fill: #0B2545 !important; width: 10px !important; height: 10px !important; }
+
+/* ── Select / Input borders ─────────────────────── */
+[data-baseweb="select"] > div {
+    border-color: #E2E8F0 !important;
+    border-radius: 3px !important;
+    background: #FFFFFF !important;
+}
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="input"] > div:focus-within {
+    border-color: #0B2545 !important;
+    box-shadow: 0 0 0 1px #0B2545 !important;
+}
+[data-baseweb="input"] > div {
+    border-color: #E2E8F0 !important;
+    border-radius: 3px !important;
+}
+
+/* ── Expander ───────────────────────────────────── */
+[data-testid="stExpander"] {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 4px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(11,37,69,0.04) !important;
+}
+[data-testid="stExpander"] summary {
+    background: #F7F9FC !important;
+    padding: 10px 16px !important;
+    border-radius: 4px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    color: #374151 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+[data-testid="stExpander"] summary:hover {
+    background: #EEF2F7 !important;
+}
+[data-testid="stExpander"] > div[data-testid="stExpanderDetails"] {
+    padding: 14px 16px 16px !important;
+}
+
+/* ── Caption ────────────────────────────────────── */
+[data-testid="stCaptionContainer"] p {
+    font-size: 0.75rem !important;
+    color: #9CA3AF !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* ── Date input ─────────────────────────────────── */
+[data-testid="stDateInput"] input {
+    border-radius: 3px !important;
+    border-color: #E2E8F0 !important;
+    font-size: 0.88rem !important;
+}
+
+/* ── Warning / Error ────────────────────────────── */
+[data-testid="stAlert"] {
+    border-radius: 3px !important;
+    font-size: 0.84rem !important;
+}
+
 /* ── Twemoji ────────────────────────────────────── */
 img.emoji {
     height: 1.15em;

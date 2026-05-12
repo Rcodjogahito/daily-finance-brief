@@ -27,13 +27,16 @@ if not dates:
     st.stop()
 
 with st.sidebar:
-    st.markdown("### Filtres")
+    st.markdown("### Édition")
     selected_date = st.selectbox(
         "Date",
         options=dates,
         format_func=lambda d: datetime.strptime(d, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize(),
+        label_visibility="collapsed",
     )
+    st.caption(f"{len(dates)} éditions archivées")
     st.markdown("---")
+    st.markdown("### Filtres")
 
     all_cats = [
         "M&A", "LevFin", "Energy", "Credit", "Macro", "Geo", "Reg", "Sector", "Nominations", "Banking",
@@ -53,6 +56,10 @@ with st.sidebar:
         "Real Estate", "Materials", "Services", "Other",
     ]
     selected_sectors = st.multiselect("Secteurs", all_sectors, default=all_sectors)
+    if st.button("↺ Réinitialiser", use_container_width=True):
+        for k in ["1_region", "1_cat", "1_sector"]:
+            st.session_state.pop(k, None)
+        st.rerun()
 
 brief = load_brief(selected_date)
 if not brief:
@@ -74,13 +81,12 @@ filtered = [
 ]
 
 date_fmt = datetime.strptime(selected_date, "%Y-%m-%d").strftime("%A %d %B %Y").capitalize()
-st.markdown(f'<div style="color:#6B7A8E;font-size:13px;margin-bottom:16px">{date_fmt} &nbsp;·&nbsp; {len(filtered)} news affichées</div>', unsafe_allow_html=True)
-
 s = brief.get("stats", {})
-c1, c2, c3 = st.columns(3)
-c1.metric("Collectées", s.get("collected", "—"))
-c2.metric("Sélectionnées", len(news))
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Sources scannées", s.get("collected", "—"))
+c2.metric("News sélectionnées", len(news))
 c3.metric("Affichées", len(filtered))
+c4.metric("Date", date_fmt.split(" ")[0].capitalize() + " " + date_fmt.split(" ")[1])
 
 if not filtered:
     st.info("Aucune news ne correspond aux filtres sélectionnés.")

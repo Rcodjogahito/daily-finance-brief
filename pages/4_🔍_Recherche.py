@@ -83,12 +83,23 @@ with st.sidebar:
     selected_sectors = st.multiselect("Secteurs", sectors, default=sectors)
 
     confidence_filter = st.radio("Fiabilité", ["Toutes", "High only"], horizontal=True)
+    st.markdown("---")
+    if st.button("↺ Réinitialiser les filtres", use_container_width=True):
+        for k in list(st.session_state.keys()):
+            if k.startswith("4_") or k in ("query",):
+                st.session_state.pop(k, None)
+        st.rerun()
 
 # ── Search bar ─────────────────────────────────────────────────────────────
-query = st.text_input(
-    "Recherche",
-    placeholder="ex: LBO, TotalEnergies, BCE, refinancement, nominated...",
-)
+scol1, scol2 = st.columns([3, 1])
+with scol1:
+    query = st.text_input(
+        "Recherche plein texte",
+        placeholder="ex: LBO, TotalEnergies, BCE, refinancement, M&A…",
+    )
+with scol2:
+    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+    st.caption(f"{len(all_news)} news indexées")
 
 # Build allowed geos from region filter
 allowed_geos: set[str] = set()
