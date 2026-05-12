@@ -11,7 +11,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 logger = logging.getLogger(__name__)
 
-_MODEL_NAME = "gemini-2.5-flash"  # Check https://ai.google.dev for latest free model
+_MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
 SYSTEM_PROMPT = """Tu es un analyste senior en banque d'investissement (Leveraged Finance / M&A / Energy / DCM) au sein d'un CIB Tier-1 européen.
 Tu prépares un brief quotidien pour ton équipe deal team et tes seniors.
@@ -186,6 +186,86 @@ def generate_alert_so_what(item: dict) -> str:
     except Exception as exc:
         logger.error("Alert so_what generation failed: %s", exc)
         return "Analyse indisponible — vérifier la source directement."
+
+
+_ITEM_SO_WHAT_PROMPT = """Tu es un analyste senior en banque d'investissement (M&A / Leveraged Finance / DCM / Energy) dans un CIB Tier-1 européen.
+
+Rédige une analyse d'impact rigoureuse pour cette news.
+
+News :
+- Titre : {headline}
+- Résumé : {summary}
+- Catégorie : {category} | Secteur : {sector} | Géographie : {geography}
+- Sources : {source_count} source(s) | Confiance : {confidence}
+
+RÈGLES :
+- 3-4 phrases structurées, niveau banquier senior, directes et actionnables
+- (1) Impact immédiat : marchés, spreads, cours ou conditions de financement directement affectés
+- (2) Conséquences pour les acteurs : banques, investisseurs, emprunteurs, concurrents — qui gagne, qui perd
+- (3) Signal deal flow CIB : opportunité ou risque à surveiller dans les prochains jours
+- Factuel et déductif (déductions raisonnables à partir du résumé OK), sans paraphrase
+- JAMAIS d'affirmations sans base factuelle dans le résumé
+
+Réponds en JSON valide UNIQUEMENT :
+{{"so_what": "<analyse>"}}
+"""
+
+_HEURISTIC_MARKERS = (
+    "Développement sectoriel",
+    "Transaction M&A",
+    "Event crédit leveraged",
+    "Event de crédit affectant",
+    "Développement énergétique",
+    "Signal macro (",
+    "Risque géopolitique (",
+    "Développement réglementaire",
+    "Nomination dans le secteur",
+    "Actualité bancaire (",
+    "News ",
+)
+
+
+def _is_heuristic(text: str) -> bool:
+    return not text or any(text.startswith(m) for m in _HEURISTIC_MARKERS)
+
+
+def _generate_item_so_what(item: dict) -> str:
+    """Generate a rigorous so_what for a single news item via Gemini."""
+    prompt = _ITEM_SO_WHAT_PROMPT.format(
+        headline=item.get("headline", ""),
+        summary=(item.get("summary", "") or "")[:400],
+        category=item.get("category", "Sector"),
+        sector=item.get("sector", ""),
+        geography=item.get("geography", ""),
+        source_count=item.get("source_count", 1),
+        confidence=item.get("confidence", "medium"),
+    )
+    raw = _call_gemini(prompt)
+    parsed = _extract_json(raw)
+    result = parsed.get("so_what", "")
+    return result if result and not _is_heuristic(result) else _heuristic_so_what(item)
+
+
+def enrich_so_what(items: list[dict]) -> list[dict]:
+    """For each item whose so_what is a heuristic fallback, regenerate via Gemini.
+
+    Called after the main batch selection so failures are isolated per item —
+    a single API error only affects one card, not all ten.
+    """
+    import time
+    result = []
+    for item in items:
+        if _is_heuristic(item.get("so_what", "")):
+            try:
+                item = {**item, "so_what": _generate_item_so_what(item)}
+            except Exception as exc:
+                logger.warning(
+                    "so_what enrichment failed for '%s': %s",
+                    item.get("headline", "")[:50], exc,
+                )
+            time.sleep(0.5)  # respect API rate limits
+        result.append(item)
+    return result
 
 
 def _heuristic_so_what(item: dict) -> str:

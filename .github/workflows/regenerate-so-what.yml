@@ -1,0 +1,36 @@
+name: Regenerate so_what (backfill)
+
+# Re-enrich heuristic so_what values in historical briefs via Gemini.
+# Run manually from GitHub Actions > Regenerate so_what > Run workflow.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-pipeline.txt
+
+      - name: Configure git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Regenerate so_what
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL:   ${{ secrets.GEMINI_MODEL || 'gemini-2.0-flash' }}
+        run: python -m scripts.regenerate_so_what

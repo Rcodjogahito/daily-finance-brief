@@ -8,7 +8,7 @@ from datetime import datetime
 import pytz
 
 from src.alert_detector import detect_hot_alerts
-from src.analyzer import analyze_news, post_verify_llm_output
+from src.analyzer import analyze_news, enrich_so_what, post_verify_llm_output
 from src.archiver import git_commit_and_push, load_brief, mark_brief_sent, save_brief
 from src.collectors.rss_collector import collect_all_sources, resolve_gnews_urls
 from src.emailer import get_recipients, send_email
@@ -132,6 +132,9 @@ def main() -> None:
 
     # 7b. Resolve Google News proxy URLs → real article URLs
     final = resolve_gnews_urls(final)
+
+    # 7c. Enrich so_what: regenerate any heuristic fallbacks via individual Gemini calls
+    final = enrich_so_what(final)
 
     # Fallback banner if low volume
     low_volume = len(final) < 3
