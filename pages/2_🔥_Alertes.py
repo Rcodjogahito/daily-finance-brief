@@ -26,7 +26,7 @@ ALERT_LABELS = {
 page_toolbar()
 
 st.markdown(
-    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
+    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px">Coffee Economics News</div>',
     unsafe_allow_html=True,
 )
 st.title("Alertes intraday")
@@ -105,7 +105,7 @@ if filtered_alerts:
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
-st.markdown(f'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:16px">{len(filtered_alerts)} alertes</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:16px">{len(filtered_alerts)} alertes</div>', unsafe_allow_html=True)
 
 if not filtered_alerts:
     st.info("Aucune alerte dans la période sélectionnée.")
@@ -122,7 +122,7 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
     headline = alert.get("headline", alert.get("title", ""))
     deal_str = ""
     if alert.get("deal_size_eur"):
-        deal_str = f' <span style="background:#EBF2FF;color:#0B1D2E;padding:2px 6px;border-radius:2px;font-size:10px;font-weight:700">{alert["deal_size_eur"]/1e9:.1f} Md€</span>'
+        deal_str = f' <span style="background:#EBF4FF;color:#0B2545;padding:2px 7px;border-radius:2px;font-size:9px;font-weight:700">{alert["deal_size_eur"]/1e9:.1f}&nbsp;Md€</span>'
 
     meta_parts = [alert.get("source", ""), alert.get("_date", ""), alert.get("geography", ""), alert.get("sector", "")]
     sep = ' <span style="color:#D1D5DB">·</span> '
@@ -140,8 +140,10 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
             unsafe_allow_html=True,
         )
         st.markdown(
-            f'<a href="{url}" target="_blank" style="font-size:16px;font-weight:700;'
-            f'color:#0B1D2E;text-decoration:none;display:block;margin-bottom:5px">{headline}</a>',
+            f'<a href="{url}" target="_blank" style="'
+            f"font-family:'Playfair Display',Georgia,serif;"
+            f'font-size:16px;font-weight:700;color:#0B2545;text-decoration:none;'
+            f'display:block;margin-bottom:5px;line-height:1.35">{headline}</a>',
             unsafe_allow_html=True,
         )
         st.markdown(
@@ -190,7 +192,7 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
 
         if url:
             st.markdown(
-                f'<a href="{url}" target="_blank" style="font-size:12px;color:#1565C0;font-weight:500;text-decoration:none">Lire l\'article source</a>',
+                f'<a href="{url}" target="_blank" style="font-size:11px;color:#0B2545;font-weight:600;text-decoration:none;letter-spacing:0.02em">Lire l\'article &#8594;</a>',
                 unsafe_allow_html=True,
             )
 

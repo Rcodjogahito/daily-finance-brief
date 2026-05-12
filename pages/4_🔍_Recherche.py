@@ -17,7 +17,7 @@ sidebar_brand()
 page_toolbar()
 
 st.markdown(
-    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
+    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px">Coffee Economics News</div>',
     unsafe_allow_html=True,
 )
 st.title("Recherche")
@@ -130,7 +130,7 @@ results.sort(key=lambda n: n.get("date", ""), reverse=True)
 
 st.markdown("---")
 st.markdown(
-    f'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:12px">{len(results)} résultats</div>',
+    f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:12px">{len(results)} résultats</div>',
     unsafe_allow_html=True,
 )
 

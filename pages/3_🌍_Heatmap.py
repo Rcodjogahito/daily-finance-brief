@@ -15,7 +15,7 @@ sidebar_brand()
 page_toolbar()
 
 st.markdown(
-    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Coffee Economics News</div>',
+    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px">Coffee Economics News</div>',
     unsafe_allow_html=True,
 )
 st.title("Heatmap Deals Secteur x Géographie")
@@ -119,7 +119,7 @@ pivot = pivot.reindex(index=sectors_present, columns=geos_present, fill_value=0)
 
 fig = px.imshow(
     pivot,
-    color_continuous_scale="Blues",
+    color_continuous_scale=[[0, "#EFF6FF"], [0.4, "#3B82F6"], [1, "#0B2545"]],
     aspect="auto",
     text_auto=True,
     title=title,
@@ -129,6 +129,11 @@ fig.update_layout(
     height=500,
     margin=dict(t=60, b=20, l=20, r=20),
     coloraxis_colorbar=dict(title=color_label),
+    paper_bgcolor="white",
+    plot_bgcolor="white",
+    font_family="Inter, Helvetica Neue, Arial, sans-serif",
+    font_color="#374151",
+    title_font_family="Inter, Helvetica Neue, Arial, sans-serif",
 )
 fig.update_xaxes(tickangle=-30)
 
@@ -162,7 +167,7 @@ if not df_detail.empty:
 # ── Top 10 deals ───────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:12px">Top 10 deals par montant</div>',
+    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:12px">Top 10 deals par montant</div>',
     unsafe_allow_html=True,
 )
 
@@ -183,5 +188,12 @@ else:
         height=400,
         text="Montant (Md€)",
     )
-    fig2.update_layout(yaxis=dict(autorange="reversed"), margin=dict(t=40, b=20))
+    fig2.update_layout(
+        yaxis=dict(autorange="reversed"),
+        margin=dict(t=40, b=20),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        font_family="Inter, Helvetica Neue, Arial, sans-serif",
+        font_color="#374151",
+    )
     st.plotly_chart(fig2, use_container_width=True)

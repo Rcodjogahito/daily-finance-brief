@@ -104,8 +104,8 @@ if _qp.get("page") == "abonnement":
     st.switch_page("pages/5_📧_Abonnement.py")
 
 st.markdown(
-    '<div style="margin-bottom:4px">'
-    '<span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF">Coffee Economics News</span>'
+    '<div style="margin-bottom:5px">'
+    '<span style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C">Coffee Economics News</span>'
     '</div>',
     unsafe_allow_html=True,
 )
@@ -136,7 +136,7 @@ st.markdown("---")
 # ── Market snapshot ────────────────────────────────────────────────────────
 if market:
     st.markdown(
-        '<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin-bottom:12px">Marchés</div>',
+        '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:12px">Marchés</div>',
         unsafe_allow_html=True,
     )
     cols = st.columns(len(market))
@@ -149,10 +149,10 @@ if market:
         change = data.get("change", "")
         unit   = f' <span style="font-size:11px;color:#9CA3AF">{data["unit"]}</span>' if data.get("unit") else ""
         col.markdown(
-            f'<div style="padding:2px 0">'
-            f'<div style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">{label}</div>'
-            f'<div style="font-size:19px;font-weight:700;color:#0B1D2E;letter-spacing:-0.5px;line-height:1">{data.get("value","—")}{unit}</div>'
-            f'<div style="font-size:11px;font-weight:500;color:{color};margin-top:3px">{arrow} {change or "—"}</div>'
+            f'<div style="padding:4px 0 8px">'
+            f'<div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:5px">{label}</div>'
+            f'<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:20px;font-weight:700;color:#0B2545;letter-spacing:-0.5px;line-height:1">{data.get("value","—")}{unit}</div>'
+            f'<div style="font-size:11px;font-weight:600;color:{color};margin-top:4px">{arrow} {change or "—"}</div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -170,7 +170,7 @@ fcol1, fcol2, fcol3 = st.columns(3)
 
 with fcol1:
     st.markdown(
-        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Région</div>',
+        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Région</div>',
         unsafe_allow_html=True,
     )
     selected_regions = st.multiselect(
@@ -179,7 +179,7 @@ with fcol1:
 
 with fcol2:
     st.markdown(
-        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Type d\'information</div>',
+        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Type d\'information</div>',
         unsafe_allow_html=True,
     )
     cats_present  = sorted({item.get("category", "Sector") for item in news})
@@ -191,7 +191,7 @@ with fcol2:
 
 with fcol3:
     st.markdown(
-        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF;margin-bottom:4px">Secteur</div>',
+        '<div style="font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;margin-bottom:4px">Secteur</div>',
         unsafe_allow_html=True,
     )
     sectors_present = sorted({item.get("sector", "Other") for item in news})
@@ -209,7 +209,7 @@ filtered_news = [
 ]
 
 st.markdown(
-    f'<div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:8px 0 12px">{len(filtered_news)} news affichées</div>',
+    f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin:8px 0 12px">{len(filtered_news)} news</div>',
     unsafe_allow_html=True,
 )
 
