@@ -156,18 +156,20 @@ def main() -> None:
     sent = send_email(subject, html, plain, recipients)
     stats["email_sent"] = sent
 
+    # Update brief with final stats (email result) — always commit regardless of email outcome
+    save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
+
     # Mark brief as sent so duplicate cron runs skip cleanly
     if sent:
         mark_brief_sent(date_str)
+    else:
+        logger.warning('"Email failed — brief archived, will retry on next cron run"')
 
-    # 11. Git push
+    # 11. Git push (best-effort — GitHub Actions commit step also handles this)
     pushed = git_commit_and_push(f"Brief {date_str}")
     stats["git_pushed"] = pushed
 
     logger.info('"=== PIPELINE COMPLETE: %s"', json.dumps(stats))
-
-    if not sent:
-        sys.exit(1)
 
 
 if __name__ == "__main__":
