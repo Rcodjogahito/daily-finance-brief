@@ -2,7 +2,6 @@
 import io as _io
 import csv as _csv
 from datetime import datetime
-from pathlib import Path
 
 import streamlit as st
 
@@ -219,31 +218,7 @@ for item in filtered_news:
 
 # ── Exports ────────────────────────────────────────────────────────────────
 st.markdown("---")
-col_pdf, col_csv, col_info = st.columns([1, 1, 2])
-
-with col_pdf:
-    if st.button("Export PDF"):
-        try:
-            from xhtml2pdf import pisa
-            from jinja2 import Environment, FileSystemLoader
-
-            template_dir = Path(__file__).parent / "src" / "templates"
-            env  = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
-            html = env.get_template("email_brief.html").render(
-                brief=brief,
-                streamlit_url=st.secrets.get("STREAMLIT_URL", "") if hasattr(st, "secrets") else "",
-                generated_at=datetime.now().strftime("%d/%m/%Y à %H:%M"),
-            )
-            pdf_buf = _io.BytesIO()
-            pisa.CreatePDF(html, dest=pdf_buf)
-            st.download_button(
-                "Télécharger le PDF",
-                data=pdf_buf.getvalue(),
-                file_name=f"brief_{selected_date}.pdf",
-                mime="application/pdf",
-            )
-        except Exception as e:
-            st.error(f"Erreur PDF : {e}")
+col_csv, col_info = st.columns([1, 3])
 
 with col_csv:
     if news:

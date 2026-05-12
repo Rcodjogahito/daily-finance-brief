@@ -1,7 +1,5 @@
 """Page 1 — Historique."""
-import io
 from datetime import datetime
-from pathlib import Path
 
 import streamlit as st
 
@@ -93,27 +91,3 @@ st.markdown("---")
 for item in filtered:
     news_card(item)
 
-# PDF Export
-st.markdown("---")
-if st.button("Export PDF"):
-    try:
-        from xhtml2pdf import pisa
-        from jinja2 import Environment, FileSystemLoader
-
-        template_dir = Path(__file__).parent.parent / "src" / "templates"
-        env  = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
-        html = env.get_template("email_brief.html").render(
-            brief=brief,
-            streamlit_url="",
-            generated_at=datetime.now().strftime("%d/%m/%Y"),
-        )
-        pdf_buf = io.BytesIO()
-        pisa.CreatePDF(html, dest=pdf_buf)
-        st.download_button(
-            "Télécharger le PDF",
-            data=pdf_buf.getvalue(),
-            file_name=f"brief_{selected_date}.pdf",
-            mime="application/pdf",
-        )
-    except Exception as e:
-        st.error(f"Erreur PDF : {e}")
