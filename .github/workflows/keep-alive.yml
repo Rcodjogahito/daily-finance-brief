@@ -1,12 +1,17 @@
 name: Streamlit Keep-Alive
 
-# Streamlit Community Cloud endort les apps inactives après ~7 jours.
-# Ce workflow les réveille toutes les 3 heures pour maintenir l'app active.
+# Streamlit Community Cloud endort les apps après ~7 jours d'inactivité.
+# Ce workflow ping l'app toutes les 3h avec des headers navigateur réels
+# ET suit les redirects (-L) pour toucher le serveur Streamlit effectivement.
+#
+# En complément, configurer UptimeRobot (gratuit, toutes les 5 min) :
+#   https://uptimerobot.com → New Monitor → HTTP(s) → URL de l'app
+#   Cela garantit que l'app ne dormira JAMAIS.
 
 on:
   schedule:
-    - cron: '0 */3 * * *'   # Toutes les 3 heures (00h, 03h, 06h, 09h, 12h, 15h, 18h, 21h UTC)
-  workflow_dispatch:
+    - cron: '0 */3 * * *'   # Toutes les 3h : 00h, 03h, 06h, 09h, 12h, 15h, 18h, 21h UTC
+  workflow_dispatch:          # Déclenchement manuel si besoin
 
 jobs:
   ping:
@@ -17,30 +22,55 @@ jobs:
       - name: Wake up Streamlit app
         run: |
           URL="https://daily-finance-brief-cib.streamlit.app"
-          echo "Pinging $URL ..."
+          echo "=== Keep-alive $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-          # Premier ping — simule un navigateur réel
+          # ── Ping 1 : Page principale avec headers navigateur + suivi redirects ──
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            --max-time 45 \
+            -L \
+            --max-time 60 \
             --retry 3 \
-            --retry-delay 10 \
+            --retry-delay 15 \
+            --retry-connrefused \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-            -H "Accept-Language: fr-FR,fr;q=0.9,en;q=0.8" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8" \
+            -H "Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7" \
             -H "Accept-Encoding: gzip, deflate, br" \
+            -H "Cache-Control: no-cache" \
+            -H "Pragma: no-cache" \
             -H "Connection: keep-alive" \
+            -H "Upgrade-Insecure-Requests: 1" \
             "$URL" || echo "000")
-          echo "HTTP status page principale: $STATUS"
+          echo "✓ Page principale — HTTP $STATUS"
 
-          # Deuxième ping — endpoint health Streamlit
-          curl -s -o /dev/null --max-time 15 \
+          # ── Ping 2 : Health endpoint (suit les redirects) ──
+          H_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -L \
+            --max-time 30 \
+            -H "User-Agent: Mozilla/5.0 (compatible; keep-alive-bot/1.0)" \
+            "$URL/_stcore/health" || echo "000")
+          echo "✓ Health endpoint — HTTP $H_STATUS"
+
+          # ── Ping 3 : WebSocket check (simule l'ouverture d'une page Streamlit) ──
+          WS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -L \
+            --max-time 20 \
             -H "User-Agent: Mozilla/5.0 (compatible)" \
-            "$URL/_stcore/health" || true
-          echo "Ping health endpoint done"
+            -H "Accept: application/json" \
+            "$URL/_stcore/allowed-message-origins" || echo "000")
+          echo "✓ Streamlit API — HTTP $WS_STATUS"
 
-          # Troisième ping — page Alertes pour réchauffer le cache
-          curl -s -o /dev/null --max-time 30 \
+          # ── Ping 4 : Page secondaire pour réchauffer le cache ──
+          curl -s -o /dev/null \
+            -L \
+            --max-time 25 \
             -H "User-Agent: Mozilla/5.0 (compatible)" \
-            "$URL/Alertes" || true
+            "$URL/Historique" || true
+          echo "✓ Page Historique — done"
 
-          echo "Keep-alive complete — $(date -u +%Y-%m-%dT%H:%M:%S)Z"
+          echo "=== Keep-alive complete ==="
+
+          # Alerter si l'app ne répond pas (code 000 = timeout/connexion refusée)
+          if [ "$STATUS" = "000" ]; then
+            echo "::warning::App did not respond — may be sleeping or down"
+            exit 1
+          fi

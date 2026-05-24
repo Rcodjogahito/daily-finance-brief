@@ -1,0 +1,73 @@
+name: App Health Monitor
+
+# Surveille l'état de l'app Streamlit et la réveille si elle dort.
+# Différent du keep-alive : ce workflow VÉRIFIE l'état et LOGUE une alerte.
+# Se déclenche aussi après chaque push pour s'assurer que le déploiement est OK.
+
+on:
+  push:
+    branches: [master, main]
+  schedule:
+    - cron: '30 */6 * * *'   # Toutes les 6h (décalé de 30 min vs keep-alive)
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check app status
+        id: check
+        run: |
+          URL="https://daily-finance-brief-cib.streamlit.app"
+          echo "Checking $URL at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Requête avec suivi de redirects — noter le code final
+          FINAL_URL=""
+          HTTP_CODE=$(curl -s -o /tmp/app_response.txt -w "%{http_code}" \
+            -L \
+            --max-time 60 \
+            --retry 2 \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
+            -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
+            "$URL" || echo "000")
+
+          echo "http_code=$HTTP_CODE" >> $GITHUB_OUTPUT
+          echo "HTTP status: $HTTP_CODE"
+
+          # Détecter si l'app dort (contenu de la page sleeping Streamlit)
+          if grep -qi "gone to sleep\|has gone to sleep\|wake up\|wakeup" /tmp/app_response.txt 2>/dev/null; then
+            echo "sleeping=true" >> $GITHUB_OUTPUT
+            echo "::warning::App is SLEEPING — needs manual wake-up via browser"
+          else
+            echo "sleeping=false" >> $GITHUB_OUTPUT
+            echo "✓ App appears active (HTTP $HTTP_CODE)"
+          fi
+
+          # Log taille de la réponse pour diagnostic
+          RESP_SIZE=$(wc -c < /tmp/app_response.txt || echo 0)
+          echo "Response size: $RESP_SIZE bytes"
+
+      - name: Attempt wake-up if sleeping
+        if: steps.check.outputs.sleeping == 'true'
+        run: |
+          URL="https://daily-finance-brief-cib.streamlit.app"
+          echo "App is sleeping — sending multiple wake-up requests..."
+          for i in 1 2 3 4 5; do
+            curl -s -o /dev/null -L --max-time 90 \
+              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+              -H "Accept: text/html,*/*" \
+              "$URL" || true
+            echo "Wake attempt $i/5 done"
+            sleep 10
+          done
+          echo "Wake-up sequence complete — app should be restarting"
+
+      - name: Report status
+        run: |
+          echo "=== Health Check Summary ==="
+          echo "URL: https://daily-finance-brief-cib.streamlit.app"
+          echo "HTTP: ${{ steps.check.outputs.http_code }}"
+          echo "Sleeping: ${{ steps.check.outputs.sleeping }}"
+          echo "Time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
