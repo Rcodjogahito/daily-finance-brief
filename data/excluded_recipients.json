@@ -1,0 +1,6 @@
+{
+  "excluded": [
+    "codjo.gahito@natixis.com"
+  ],
+  "_note": "Emails dans cette liste ne recevront JAMAIS les briefs, qu'ils soient dans subscribers.json ou dans le secret RECIPIENTS GitHub."
+}

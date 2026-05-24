@@ -1,5 +1,19 @@
 name: Daily Finance Brief
 
+# =============================================================================
+# DÉCLENCHEMENT
+# Deux crons pour couvrir UTC+1 (hiver) et UTC+2 (été) :
+#   30 6 * * *  → 08:30 CEST (UTC+2, mars-oct)
+#   30 7 * * *  → 08:30 CET  (UTC+1, oct-mars)
+# Le pipeline_lock interne empêche tout double-envoi sur la même date.
+#
+# FIABILITÉ RENFORCÉE : GitHub Actions peut accumuler jusqu'à 30 min de retard.
+# Solution complémentaire recommandée : configurer cron-job.org (gratuit) pour
+# appeler l'API GitHub dispatch à 06:30 UTC via Personal Access Token.
+# URL API : POST https://api.github.com/repos/{owner}/daily-finance-brief/
+#           actions/workflows/daily-brief.yml/dispatches
+# =============================================================================
+
 on:
   schedule:
     - cron: '30 6 * * *'   # 08:30 Paris UTC+2 (heure d'été)
@@ -7,7 +21,7 @@ on:
   workflow_dispatch:
     inputs:
       force_send:
-        description: 'Force send (ignore time window)'
+        description: 'Force send (ignore lock et dedup)'
         required: false
         default: 'true'
         type: boolean
@@ -17,12 +31,12 @@ permissions:
 
 concurrency:
   group: daily-brief
-  cancel-in-progress: false
+  cancel-in-progress: false   # file d'attente — le dedup guard gère le reste
 
 jobs:
   send-brief:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20       # Augmenté pour absorber la latence Gemini
 
     steps:
       - uses: actions/checkout@v4
@@ -60,5 +74,5 @@ jobs:
           git config user.email "bot@github-actions.local"
           git add data/
           git diff --staged --quiet || git commit -m "Brief $(date -u +%Y-%m-%d)"
-          git pull --rebase || true
+          git pull --rebase origin master || git pull --rebase origin main || true
           git push

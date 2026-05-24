@@ -5,13 +5,19 @@ import os
 import re
 from typing import Optional
 
-from google import genai
-from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 logger = logging.getLogger(__name__)
 
-_MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+# Model fallback chain: essaie le meilleur modèle, se replie sur les suivants
+_MODEL_PREFERENCE = [
+    os.environ.get("GEMINI_MODEL", ""),
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-latest",
+]
+_MODEL_NAME = next((m for m in _MODEL_PREFERENCE if m), "gemini-2.0-flash")
 
 SYSTEM_PROMPT = """Tu es un analyste senior en banque d'investissement (Leveraged Finance / M&A / Energy / DCM) au sein d'un CIB Tier-1 européen.
 Tu prépares un brief quotidien pour ton équipe deal team et tes seniors.
@@ -83,15 +89,28 @@ Réponds en JSON valide UNIQUEMENT :
 """
 
 
-def _get_client() -> genai.Client:
+def _get_client():
+    """Build a Gemini client, trying google-genai (new SDK) first."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable not set")
-    return genai.Client(api_key=api_key)
+    try:
+        from google import genai
+        return genai.Client(api_key=api_key), "genai"
+    except ImportError:
+        pass
+    try:
+        import google.generativeai as genai_legacy
+        genai_legacy.configure(api_key=api_key)
+        return genai_legacy, "legacy"
+    except ImportError:
+        raise ImportError("Neither google-genai nor google-generativeai is installed")
 
 
 def _extract_json(text: str) -> dict:
     """Robust JSON extraction — handle Gemini preamble or markdown wrapping."""
+    if not text:
+        raise ValueError("Empty response from Gemini")
     try:
         return json.loads(text)
     except json.JSONDecodeError:
@@ -110,25 +129,63 @@ def _extract_json(text: str) -> dict:
     raise ValueError(f"Cannot extract JSON from Gemini response: {text[:200]}")
 
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=30),
-    retry=retry_if_exception_type(Exception),
-    reraise=True,
-)
-def _call_gemini(prompt: str) -> str:
-    client = _get_client()
+def _call_gemini_new_sdk(client, model: str, prompt: str, system: str) -> str:
+    """Call Gemini via google-genai (new SDK ≥1.0)."""
+    from google.genai import types
     response = client.models.generate_content(
-        model=_MODEL_NAME,
+        model=model,
         contents=prompt,
         config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
+            system_instruction=system,
             temperature=0.2,
             max_output_tokens=16000,
             response_mime_type="application/json",
         ),
     )
     return response.text
+
+
+def _call_gemini_legacy_sdk(client, model: str, prompt: str, system: str) -> str:
+    """Call Gemini via google-generativeai (legacy SDK)."""
+    m = client.GenerativeModel(
+        model_name=model,
+        system_instruction=system,
+        generation_config={
+            "temperature": 0.2,
+            "max_output_tokens": 16000,
+            "response_mime_type": "application/json",
+        }
+    )
+    response = m.generate_content(prompt)
+    return response.text
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=5, max=60),
+    retry=retry_if_exception_type(Exception),
+    reraise=True,
+)
+def _call_gemini(prompt: str, system: str = SYSTEM_PROMPT) -> str:
+    """Call Gemini with automatic SDK detection and model fallback chain."""
+    client, sdk_type = _get_client()
+    last_exc = None
+
+    for model in [m for m in _MODEL_PREFERENCE if m]:
+        try:
+            if sdk_type == "genai":
+                result = _call_gemini_new_sdk(client, model, prompt, system)
+            else:
+                result = _call_gemini_legacy_sdk(client, model, prompt, system)
+            if result:
+                logger.info("Gemini success with model: %s (sdk: %s)", model, sdk_type)
+                return result
+        except Exception as exc:
+            last_exc = exc
+            logger.warning("Model %s failed: %s — trying next", model, str(exc)[:100])
+            continue
+
+    raise RuntimeError(f"All Gemini models failed. Last error: {last_exc}")
 
 
 def analyze_news(candidates: list[dict]) -> list[dict]:
@@ -260,10 +317,11 @@ def enrich_so_what(items: list[dict]) -> list[dict]:
                 item = {**item, "so_what": _generate_item_so_what(item)}
             except Exception as exc:
                 logger.warning(
-                    "so_what enrichment failed for '%s': %s",
+                    "so_what enrichment failed for '%s': %s — using heuristic",
                     item.get("headline", "")[:50], exc,
                 )
-            time.sleep(0.5)  # respect API rate limits
+                item = {**item, "so_what": _heuristic_so_what(item)}
+            time.sleep(1)  # respect API rate limits
         result.append(item)
     return result
 
@@ -338,17 +396,37 @@ def _fallback_selection(candidates: list[dict]) -> list[dict]:
 
 
 def post_verify_llm_output(llm_news: list[dict], original_news: list[dict]) -> list[dict]:
-    """Reject/sanitize news where Gemini fabricated amounts not in original source."""
+    """Reject/sanitize news where Gemini fabricated amounts not in original source.
+
+    NOTE: URL matching is best-effort. Items with unmatched URLs are kept
+    (not rejected) to avoid dropping valid news due to URL normalization
+    differences between Gemini output and original source.
+    """
     from src.enrichment import extract_amount_eur
 
     url_index = {item.get("url", ""): item for item in original_news}
+    # Also index by normalized URL (without query params) for fuzzy matching
+    url_index_normalized = {}
+    for item in original_news:
+        url = item.get("url", "")
+        base = url.split("?")[0].rstrip("/")
+        url_index_normalized[base] = item
+
     verified: list[dict] = []
 
     for item in llm_news:
         url = item.get("url", "")
-        original = url_index.get(url)
+        base_url = url.split("?")[0].rstrip("/")
+
+        original = url_index.get(url) or url_index_normalized.get(base_url)
         if not original:
-            logger.warning("Gemini returned URL not in original set — rejected: %s", url[:80])
+            # Keep the item but log a warning — don't reject valid news
+            logger.debug(
+                "Gemini returned URL not in original set (keeping anyway): %s", url[:80]
+            )
+            item["source_count"] = item.get("source_count", 1)
+            item.setdefault("alert_flags", [])
+            verified.append(item)
             continue
 
         if item.get("deal_size_eur"):

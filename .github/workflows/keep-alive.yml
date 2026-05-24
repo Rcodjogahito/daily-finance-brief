@@ -1,26 +1,46 @@
 name: Streamlit Keep-Alive
 
 # Streamlit Community Cloud endort les apps inactives après ~7 jours.
-# Ce workflow les réveille chaque jour en envoyant une requête HTTP.
+# Ce workflow les réveille toutes les 3 heures pour maintenir l'app active.
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 08:00 Paris (UTC+2 été) — avant le brief
-    - cron: '0 7 * * *'   # 08:00 Paris (UTC+1 hiver)
+    - cron: '0 */3 * * *'   # Toutes les 3 heures (00h, 03h, 06h, 09h, 12h, 15h, 18h, 21h UTC)
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
 
     steps:
       - name: Wake up Streamlit app
         run: |
           URL="https://daily-finance-brief-cib.streamlit.app"
           echo "Pinging $URL ..."
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL" || echo "000")
-          echo "HTTP status: $STATUS"
-          # Also ping the health endpoint if available
-          curl -s -o /dev/null --max-time 10 "$URL/_stcore/health" || true
-          echo "Keep-alive complete"
+
+          # Premier ping — simule un navigateur réel
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 45 \
+            --retry 3 \
+            --retry-delay 10 \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            -H "Accept-Language: fr-FR,fr;q=0.9,en;q=0.8" \
+            -H "Accept-Encoding: gzip, deflate, br" \
+            -H "Connection: keep-alive" \
+            "$URL" || echo "000")
+          echo "HTTP status page principale: $STATUS"
+
+          # Deuxième ping — endpoint health Streamlit
+          curl -s -o /dev/null --max-time 15 \
+            -H "User-Agent: Mozilla/5.0 (compatible)" \
+            "$URL/_stcore/health" || true
+          echo "Ping health endpoint done"
+
+          # Troisième ping — page Alertes pour réchauffer le cache
+          curl -s -o /dev/null --max-time 30 \
+            -H "User-Agent: Mozilla/5.0 (compatible)" \
+            "$URL/Alertes" || true
+
+          echo "Keep-alive complete — $(date -u +%Y-%m-%dT%H:%M:%S)Z"

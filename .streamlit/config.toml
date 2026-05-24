@@ -1,7 +1,7 @@
 [theme]
 primaryColor              = "#0B2545"
-backgroundColor           = "#F7F9FC"
-secondaryBackgroundColor  = "#EEF2F7"
+backgroundColor           = "#F4F6FA"
+secondaryBackgroundColor  = "#EAEEF5"
 textColor                 = "#111827"
 font                      = "sans serif"
 
@@ -9,6 +9,13 @@ font                      = "sans serif"
 headless             = true
 enableCORS           = true
 enableXsrfProtection = true
+maxUploadSize        = 10
 
 [browser]
 gatherUsageStats = false
+
+[runner]
+fastReruns = true
+
+[client]
+showSidebarNavigation = true

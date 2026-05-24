@@ -1,4 +1,4 @@
-"""Page 2 — Alertes chaudes."""
+"""Page 2 — Alertes chaudes intraday."""
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -6,9 +6,14 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
-from src.styles import inject_css, sidebar_brand, page_toolbar
+from src.styles import inject_css, sidebar_brand, section_header
 
-st.set_page_config(page_title="Alertes — Daily Finance Brief", page_icon="", layout="wide")
+st.set_page_config(
+    page_title="Alertes — Daily Finance Brief",
+    page_icon="🔥",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 inject_css()
 sidebar_brand()
 
@@ -22,18 +27,56 @@ ALERT_LABELS = {
     "FALLEN_ANGEL":   "Fallen Angel",
     "PROFIT_WARNING": "Profit Warning",
 }
+ALERT_ICONS = {
+    "MEGA_DEAL":      "🏦",
+    "FALLEN_ANGEL":   "📉",
+    "PROFIT_WARNING": "⚠️",
+}
 
-page_toolbar()
+# ── Sidebar nav ────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("---")
+    st.markdown("### Navigation")
+    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
+    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
+    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
+    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
+    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
+    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
+    st.markdown("---")
 
+    st.markdown("### Filtres")
+    alert_types    = ["MEGA_DEAL", "FALLEN_ANGEL", "PROFIT_WARNING"]
+    selected_types = st.multiselect("Type", alert_types, default=alert_types,
+                                    format_func=lambda t: ALERT_LABELS.get(t, t))
+    period = st.selectbox("Période", ["7 derniers jours", "30 derniers jours", "Tout"], index=1)
+
+# ── Header ─────────────────────────────────────────────────────────────────
+section_header("Coffee Economics News")
+st.title("Alertes intraday")
 st.markdown(
-    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px">Coffee Economics News</div>',
+    '<div style="font-size:14px;color:#6B7A8E;margin-top:-4px;margin-bottom:20px">'
+    'Mega deals, Fallen angels, Profit warnings détectés en temps réel'
+    '</div>',
     unsafe_allow_html=True,
 )
-st.title("Alertes intraday")
 
+# ── Load data ──────────────────────────────────────────────────────────────
 dates = list_alert_dates()
 if not dates:
-    st.info("Aucune alerte déclenchée pour le moment.")
+    st.markdown(
+        '<div style="background:#FFFFFF;border-radius:8px;padding:40px 32px;'
+        'text-align:center;border:1px solid #E8EEF5;margin-top:24px">'
+        '<div style="font-size:40px;margin-bottom:16px">🔔</div>'
+        '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:20px;'
+        'font-weight:700;color:#071828;margin-bottom:10px">Aucune alerte pour le moment</div>'
+        '<div style="font-size:14px;color:#6B7A8E">'
+        'Les alertes intraday (Mega Deal, Fallen Angel, Profit Warning) '
+        'apparaîtront ici dès leur détection.'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 all_alerts: list[dict] = []
@@ -43,12 +86,6 @@ for d in dates[:90]:
         for alert in data.get("alerts", []):
             alert["_date"] = d
             all_alerts.append(alert)
-
-with st.sidebar:
-    st.markdown("### Filtres")
-    alert_types    = ["MEGA_DEAL", "FALLEN_ANGEL", "PROFIT_WARNING"]
-    selected_types = st.multiselect("Type", alert_types, default=alert_types)
-    period = st.selectbox("Période", ["7 derniers jours", "30 derniers jours", "Tout"], index=1)
 
 cutoff = {
     "7 derniers jours":  (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d"),
@@ -70,13 +107,14 @@ filtered_alerts = [
 # ── Stats ──────────────────────────────────────────────────────────────────
 st.markdown("---")
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Total",          len(filtered_alerts))
-c2.metric("Mega deals",     sum(1 for a in filtered_alerts if "MEGA_DEAL"      in get_types(a)))
-c3.metric("Fallen angels",  sum(1 for a in filtered_alerts if "FALLEN_ANGEL"   in get_types(a)))
-c4.metric("Profit warnings",sum(1 for a in filtered_alerts if "PROFIT_WARNING" in get_types(a)))
+c1.metric("Total alertes",    len(filtered_alerts))
+c2.metric("🏦 Mega deals",   sum(1 for a in filtered_alerts if "MEGA_DEAL"      in get_types(a)))
+c3.metric("📉 Fallen angels", sum(1 for a in filtered_alerts if "FALLEN_ANGEL"   in get_types(a)))
+c4.metric("⚠ Profit warnings",sum(1 for a in filtered_alerts if "PROFIT_WARNING" in get_types(a)))
 
 # ── Chart ──────────────────────────────────────────────────────────────────
 if filtered_alerts:
+    st.markdown("---")
     df = pd.DataFrame([
         {"date": a.get("_date", ""), "type": get_types(a)[0] if get_types(a) else "UNKNOWN"}
         for a in filtered_alerts
@@ -89,15 +127,16 @@ if filtered_alerts:
         weekly, x="week", y="count", color="type",
         color_discrete_map=ALERT_COLORS,
         labels={"week": "", "count": "Alertes", "type": "Type"},
-        height=260,
+        height=240,
     )
     fig.update_layout(
-        margin=dict(t=20, b=20, l=0, r=0),
+        margin=dict(t=10, b=10, l=0, r=0),
         legend_title_text="",
         plot_bgcolor="white",
         paper_bgcolor="white",
         font_family="Inter, Helvetica Neue, Arial, sans-serif",
         font_color="#374151",
+        font_size=11,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
         xaxis=dict(showgrid=False, tickfont=dict(size=10)),
         yaxis=dict(gridcolor="#F3F4F6", tickfont=dict(size=10)),
@@ -105,7 +144,7 @@ if filtered_alerts:
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
-st.markdown(f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:16px">{len(filtered_alerts)} alertes</div>', unsafe_allow_html=True)
+section_header(f"{len(filtered_alerts)} alertes")
 
 if not filtered_alerts:
     st.info("Aucune alerte dans la période sélectionnée.")
@@ -118,82 +157,86 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
     areason = flags[0].get("reason", "") if flags else ""
     color   = ALERT_COLORS.get(atype, "#374151")
     label   = ALERT_LABELS.get(atype, atype.replace("_", " "))
+    icon    = ALERT_ICONS.get(atype, "🔔")
 
     headline = alert.get("headline", alert.get("title", ""))
     deal_str = ""
     if alert.get("deal_size_eur"):
-        deal_str = f' <span style="background:#EBF4FF;color:#0B2545;padding:2px 7px;border-radius:2px;font-size:9px;font-weight:700">{alert["deal_size_eur"]/1e9:.1f}&nbsp;Md€</span>'
+        deal_str = (
+            f' <span style="display:inline-block;background:#EBF4FF;color:#0B2545;'
+            f'padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;'
+            f'margin-left:6px">{alert["deal_size_eur"]/1e9:.1f}&nbsp;Md€</span>'
+        )
 
-    meta_parts = [alert.get("source", ""), alert.get("_date", ""), alert.get("geography", ""), alert.get("sector", "")]
+    meta_parts = [alert.get("source", ""), alert.get("_date", ""),
+                  alert.get("geography", ""), alert.get("sector", "")]
     sep = ' <span style="color:#D1D5DB">·</span> '
-    meta = sep.join(p for p in meta_parts if p)
-
+    meta = sep.join(
+        f'<span style="color:#9CA3AF">{p}</span>' for p in meta_parts if p
+    )
     url = alert.get("url", "")
+    so_what = (alert.get("so_what", "") or "").strip()
 
-    with st.container():
-        st.markdown(
-            f'<div style="padding:16px 0 8px">'
-            f'<span style="background:{color};color:#fff;padding:2px 7px;border-radius:2px;'
-            f'font-size:9px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase">{label}</span>'
-            f'{deal_str}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<a href="{url}" target="_blank" style="'
-            f"font-family:'Playfair Display',Georgia,serif;"
-            f'font-size:16px;font-weight:700;color:#0B2545;text-decoration:none;'
-            f'display:block;margin-bottom:5px;line-height:1.35">{headline}</a>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            f'<div style="font-size:11px;color:#9CA3AF;margin-bottom:10px">{meta}</div>',
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        f'<div style="background:#FFFFFF;border-left:4px solid {color};'
+        f'padding:20px 24px 18px;margin-bottom:12px;border-radius:0 6px 6px 0;'
+        f'box-shadow:0 2px 8px rgba(11,37,69,0.06),0 0 0 1px rgba(11,37,69,0.04)">'
 
-        # Alert reason — always visible
-        if areason:
-            st.markdown(
-                f'<div style="font-size:12px;color:#7F1D1D;font-weight:600;'
-                f'background:#FEF2F2;border:1px solid #FECACA;border-radius:2px;'
-                f'padding:6px 10px;margin-bottom:10px">{areason}</div>',
-                unsafe_allow_html=True,
-            )
+        # Type badge
+        f'<div style="margin-bottom:12px">'
+        f'<span style="background:{color};color:#fff;padding:3px 9px;border-radius:2px;'
+        f'font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase">'
+        f'{icon} {label}</span>'
+        f'{deal_str}'
+        f'</div>'
 
-        # Summary — always visible
-        if alert.get("summary"):
-            st.markdown(
-                f'<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">{alert.get("summary","")}</div>',
-                unsafe_allow_html=True,
-            )
+        # Headline
+        + (f'<a href="{url}" target="_blank" style="'
+           f'font-family:\'Playfair Display\',Georgia,serif;font-size:16.5px;font-weight:700;'
+           f'color:#071828;text-decoration:none;display:block;margin-bottom:6px;line-height:1.38">'
+           f'{headline}</a>'
+           if url else
+           f'<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:16.5px;'
+           f'font-weight:700;color:#071828;margin-bottom:6px;line-height:1.38">{headline}</div>')
 
-        # Analyse d'impact — always visible, prominent
-        so_what = alert.get("so_what", "")
-        if so_what:
-            st.markdown(
-                f'<div style="background:#FEF9F5;border-left:3px solid {color};'
-                f'padding:12px 16px;border-radius:0 3px 3px 0;margin-bottom:10px">'
-                f'<span style="font-size:8px;font-weight:700;letter-spacing:2px;'
-                f'text-transform:uppercase;color:{color};display:block;margin-bottom:7px">'
-                f'Analyse d\'impact &amp; conséquences</span>'
-                f'<span style="font-size:13px;line-height:1.7;color:#1E1E1E">{so_what}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown(
-                '<div style="background:#F9FAFB;border-left:3px solid #D1D5DB;'
-                'padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:10px">'
-                '<span style="font-size:11px;color:#9CA3AF;font-style:italic">'
-                'Analyse d\'impact en cours de génération.</span>'
-                '</div>',
-                unsafe_allow_html=True,
-            )
+        # Meta
+        + f'<div style="font-size:10.5px;color:#9CA3AF;margin-bottom:12px">{meta}</div>'
 
-        if url:
-            st.markdown(
-                f'<a href="{url}" target="_blank" style="font-size:11px;color:#0B2545;font-weight:600;text-decoration:none;letter-spacing:0.02em">Lire l\'article &#8594;</a>',
-                unsafe_allow_html=True,
-            )
+        # Alert reason
+        + (f'<div style="font-size:12px;color:#7F1D1D;font-weight:600;'
+           f'background:#FEF2F2;border:1px solid #FECACA;border-radius:3px;'
+           f'padding:7px 11px;margin-bottom:12px">{areason}</div>'
+           if areason else "")
 
-        st.markdown('<div style="border-top:1px solid #E9ECF0;margin-top:12px"></div>', unsafe_allow_html=True)
+        # Summary
+        + (f'<div style="font-size:13.5px;line-height:1.8;color:#374151;margin-bottom:12px">'
+           f'{alert.get("summary","")}</div>'
+           if alert.get("summary") else "")
+
+        # So what
+        + (f'<div style="background:linear-gradient(135deg,#FAFBFD 0%,#F8F9FC 100%);'
+           f'border-left:3px solid {color};padding:14px 18px 12px;'
+           f'border-radius:0 4px 4px 0;'
+           f'box-shadow:inset 0 0 0 1px rgba(11,37,69,0.06)">'
+           f'<div style="font-size:7.5px;font-weight:700;letter-spacing:2.5px;'
+           f'text-transform:uppercase;color:{color};margin-bottom:9px">'
+           f'Analyse d\'impact &amp; conséquences</div>'
+           f'<div style="font-size:13px;line-height:1.8;color:#1E3A5F">{so_what}</div>'
+           f'</div>'
+           if so_what else
+           f'<div style="background:#F9FAFB;border-left:3px solid #D1D5DB;'
+           f'padding:10px 14px;border-radius:0 3px 3px 0">'
+           f'<span style="font-size:11px;color:#9CA3AF;font-style:italic">'
+           f'Analyse d\'impact en cours de génération.</span></div>')
+
+        # Read link
+        + (f'<div style="margin-top:14px">'
+           f'<a href="{url}" target="_blank" style="font-size:11px;color:#0B2545;'
+           f'font-weight:600;text-decoration:none;letter-spacing:0.02em;'
+           f'border-bottom:1px solid rgba(11,37,69,0.2);padding-bottom:1px">'
+           f'Lire l\'article &#8594;</a></div>'
+           if url else "")
+
+        + '</div>',
+        unsafe_allow_html=True,
+    )

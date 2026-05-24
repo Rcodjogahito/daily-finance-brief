@@ -28,12 +28,28 @@ _PARIS = pytz.timezone("Europe/Paris")
 _MAX_CANDIDATES = 80
 
 
-def _already_sent_today(date_str: str) -> bool:
-    """Return True if today's brief was already successfully emailed (dedup guard).
-    Prevents double-sends when both UTC+1/+2 crons fire on the same day.
+def _pipeline_should_run(date_str: str, force_send: bool) -> bool:
+    """Return False if the pipeline should be skipped for today.
+
+    Prevents double-runs when both UTC+1/+2 crons fire, and prevents retries
+    if the pipeline is already running (pipeline_lock) or already succeeded.
     """
+    if force_send:
+        return True
     brief = load_brief(date_str)
-    return bool(brief and brief.get("stats", {}).get("email_sent"))
+    if not brief:
+        return True
+    stats = brief.get("stats", {})
+    # Already sent today → skip
+    if stats.get("email_sent"):
+        logger.info('"Brief already sent today (%s) — skipping duplicate run"', date_str)
+        return False
+    # Pipeline lock: another run is in progress → skip
+    if stats.get("pipeline_lock"):
+        started = stats.get("pipeline_started_at", "unknown")
+        logger.info('"Pipeline lock active since %s — skipping"', started)
+        return False
+    return True
 
 
 def render_email(brief_data: dict, streamlit_url: str) -> tuple[str, str]:
@@ -83,96 +99,126 @@ def build_subject(news: list[dict], date: str) -> str:
 def main() -> None:
     force_send = os.environ.get("FORCE_SEND", "false").lower() == "true"
 
-    # Compute today's date early for dedup check
+    # Compute today's date early
     paris = pytz.timezone("Europe/Paris")
     date_str = datetime.now(paris).strftime("%Y-%m-%d")
 
-    # Dedup guard: skip if brief was already sent today (handles both UTC+1/+2 crons)
-    if not force_send and _already_sent_today(date_str):
-        logger.info('"Brief already sent today (%s) — skipping duplicate run"', date_str)
+    # Gate: skip if brief already sent or pipeline lock active
+    if not _pipeline_should_run(date_str, force_send):
         sys.exit(0)
 
-    streamlit_url = os.environ.get("STREAMLIT_URL", "https://your-app.streamlit.app")
+    streamlit_url = os.environ.get("STREAMLIT_URL", "https://daily-finance-brief-cib.streamlit.app")
     recipients = get_recipients()
 
-    logger.info('"=== DAILY BRIEF PIPELINE START ==="')
+    logger.info('"=== DAILY BRIEF PIPELINE START — %s ==="', date_str)
 
-    # 0. Market snapshot (best-effort, non-blocking)
-    logger.info('"Fetching market snapshot..."')
-    market_snapshot = fetch_market_snapshot()
+    # ── PIPELINE LOCK ────────────────────────────────────────────────────────
+    # Write a lock immediately to prevent a second cron run from re-starting
+    # the full pipeline while this one is in progress.
+    save_brief(
+        news=[],
+        stats={
+            "pipeline_lock": True,
+            "pipeline_started_at": datetime.now(paris).isoformat(),
+        },
+        date=date_str,
+        market_snapshot=None,
+    )
 
-    # 1. Collect
-    raw = collect_all_sources(max_workers=10, lookback_hours=24)
-    stats = {"collected": len(raw)}
+    try:
+        # 0. Market snapshot (best-effort, non-blocking)
+        logger.info('"Fetching market snapshot..."')
+        market_snapshot = fetch_market_snapshot()
 
-    # 2. Verify (URL checks disabled in Actions for speed; enabled via env var)
-    check_urls = os.environ.get("CHECK_URLS", "false").lower() == "true"
-    verified = verify_news_batch(raw, check_urls=check_urls)
-    stats["verified"] = len(verified)
+        # 1. Collect
+        raw = collect_all_sources(max_workers=10, lookback_hours=24)
+        stats = {"collected": len(raw), "pipeline_lock": True}
 
-    # 3. Filter (whitelist / blacklist / dedup)
-    filtered = apply_filters(verified)
-    stats["filtered"] = len(filtered)
-    stats["deduplicated"] = len(filtered)
+        # 2. Verify (URL checks disabled in Actions for speed)
+        check_urls = os.environ.get("CHECK_URLS", "false").lower() == "true"
+        verified = verify_news_batch(raw, check_urls=check_urls)
+        stats["verified"] = len(verified)
 
-    # 4. Enrich
-    enriched = enrich_all(filtered)
+        # 3. Filter (whitelist / blacklist / dedup)
+        filtered = apply_filters(verified)
+        stats["filtered"] = len(filtered)
+        stats["deduplicated"] = len(filtered)
 
-    # 5. Cap at 80 candidates for LLM
-    candidates = enriched[:_MAX_CANDIDATES]
-    stats["sent_to_llm"] = len(candidates)
+        # 4. Enrich
+        enriched = enrich_all(filtered)
 
-    # 6. Gemini analysis
-    selected = analyze_news(candidates)
-    stats["returned"] = len(selected)
+        # 5. Cap at 80 candidates for LLM
+        candidates = enriched[:_MAX_CANDIDATES]
+        stats["sent_to_llm"] = len(candidates)
 
-    # 7. Post-verify LLM output
-    final = post_verify_llm_output(selected, enriched)
-    stats["post_verified"] = len(final)
+        # 6. Gemini analysis
+        selected = analyze_news(candidates)
+        stats["returned"] = len(selected)
 
-    # 7b. Resolve Google News proxy URLs → real article URLs
-    final = resolve_gnews_urls(final)
+        # 7. Post-verify LLM output
+        final = post_verify_llm_output(selected, enriched)
+        stats["post_verified"] = len(final)
 
-    # 7c. Enrich so_what: regenerate any heuristic fallbacks via individual Gemini calls
-    final = enrich_so_what(final)
+        # 7b. Resolve Google News proxy URLs → real article URLs
+        final = resolve_gnews_urls(final)
 
-    # Fallback banner if low volume
-    low_volume = len(final) < 3
+        # 7c. Enrich so_what: regenerate heuristic fallbacks via Gemini
+        final = enrich_so_what(final)
 
-    # 8. Archive
-    save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
-    stats["archive_written"] = True
+        # Fallback banner if low volume
+        low_volume = len(final) < 3
 
-    # 9. Build brief data
-    brief_data = {
-        "date": date_str,
-        "generated_at": datetime.now(paris).isoformat(),
-        "stats": stats,
-        "news": final,
-        "low_volume": low_volume,
-        "market_snapshot": market_snapshot,
-    }
+        # 8. Archive (lock removed, real stats)
+        stats["pipeline_lock"] = False
+        stats["archive_written"] = True
+        save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
 
-    # 10. Render + send
-    html, plain = render_email(brief_data, streamlit_url)
-    subject = build_subject(final, date_str)
-    sent = send_email(subject, html, plain, recipients)
-    stats["email_sent"] = sent
+        # 9. Build brief data for email
+        brief_data = {
+            "date": date_str,
+            "generated_at": datetime.now(paris).isoformat(),
+            "stats": stats,
+            "news": final,
+            "low_volume": low_volume,
+            "market_snapshot": market_snapshot,
+        }
 
-    # Update brief with final stats (email result) — always commit regardless of email outcome
-    save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
+        # 10. Render + send
+        html, plain = render_email(brief_data, streamlit_url)
+        subject = build_subject(final, date_str)
+        sent = send_email(subject, html, plain, recipients)
+        stats["email_sent"] = sent
 
-    # Mark brief as sent so duplicate cron runs skip cleanly
-    if sent:
-        mark_brief_sent(date_str)
-    else:
-        logger.warning('"Email failed — brief archived, will retry on next cron run"')
+        # Update brief with final stats (email result)
+        save_brief(final, stats, date=date_str, market_snapshot=market_snapshot)
 
-    # 11. Git push (best-effort — GitHub Actions commit step also handles this)
-    pushed = git_commit_and_push(f"Brief {date_str}")
-    stats["git_pushed"] = pushed
+        if sent:
+            mark_brief_sent(date_str)
+            logger.info('"Email envoyé avec succès"')
+        else:
+            logger.warning('"Email failed — brief archivé, sera renvoyé si relancé manuellement"')
 
-    logger.info('"=== PIPELINE COMPLETE: %s"', json.dumps(stats))
+        # 11. Git push (best-effort — GitHub Actions commit step aussi)
+        pushed = git_commit_and_push(f"Brief {date_str}")
+        stats["git_pushed"] = pushed
+
+        logger.info('"=== PIPELINE COMPLETE: %s"', json.dumps(stats))
+
+    except Exception as exc:
+        # Release pipeline lock on unhandled error so next cron can retry
+        logger.error('"Pipeline error: %s — releasing lock"', str(exc))
+        try:
+            brief = load_brief(date_str)
+            if brief:
+                brief.setdefault("stats", {})["pipeline_lock"] = False
+                brief["stats"]["pipeline_error"] = str(exc)[:200]
+                from src.archiver import BRIEFS_DIR
+                import json as _json
+                path = BRIEFS_DIR / f"{date_str}.json"
+                path.write_text(_json.dumps(brief, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+        raise
 
 
 if __name__ == "__main__":

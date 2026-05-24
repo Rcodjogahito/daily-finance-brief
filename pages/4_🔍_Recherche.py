@@ -8,23 +8,49 @@ import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
 from src.enrichment import REGION_GEO_MAP
-from src.styles import inject_css, sidebar_brand, page_toolbar, news_card, CATEGORY_LABELS
+from src.styles import inject_css, sidebar_brand, news_card, section_header, CATEGORY_LABELS
 
-st.set_page_config(page_title="Recherche — Daily Finance Brief", page_icon="", layout="wide")
+st.set_page_config(
+    page_title="Recherche — Daily Finance Brief",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 inject_css()
 sidebar_brand()
 
-page_toolbar()
-
-st.markdown(
-    '<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px">Coffee Economics News</div>',
-    unsafe_allow_html=True,
-)
-st.title("Recherche")
-
 _ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
 
+# ── Sidebar nav ────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("---")
+    st.markdown("### Navigation")
+    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
+    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
+    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
+    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
+    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
+    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
+    st.markdown("---")
 
+    st.markdown("### Filtres")
+    date_min = st.date_input("Date min", value=datetime.now() - timedelta(days=90))
+    date_max = st.date_input("Date max", value=datetime.now())
+    st.markdown("---")
+
+
+# ── Header ─────────────────────────────────────────────────────────────────
+section_header("Coffee Economics News")
+st.title("Recherche")
+st.markdown(
+    '<div style="font-size:14px;color:#6B7A8E;margin-top:-4px;margin-bottom:20px">'
+    'Recherche full-text sur l\'ensemble des briefs archivés'
+    '</div>',
+    unsafe_allow_html=True,
+)
+
+
+# ── Load data ──────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def load_all_news_flat() -> list[dict]:
     rows = []
@@ -52,25 +78,30 @@ def load_all_news_flat() -> list[dict]:
     return rows
 
 
-all_news = load_all_news_flat()
+with st.spinner("Indexation des briefs…"):
+    all_news = load_all_news_flat()
 
 if not all_news:
-    st.warning("Aucune donnée disponible.")
+    st.markdown(
+        '<div style="background:#FFFFFF;border-radius:8px;padding:40px 32px;'
+        'text-align:center;border:1px solid #E8EEF5;margin-top:24px">'
+        '<div style="font-size:40px;margin-bottom:16px">🔍</div>'
+        '<div style="font-family:\'Playfair Display\',Georgia,serif;font-size:20px;'
+        'font-weight:700;color:#071828;margin-bottom:10px">Index vide</div>'
+        '<div style="font-size:14px;color:#6B7A8E">'
+        'Aucun brief archivé pour le moment. La recherche sera disponible après la première génération.'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 # ── Sidebar filters ────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### Filtres")
-
-    date_min = st.date_input("Date min", value=datetime.now() - timedelta(days=90))
-    date_max = st.date_input("Date max", value=datetime.now())
-
-    st.markdown("---")
-
     all_cat_keys = sorted({n["category"] for n in all_news})
     cat_label_map = {CATEGORY_LABELS.get(c, c): c for c in all_cat_keys}
     selected_cat_labels = st.multiselect(
-        "Type d'information", list(cat_label_map.keys()), default=list(cat_label_map.keys())
+        "Type", list(cat_label_map.keys()), default=list(cat_label_map.keys()),
     )
     selected_cats = [cat_label_map[l] for l in selected_cat_labels]
 
@@ -84,24 +115,31 @@ with st.sidebar:
 
     confidence_filter = st.radio("Fiabilité", ["Toutes", "High only"], horizontal=True)
     st.markdown("---")
-    if st.button("↺ Réinitialiser les filtres", use_container_width=True):
+    if st.button("↺ Réinitialiser", use_container_width=True):
         for k in list(st.session_state.keys()):
-            if k.startswith("4_") or k in ("query",):
+            if k.startswith("4_") or k == "query":
                 st.session_state.pop(k, None)
         st.rerun()
 
 # ── Search bar ─────────────────────────────────────────────────────────────
-scol1, scol2 = st.columns([3, 1])
+st.markdown(
+    '<div style="background:#FFFFFF;border-radius:8px;padding:20px 20px 16px;'
+    'border:1px solid #E8EEF5;box-shadow:0 1px 4px rgba(11,37,69,0.04);margin-bottom:16px">',
+    unsafe_allow_html=True,
+)
+scol1, scol2 = st.columns([4, 1])
 with scol1:
     query = st.text_input(
-        "Recherche plein texte",
+        "Recherche",
         placeholder="ex: LBO, TotalEnergies, BCE, refinancement, M&A…",
+        label_visibility="collapsed",
+        key="query",
     )
 with scol2:
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    st.caption(f"{len(all_news)} news indexées")
+    st.caption(f"{len(all_news)} news\nindexées")
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Build allowed geos from region filter
+# Build allowed geos
 allowed_geos: set[str] = set()
 for r in selected_regions:
     allowed_geos |= REGION_GEO_MAP.get(r, set())
@@ -122,7 +160,10 @@ def highlight(text: str, q: str) -> str:
         return text
     import re
     return re.compile(re.escape(q), re.IGNORECASE).sub(
-        lambda m: f'<mark style="background:#FEF3C7;padding:0 2px;border-radius:1px">{m.group()}</mark>',
+        lambda m: (
+            f'<mark style="background:#FEF3C7;color:#92400E;padding:0 2px;'
+            f'border-radius:2px;font-weight:600">{m.group()}</mark>'
+        ),
         text,
     )
 
@@ -139,14 +180,15 @@ results = [
 ]
 results.sort(key=lambda n: n.get("date", ""), reverse=True)
 
+# ── Results header ─────────────────────────────────────────────────────────
 st.markdown("---")
-st.markdown(
-    f'<div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:12px">{len(results)} résultats</div>',
-    unsafe_allow_html=True,
-)
+res_label = f"{len(results)} résultat{'s' if len(results) != 1 else ''}"
+if query:
+    res_label += f" pour « {query} »"
+section_header(res_label)
 
 if not results:
-    st.info("Aucun résultat. Élargissez les filtres ou modifiez la recherche.")
+    st.info("Aucun résultat. Essayez des mots-clés différents ou élargissez les filtres.")
     st.stop()
 
 # ── Export ─────────────────────────────────────────────────────────────────
@@ -154,7 +196,7 @@ col_e1, col_e2, _ = st.columns([1, 1, 3])
 with col_e1:
     df_export = pd.DataFrame([{k: v for k, v in r.items() if k != "so_what"} for r in results])
     st.download_button(
-        "Export CSV",
+        "⬇ Export CSV",
         data=df_export.to_csv(index=False).encode("utf-8-sig"),
         file_name="recherche_brief.csv",
         mime="text/csv",
@@ -168,21 +210,21 @@ with col_e2:
         w.writerow([
             r.get("date",""), r.get("category",""), r.get("headline",""),
             r.get("source",""), r.get("sector",""), r.get("geography",""),
-            r.get("region",""),
-            f"{deal/1e9:.2f}" if deal else "", r.get("confidence",""), r.get("url",""),
+            r.get("region",""), f"{deal/1e9:.2f}" if deal else "",
+            r.get("confidence",""), r.get("url",""),
         ])
     st.download_button(
-        "Export Bloomberg CSV",
+        "⬇ Bloomberg CSV",
         data=buf.getvalue().encode("utf-8-sig"),
         file_name="bloomberg_recherche.csv",
         mime="text/csv",
-        help="Format compatible Bloomberg Terminal / Excel deal tracker",
+        help="Format compatible Bloomberg Terminal",
     )
 
 st.markdown("---")
 
 # ── Results ────────────────────────────────────────────────────────────────
-hl = lambda t: highlight(t, query)
+hl = lambda t: highlight(t, query) if query else t
 
 for item in results:
-    news_card(item, highlight_fn=hl)
+    news_card(item, highlight_fn=(hl if query else None))

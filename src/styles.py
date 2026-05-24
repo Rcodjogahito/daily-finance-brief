@@ -1,4 +1,12 @@
-"""Shared Streamlit CSS and UI helpers — Daily Finance Brief design system."""
+"""Shared Streamlit CSS and UI helpers — Daily Finance Brief design system.
+
+Design language: Investment-bank quality (Morgan Stanley / Goldman Sachs tier)
+  - Fonts: Playfair Display (700/800) for headings; Inter for body
+  - Primary navy: #0B2545
+  - Accent gold: #C9A84C
+  - Background: #F4F6FA
+  - Cards: white with subtle shadow and category left-border
+"""
 import streamlit as st
 
 CATEGORY_COLORS = {
@@ -33,93 +41,156 @@ _CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* ── Reset & globals ──────────────────────────────── */
 html, body, [data-testid="stAppViewContainer"],
 [data-testid="stAppViewContainer"] * {
     font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-#MainMenu, footer, [data-testid="stToolbar"] { display: none !important; }
+#MainMenu, footer, [data-testid="stToolbar"],
+[data-testid="manage-app-button"],
+header { display: none !important; }
+
+/* ── App background ─────────────────────────────── */
+[data-testid="stAppViewContainer"] {
+    background-color: #F4F6FA !important;
+}
+[data-testid="stAppViewContainer"] > .main {
+    background-color: #F4F6FA !important;
+}
+.main .block-container {
+    padding: 1.5rem 2.5rem 3rem !important;
+    max-width: 1080px !important;
+}
 
 /* ── Sidebar ─────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background-color: #0B2545 !important;
-    border-right: 1px solid #132E58 !important;
+    background: linear-gradient(180deg, #07192E 0%, #0B2545 40%, #0E2D57 100%) !important;
+    border-right: 1px solid rgba(201,168,76,0.15) !important;
+    min-width: 230px !important;
+    max-width: 260px !important;
 }
 [data-testid="stSidebar"] * { color: #8FAFC8 !important; }
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3 {
-    color: #E2EAF2 !important;
+    color: #C9D8E8 !important;
+    font-size: 0.68rem !important;
     font-weight: 700 !important;
-    font-size: 0.72rem !important;
-    letter-spacing: 0.1em !important;
+    letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
 }
-[data-testid="stSidebar"] a { color: #7FAACC !important; text-decoration: none !important; }
+[data-testid="stSidebar"] a {
+    color: #7FAACC !important;
+    text-decoration: none !important;
+}
 [data-testid="stSidebar"] a:hover { color: #C9A84C !important; }
-[data-testid="stSidebar"] hr { border-color: #1A3A5C !important; }
+[data-testid="stSidebar"] hr {
+    border: none !important;
+    border-top: 1px solid rgba(201,168,76,0.12) !important;
+    margin: 0.6rem 0 !important;
+}
 [data-testid="stSidebar"] [data-testid="stMetricValue"] {
-    color: #F0F6FF !important;
-    font-size: 1.15rem !important;
+    color: #EEF5FF !important;
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 1.2rem !important;
     font-weight: 700 !important;
 }
 [data-testid="stSidebar"] [data-testid="stMetricLabel"] {
     color: #4A7FA5 !important;
-    font-size: 0.6rem !important;
-    letter-spacing: 0.08em !important;
+    font-size: 0.58rem !important;
+    letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
 }
 
-/* ── Main background ─────────────────────────────── */
-[data-testid="stAppViewContainer"] > .main {
-    background-color: #F7F9FC !important;
+/* ── Sidebar nav links ──────────────────────────── */
+[data-testid="stSidebar"] [data-testid="stPageLink"] a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    border-left: 2px solid transparent !important;
+    color: #7FAACC !important;
+    font-size: 0.83rem !important;
+    font-weight: 500 !important;
+    transition: all 0.15s ease !important;
+    margin: 1px 0 !important;
 }
-
-/* ── Main content ───────────────────────────────── */
-.main .block-container {
-    padding: 2.5rem 3rem;
-    max-width: 1000px;
+[data-testid="stSidebar"] [data-testid="stPageLink"] a:hover {
+    border-left-color: #C9A84C !important;
+    color: #EEF5FF !important;
+    background: rgba(201,168,76,0.08) !important;
+}
+[data-testid="stSidebar"] [data-testid="stPageLink"][aria-current="page"] a,
+[data-testid="stSidebar"] [data-testid="stPageLink"].active a {
+    border-left-color: #C9A84C !important;
+    color: #F0F8FF !important;
+    background: rgba(201,168,76,0.12) !important;
+    font-weight: 600 !important;
 }
 
 /* ── Typography ─────────────────────────────────── */
 h1 {
     font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
-    font-size: 2rem !important;
+    font-size: 2.1rem !important;
     font-weight: 800 !important;
-    color: #0B2545 !important;
+    color: #071828 !important;
     letter-spacing: -0.5px !important;
-    line-height: 1.2 !important;
-    margin-bottom: 0.15rem !important;
+    line-height: 1.15 !important;
+    margin-bottom: 0.1rem !important;
 }
 h2 {
     font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
-    font-size: 1.35rem !important;
+    font-size: 1.4rem !important;
     font-weight: 700 !important;
     color: #0B2545 !important;
     letter-spacing: -0.3px !important;
 }
 h3 {
-    font-size: 0.85rem !important;
+    font-size: 0.78rem !important;
     font-weight: 700 !important;
     color: #374151 !important;
-    letter-spacing: 0.08em !important;
+    letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
+}
+
+/* ── Overline label ─────────────────────────────── */
+.overline {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #C9A84C;
+    margin-bottom: 6px;
+    display: block;
 }
 
 /* ── Metrics ────────────────────────────────────── */
 [data-testid="stMetricValue"] {
     font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 1.5rem !important;
+    font-size: 1.65rem !important;
     font-weight: 700 !important;
-    color: #0B2545 !important;
+    color: #071828 !important;
     letter-spacing: -0.5px !important;
 }
 [data-testid="stMetricLabel"] {
-    font-size: 0.62rem !important;
+    font-size: 0.6rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
     color: #6B7A8E !important;
+}
+[data-testid="stMetricDelta"] {
+    font-size: 0.78rem !important;
+}
+
+/* ── Metric cards background ────────────────────── */
+[data-testid="stMetric"] {
+    background: #FFFFFF !important;
+    border-radius: 6px !important;
+    padding: 14px 18px !important;
+    border: 1px solid #E8EEF5 !important;
+    box-shadow: 0 1px 4px rgba(11,37,69,0.05) !important;
 }
 
 /* ── Buttons ────────────────────────────────────── */
@@ -127,23 +198,31 @@ h3 {
     background: #0B2545 !important;
     color: #FFFFFF !important;
     border: none !important;
-    border-radius: 2px !important;
+    border-radius: 3px !important;
     font-weight: 600 !important;
-    font-size: 0.74rem !important;
+    font-size: 0.73rem !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
-    padding: 0.5rem 1.25rem !important;
+    padding: 0.5rem 1.2rem !important;
+    transition: background 0.15s ease !important;
 }
-.stButton > button:hover { background: #1A3A5C !important; }
+.stButton > button:hover {
+    background: #1A3A5C !important;
+    transform: none !important;
+}
+.stButton > button:active {
+    background: #071828 !important;
+}
 .stDownloadButton > button {
     background: transparent !important;
     color: #0B2545 !important;
     border: 1.5px solid #0B2545 !important;
-    border-radius: 2px !important;
+    border-radius: 3px !important;
     font-weight: 600 !important;
-    font-size: 0.74rem !important;
+    font-size: 0.73rem !important;
     letter-spacing: 0.08em !important;
     text-transform: uppercase !important;
+    transition: all 0.15s ease !important;
 }
 .stDownloadButton > button:hover {
     background: #0B2545 !important;
@@ -152,254 +231,209 @@ h3 {
 
 /* ── Form controls ──────────────────────────────── */
 .stSelectbox label, .stMultiSelect label,
-.stRadio label, .stTextInput label, .stDateInput label {
-    font-size: 0.67rem !important;
+.stRadio label, .stTextInput label,
+.stDateInput label, .stTextArea label {
+    font-size: 0.65rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
     color: #6B7A8E !important;
+    margin-bottom: 4px !important;
 }
-
-/* ── Info boxes ─────────────────────────────────── */
-[data-testid="stInfo"] {
-    background: #EFF6FF !important;
-    border: none !important;
-    border-left: 3px solid #0B2545 !important;
-    border-radius: 0 3px 3px 0 !important;
-    color: #0B2545 !important;
-    font-size: 0.84rem !important;
-}
-
-/* ── Expander ───────────────────────────────────── */
-details summary {
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-}
-
-/* ── Divider ────────────────────────────────────── */
-hr {
-    border: none !important;
-    border-top: 1px solid #E2E8F0 !important;
-    margin: 0.75rem 0 !important;
-}
-
-/* ── Sidebar nav links ──────────────────────────── */
-[data-testid="stSidebar"] [data-testid="stPageLink"] a {
-    display: flex !important;
-    align-items: center !important;
-    padding: 7px 10px !important;
-    border-radius: 3px !important;
-    border-left: 2px solid transparent !important;
-    color: #7FAACC !important;
-    font-size: 0.82rem !important;
-    font-weight: 500 !important;
-    transition: all 0.15s ease !important;
-}
-[data-testid="stSidebar"] [data-testid="stPageLink"] a:hover {
-    border-left-color: #C9A84C !important;
-    color: #E2EAF2 !important;
-    background: rgba(255,255,255,0.05) !important;
-}
-
-/* ── Multiselect tags ───────────────────────────── */
-[data-baseweb="tag"] {
-    background-color: #EBF4FF !important;
-    color: #0B2545 !important;
-    border-radius: 2px !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    height: 22px !important;
-    line-height: 22px !important;
-    padding: 0 6px !important;
-    margin: 2px !important;
-}
-[data-baseweb="tag"] svg { fill: #0B2545 !important; width: 10px !important; height: 10px !important; }
 
 /* ── Select / Input borders ─────────────────────── */
-[data-baseweb="select"] > div {
-    border-color: #E2E8F0 !important;
-    border-radius: 3px !important;
+[data-baseweb="select"] > div,
+[data-baseweb="input"] > div,
+[data-baseweb="textarea"] {
+    border-color: #D8E2EE !important;
+    border-radius: 4px !important;
     background: #FFFFFF !important;
 }
 [data-baseweb="select"] > div:focus-within,
 [data-baseweb="input"] > div:focus-within {
     border-color: #0B2545 !important;
-    box-shadow: 0 0 0 1px #0B2545 !important;
+    box-shadow: 0 0 0 2px rgba(11,37,69,0.12) !important;
 }
-[data-baseweb="input"] > div {
-    border-color: #E2E8F0 !important;
+
+/* ── Multiselect tags ───────────────────────────── */
+[data-baseweb="tag"] {
+    background-color: #E8EFF8 !important;
+    color: #0B2545 !important;
     border-radius: 3px !important;
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    height: 21px !important;
+    line-height: 21px !important;
+    padding: 0 6px !important;
+    margin: 2px !important;
+}
+[data-baseweb="tag"] svg { fill: #0B2545 !important; }
+
+/* ── Info / Warning / Error ─────────────────────── */
+[data-testid="stAlert"] {
+    border-radius: 4px !important;
+    font-size: 0.84rem !important;
+    border: none !important;
+}
+[data-testid="stInfo"] {
+    background: #EEF4FF !important;
+    border-left: 3px solid #0B2545 !important;
+    color: #1E3A5F !important;
+}
+[data-testid="stWarning"] {
+    background: #FFFBF0 !important;
+    border-left: 3px solid #C9A84C !important;
+}
+[data-testid="stSuccess"] {
+    background: #F0FAF4 !important;
+    border-left: 3px solid #059669 !important;
+}
+[data-testid="stError"] {
+    background: #FFF5F5 !important;
+    border-left: 3px solid #DC2626 !important;
 }
 
 /* ── Expander ───────────────────────────────────── */
 [data-testid="stExpander"] {
-    border: 1px solid #E2E8F0 !important;
-    border-radius: 4px !important;
+    border: 1px solid #E2E8F2 !important;
+    border-radius: 6px !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 3px rgba(11,37,69,0.04) !important;
+    overflow: hidden !important;
 }
 [data-testid="stExpander"] summary {
-    background: #F7F9FC !important;
-    padding: 10px 16px !important;
-    border-radius: 4px !important;
-    font-size: 0.78rem !important;
+    background: #F8FAFD !important;
+    padding: 11px 16px !important;
+    border-radius: 6px !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
     color: #374151 !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.07em !important;
     text-transform: uppercase !important;
+    cursor: pointer !important;
 }
 [data-testid="stExpander"] summary:hover {
-    background: #EEF2F7 !important;
+    background: #EDF1F8 !important;
 }
 [data-testid="stExpander"] > div[data-testid="stExpanderDetails"] {
-    padding: 14px 16px 16px !important;
+    padding: 16px !important;
+    background: #FFFFFF !important;
 }
+details summary { cursor: pointer !important; }
 
 /* ── Caption ────────────────────────────────────── */
 [data-testid="stCaptionContainer"] p {
-    font-size: 0.75rem !important;
+    font-size: 0.73rem !important;
     color: #9CA3AF !important;
     letter-spacing: 0.02em !important;
 }
 
-/* ── Date input ─────────────────────────────────── */
-[data-testid="stDateInput"] input {
-    border-radius: 3px !important;
-    border-color: #E2E8F0 !important;
-    font-size: 0.88rem !important;
+/* ── Divider ────────────────────────────────────── */
+hr {
+    border: none !important;
+    border-top: 1px solid #E8EEF5 !important;
+    margin: 1rem 0 !important;
 }
 
-/* ── Warning / Error ────────────────────────────── */
-[data-testid="stAlert"] {
-    border-radius: 3px !important;
-    font-size: 0.84rem !important;
+/* ── Tabs ───────────────────────────────────────── */
+[data-testid="stTabs"] [data-baseweb="tab-list"] {
+    background: transparent !important;
+    border-bottom: 2px solid #E8EEF5 !important;
+    gap: 0 !important;
+}
+[data-testid="stTabs"] [data-baseweb="tab"] {
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #6B7A8E !important;
+    padding: 8px 16px !important;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -2px !important;
+    background: transparent !important;
+}
+[data-testid="stTabs"] [aria-selected="true"] {
+    color: #0B2545 !important;
+    border-bottom-color: #C9A84C !important;
 }
 
-/* ── Twemoji ────────────────────────────────────── */
-img.emoji {
-    height: 1.15em;
-    width: 1.15em;
-    margin: 0 0.04em 0 0.04em;
-    vertical-align: -0.2em;
-    display: inline;
-    pointer-events: none;
+/* ── Spinner ────────────────────────────────────── */
+[data-testid="stSpinner"] {
+    color: #0B2545 !important;
+}
+
+/* ── Scrollbar ──────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #F4F6FA; }
+::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ── Responsive: tablette ───────────────────────── */
+@media (max-width: 900px) {
+    .main .block-container {
+        padding: 1rem 1.2rem 2rem !important;
+    }
+    h1 { font-size: 1.6rem !important; }
 }
 </style>
 """
 
-_TWEMOJI_SCRIPT = """
-<script>
-(function () {
-  var _tw_pending = false;
-
-  function applyTwemoji() {
-    if (typeof twemoji === "undefined" || _tw_pending) return;
-    _tw_pending = true;
-    requestAnimationFrame(function () {
-      twemoji.parse(document.body, {
-        folder: "svg",
-        ext: ".svg",
-        base: "https://cdn.jsdelivr.net/gh/twitter/twemoji@v14.0.0/assets/"
-      });
-      _tw_pending = false;
-    });
-  }
-
-  var s = document.createElement("script");
-  s.src = "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js";
-  s.crossOrigin = "anonymous";
-  s.onload = function () {
-    applyTwemoji();
-    new MutationObserver(applyTwemoji).observe(
-      document.body,
-      { childList: true, subtree: true }
-    );
-  };
-  document.head.appendChild(s);
-})();
-</script>
-"""
-
-_SIDEBAR_BRAND = """
-<div style="padding:24px 0 18px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:4px">
-  <div style="font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#C9A84C;margin-bottom:10px">Coffee Economics News</div>
-  <div style="font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:800;color:#F0F6FF;letter-spacing:-0.5px;line-height:1.25">Daily Finance<br>Brief</div>
+# ── Sidebar brand ──────────────────────────────────────────────────────────
+_SIDEBAR_BRAND_HTML = """
+<div style="padding:20px 16px 16px;border-bottom:1px solid rgba(201,168,76,0.15);margin-bottom:8px">
+  <div style="font-size:7.5px;font-weight:700;letter-spacing:3.5px;text-transform:uppercase;
+              color:#C9A84C;margin-bottom:10px;opacity:0.9">
+    Coffee Economics News
+  </div>
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:19px;font-weight:800;
+              color:#EEF5FF;letter-spacing:-0.5px;line-height:1.25">
+    Daily Finance<br>Brief
+  </div>
+  <div style="margin-top:8px;font-size:10px;color:rgba(143,175,200,0.7);letter-spacing:0.05em">
+    CIB Intelligence Platform
+  </div>
 </div>
 """
 
 
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
-    st.markdown(_TWEMOJI_SCRIPT, unsafe_allow_html=True)
-
-
-_TOOLBAR_HTML = """<!DOCTYPE html>
-<html>
-<head>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  background: transparent;
-  overflow: hidden;
-  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-}
-.bar { display: flex; gap: 6px; align-items: center; padding: 4px 0 10px 0; }
-button {
-  background: #0B2545; color: #E2EAF2; border: none; border-radius: 2px;
-  padding: 6px 13px; font-size: 10.5px; font-weight: 600; cursor: pointer;
-  letter-spacing: 0.06em; text-transform: uppercase;
-}
-button:hover { background: #1A3A5C; }
-a {
-  display: inline-block; background: transparent; color: #6B7A8E;
-  border: 1px solid #D1D5DB; border-radius: 2px;
-  padding: 5px 13px; font-size: 10.5px; font-weight: 600;
-  text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase;
-}
-a:hover { border-color: #0B2545; color: #0B2545; }
-</style>
-</head>
-<body>
-<div class="bar">
-  <button onclick="toggleSidebar()">&#9776; Menu</button>
-  <a href="/" target="_parent">&#8962; Accueil</a>
-</div>
-<script>
-function toggleSidebar() {
-  try {
-    var d = window.parent.document;
-    var sel = [
-      'button[data-testid="stSidebarCollapseButton"]',
-      '[data-testid="stSidebarCollapseButton"] button',
-      '[data-testid="stSidebarCollapsedControl"] button',
-      '[data-testid="stSidebarCollapsedControl"]',
-    ];
-    for (var i = 0; i < sel.length; i++) {
-      var el = d.querySelector(sel[i]);
-      if (el) { el.click(); return; }
-    }
-  } catch (e) {}
-}
-</script>
-</body>
-</html>"""
-
-
-def page_toolbar() -> None:
-    """Sidebar toggle + home button rendered in a real iframe component."""
-    import streamlit.components.v1 as components
-    components.html(_TOOLBAR_HTML, height=40, scrolling=False)
 
 
 def sidebar_brand() -> None:
-    st.sidebar.markdown(_SIDEBAR_BRAND, unsafe_allow_html=True)
+    st.sidebar.markdown(_SIDEBAR_BRAND_HTML, unsafe_allow_html=True)
+
+
+def overline(text: str, color: str = "#C9A84C", spacing: str = "3px") -> str:
+    """Return an HTML overline label string."""
+    return (
+        f'<div style="font-size:8px;font-weight:700;letter-spacing:{spacing};'
+        f'text-transform:uppercase;color:{color};margin-bottom:8px">{text}</div>'
+    )
+
+
+def section_header(label: str) -> None:
+    """Render a gold overline section label."""
+    st.markdown(overline(label), unsafe_allow_html=True)
+
+
+def status_badge(pipeline_ok: bool, last_date: str) -> None:
+    """Render a small pipeline health badge in the sidebar."""
+    color = "#059669" if pipeline_ok else "#DC2626"
+    dot = "●"
+    status_text = f"Actif · {last_date}" if pipeline_ok else "En attente"
+    st.sidebar.markdown(
+        f'<div style="font-size:10px;color:{color};padding:4px 0">'
+        f'{dot} <span style="color:{color};font-weight:600">{status_text}</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def category_badge(cat: str) -> str:
     color = CATEGORY_COLORS.get(cat, "#374151")
     return (
-        f'<span style="background:{color};color:#fff;padding:2px 7px;'
+        f'<span style="display:inline-block;background:{color};color:#fff;padding:2px 8px;'
         f'border-radius:2px;font-size:8px;font-weight:700;'
         f'letter-spacing:0.8px;text-transform:uppercase">{cat}</span>'
     )
@@ -433,7 +467,9 @@ def _search_url(headline: str, source: str) -> str:
 
 
 def news_card(item: dict, highlight_fn=None) -> None:
-    """Render a single news card. highlight_fn(text) -> html for search highlighting."""
+    """Render a single news card with gold analysis block.
+    highlight_fn(text) -> html  for search result highlighting.
+    """
     def hl(text: str) -> str:
         return highlight_fn(text) if highlight_fn else (text or "")
 
@@ -443,46 +479,51 @@ def news_card(item: dict, highlight_fn=None) -> None:
     raw_headline = item.get("headline", item.get("title", ""))
     headline     = hl(raw_headline)
     summary      = hl(item.get("summary", ""))
-    _sw_raw      = item.get("so_what", "") or ""
-    so_what      = hl(_sw_raw) if "[Analyse LLM indisponible" not in _sw_raw else ""
+    _sw_raw      = (item.get("so_what", "") or "").strip()
+    # Show so_what unless it's explicitly marked as unavailable from old code
+    so_what      = hl(_sw_raw) if _sw_raw and "[Analyse LLM indisponible" not in _sw_raw else ""
 
-    source    = item.get("source", "")
-    is_gnews  = "news.google.com" in url or source.lower() in _GNEWS_SOURCES
+    source     = item.get("source", "")
+    is_gnews   = "news.google.com" in url or source.lower() in _GNEWS_SOURCES
     is_paywall = _is_paywalled(source)
 
-    # Category badge
-    badge = (
+    # ── Badges ────────────────────────────────────────────────────────────
+    cat_badge = (
         f'<span style="display:inline-block;background:{color};color:#fff;'
-        f'padding:2px 7px;border-radius:2px;font-size:8px;font-weight:700;'
-        f'letter-spacing:0.8px;text-transform:uppercase;margin-right:4px">{cat}</span>'
+        f'padding:2px 8px;border-radius:2px;font-size:8px;font-weight:700;'
+        f'letter-spacing:0.8px;text-transform:uppercase;margin-right:5px">{cat}</span>'
     )
 
-    # Extra badges
-    extras = ""
+    extra_badges = ""
     if item.get("deal_size_eur"):
-        extras += (
+        extra_badges += (
             f'<span style="display:inline-block;background:#EBF4FF;color:#0B2545;'
-            f'padding:2px 7px;border-radius:2px;font-size:9px;font-weight:700;'
-            f'margin-right:4px">{item["deal_size_eur"]/1e9:.1f}&nbsp;Md€</span>'
+            f'padding:2px 8px;border-radius:2px;font-size:9px;font-weight:700;'
+            f'margin-right:5px">{item["deal_size_eur"]/1e9:.1f}&nbsp;Md€</span>'
         )
     if item.get("source_count", 1) >= 2:
-        extras += (
-            f'<span style="color:#059669;font-size:9px;font-weight:600;'
-            f'margin-right:4px">{item["source_count"]} sources</span>'
+        cnt = item["source_count"]
+        extra_badges += (
+            f'<span style="display:inline-block;color:#059669;background:#F0FAF4;'
+            f'border:1px solid #A7F3D0;padding:2px 7px;border-radius:2px;'
+            f'font-size:8.5px;font-weight:600;margin-right:5px">'
+            f'✓ {cnt} sources</span>'
         )
     if item.get("confidence") == "medium":
-        extras += (
-            '<span style="color:#D97706;font-size:9px;font-weight:600;'
-            'margin-right:4px">&#9888; à vérifier</span>'
+        extra_badges += (
+            '<span style="display:inline-block;color:#92400E;background:#FFFBEB;'
+            'border:1px solid #FDE68A;padding:2px 7px;border-radius:2px;'
+            'font-size:8.5px;font-weight:600;margin-right:5px">⚠ à vérifier</span>'
         )
     if is_paywall:
-        extras += (
-            '<span style="color:#9CA3AF;font-size:9px;font-weight:500">'
-            '&#128274; Abonné</span>'
+        extra_badges += (
+            '<span style="display:inline-block;color:#6B7280;background:#F9FAFB;'
+            'border:1px solid #E5E7EB;padding:2px 7px;border-radius:2px;'
+            'font-size:8.5px;font-weight:500">🔒 Abonné</span>'
         )
 
-    # Meta line
-    sep = '<span style="color:#D1D5DB;margin:0 4px">·</span>'
+    # ── Meta line ─────────────────────────────────────────────────────────
+    sep = '<span style="color:#D1D5DB;margin:0 5px">·</span>'
     meta_parts = [
         source,
         item.get("date", ""),
@@ -490,27 +531,27 @@ def news_card(item: dict, highlight_fn=None) -> None:
         item.get("sector", ""),
     ]
     meta = sep.join(
-        f'<span style="color:#9CA3AF">{p}</span>' for p in meta_parts if p
+        f'<span style="color:#9CA3AF">{p}</span>'
+        for p in meta_parts if p
     )
 
     search_fallback = _search_url(raw_headline, source)
     if url and not is_gnews:
         meta += (
             f'{sep}<a href="{url}" target="_blank" '
-            f'style="color:#0B2545;font-weight:600;text-decoration:none;'
-            f'font-size:10.5px">Lire &#8594;</a>'
+            f'style="color:#0B2545;font-weight:600;text-decoration:none;font-size:10.5px;'
+            f'border-bottom:1px solid rgba(11,37,69,0.2);padding-bottom:1px">Lire &#8594;</a>'
         )
         if is_paywall:
             meta += (
                 f'{sep}<a href="{search_fallback}" target="_blank" '
-                f'style="color:#9CA3AF;font-size:10px;font-weight:500;'
-                f'text-decoration:none">Rechercher</a>'
+                f'style="color:#9CA3AF;font-size:10px;font-weight:500;text-decoration:none">Rechercher</a>'
             )
     elif url:
         meta += (
             f'{sep}<a href="{search_fallback}" target="_blank" '
-            f'style="color:#0B2545;font-weight:600;text-decoration:none;'
-            f'font-size:10.5px">Rechercher &#8594;</a>'
+            f'style="color:#0B2545;font-weight:600;text-decoration:none;font-size:10.5px;'
+            f'border-bottom:1px solid rgba(11,37,69,0.2);padding-bottom:1px">Rechercher &#8594;</a>'
         )
         if item.get("publisher_domain"):
             domain = (
@@ -519,48 +560,74 @@ def news_card(item: dict, highlight_fn=None) -> None:
             )
             meta += f'{sep}<span style="color:#9CA3AF;font-size:10px">{domain}</span>'
 
-    # Rank number
+    # ── Rank ──────────────────────────────────────────────────────────────
     rank = item.get("rank", "")
     rank_html = (
-        f'<span style="font-size:11px;font-weight:700;color:#C9A84C;'
-        f'margin-right:8px">{str(rank).zfill(2)}</span>'
+        f'<span style="font-family:\'Playfair Display\',Georgia,serif;'
+        f'font-size:12px;font-weight:700;color:#C9A84C;margin-right:10px;'
+        f'letter-spacing:0.5px">{str(rank).zfill(2)}</span>'
         if rank else ""
     )
 
     headline_href = search_fallback if is_gnews else (url or search_fallback)
 
-    # Analysis / so-what block
+    # ── Analysis block ────────────────────────────────────────────────────
     if so_what:
         analysis_html = (
-            '<div style="background:#FAFBFD;border-left:3px solid #C9A84C;'
-            'padding:14px 18px;border-radius:0 3px 3px 0;margin-top:14px">'
-            '<div style="font-size:8px;font-weight:700;letter-spacing:2.5px;'
-            'text-transform:uppercase;color:#C9A84C;margin-bottom:8px">'
-            "Analyse d'impact &amp; conséquences</div>"
-            f'<div style="font-size:13px;line-height:1.75;color:#1E3A5F">{so_what}</div>'
+            '<div style="background:linear-gradient(135deg,#FAFBFD 0%,#F8F9FC 100%);'
+            'border-left:3px solid #C9A84C;padding:14px 18px 12px;'
+            'border-radius:0 4px 4px 0;margin-top:14px;'
+            'box-shadow:inset 0 0 0 1px rgba(201,168,76,0.1)">'
+            '<div style="font-size:7.5px;font-weight:700;letter-spacing:2.5px;'
+            'text-transform:uppercase;color:#C9A84C;margin-bottom:9px;'
+            'display:flex;align-items:center;gap:6px">'
+            '<span style="width:12px;height:1px;background:#C9A84C;display:inline-block"></span>'
+            'Analyse d\'impact &amp; conséquences'
+            '<span style="width:12px;height:1px;background:#C9A84C;display:inline-block"></span>'
+            '</div>'
+            f'<div style="font-size:13px;line-height:1.8;color:#1E3A5F;'
+            f'font-weight:400">{so_what}</div>'
             '</div>'
         )
     else:
         analysis_html = (
-            '<div style="margin-top:10px">'
-            '<span style="font-size:11px;color:#C8D0DC;font-style:italic">'
-            "Analyse non disponible pour cette édition.</span>"
+            '<div style="margin-top:12px;padding:10px 14px;background:#F9FAFB;'
+            'border-radius:4px;border:1px dashed #E2E8F0">'
+            '<span style="font-size:11px;color:#B0BAC7;font-style:italic">'
+            'Analyse non disponible pour cette édition.'
+            '</span>'
             '</div>'
         )
 
+    # ── Full card ─────────────────────────────────────────────────────────
     card = (
-        f'<div style="background:#FFFFFF;border-left:3px solid {color};'
-        f'padding:20px 24px 18px;margin-bottom:10px;border-radius:0 4px 4px 0;'
-        f'box-shadow:0 1px 4px rgba(11,37,69,0.07),0 0 0 1px rgba(11,37,69,0.04)">'
-        f'<div style="margin-bottom:10px">{rank_html}{badge}{extras}</div>'
+        f'<div style="background:#FFFFFF;border-left:4px solid {color};'
+        f'padding:20px 24px 18px;margin-bottom:12px;border-radius:0 6px 6px 0;'
+        f'box-shadow:0 2px 8px rgba(11,37,69,0.06),0 0 0 1px rgba(11,37,69,0.04);'
+        f'transition:box-shadow 0.2s ease">'
+
+        # Header row: rank + category badge + extras
+        f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:11px">'
+        f'{rank_html}{cat_badge}{extra_badges}'
+        f'</div>'
+
+        # Headline (linked)
         f'<a href="{headline_href}" target="_blank" style="'
-        "font-family:'Playfair Display',Georgia,serif;"
-        f'font-size:16px;font-weight:700;color:#0B2545;text-decoration:none;'
-        f'line-height:1.38;display:block;margin-bottom:8px">{headline}</a>'
-        f'<div style="font-size:10.5px;margin-bottom:12px;line-height:1.6">'
-        f'{meta}</div>'
-        f'<div style="font-size:13.5px;line-height:1.75;color:#374151;'
-        f'margin-bottom:4px">{summary}</div>'
+        f'font-family:\'Playfair Display\',Georgia,serif;'
+        f'font-size:16.5px;font-weight:700;color:#071828;text-decoration:none;'
+        f'line-height:1.38;display:block;margin-bottom:9px;'
+        f'transition:color 0.15s ease" '
+        f'onmouseover="this.style.color=\'#0B2545\'" '
+        f'onmouseout="this.style.color=\'#071828\'">'
+        f'{headline}</a>'
+
+        # Meta line
+        f'<div style="font-size:10.5px;margin-bottom:13px;line-height:1.7">{meta}</div>'
+
+        # Summary
+        f'<div style="font-size:13.5px;line-height:1.8;color:#374151;'
+        f'border-left:0px solid transparent;margin-bottom:2px">{summary}</div>'
+
         + analysis_html
         + '</div>'
     )
