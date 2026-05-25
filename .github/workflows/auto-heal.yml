@@ -111,12 +111,15 @@ jobs:
         if: steps.gemini_test.outputs.gemini_ok == 'true'
         run: |
           git add data/
-          git diff --staged --quiet || (
-            git commit -m "Auto-heal: regenerate so_what ($(date -u +%Y-%m-%d))"
-            git pull --rebase origin master || git pull --rebase origin main || true
+          git diff --staged --quiet || git commit -m "Auto-heal: regenerate so_what ($(date -u +%Y-%m-%d))"
+          git pull --rebase origin master 2>/dev/null || git pull --rebase origin main 2>/dev/null || true
+          AHEAD=$(git log origin/master..HEAD --oneline 2>/dev/null | wc -l || git log origin/main..HEAD --oneline 2>/dev/null | wc -l || echo 0)
+          if [ "$AHEAD" -gt 0 ]; then
             git push
-          )
-          echo "OK so_what backfill terminé"
+            echo "OK $AHEAD commit(s) auto-heal poussé(s)"
+          else
+            echo "OK Rien à pousser"
+          fi
 
       # ── Étape 2b : Alerte e-mail si Gemini KO ───────────────────────────
       - name: Send Gemini alert email (if Gemini KO)

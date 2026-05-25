@@ -17,6 +17,9 @@ on:
         default: ''
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   regenerate:
     runs-on: ubuntu-latest
@@ -26,6 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -55,12 +59,17 @@ jobs:
             python -m scripts.regenerate_so_what --days "$DAYS"
           fi
 
-      - name: Commit regenerated briefs
+      - name: Commit and push regenerated briefs
         run: |
           git add data/
-          git diff --staged --quiet || (
-            git commit -m "Regenerate so_what ($(date -u +%Y-%m-%d))"
-            git pull --rebase origin master || git pull --rebase origin main || true
+          # Commit si des fichiers ont été modifiés (non stagés ou déjà stagés par le script)
+          git diff --staged --quiet || git commit -m "Regenerate so_what ($(date -u +%Y-%m-%d))"
+          # Push tous les commits locaux non encore poussés (y compris ceux du script Python)
+          git pull --rebase origin master 2>/dev/null || git pull --rebase origin main 2>/dev/null || true
+          AHEAD=$(git log origin/master..HEAD --oneline 2>/dev/null | wc -l || git log origin/main..HEAD --oneline 2>/dev/null | wc -l || echo 0)
+          if [ "$AHEAD" -gt 0 ]; then
             git push
-          )
-          echo "OK Push terminé"
+            echo "OK $AHEAD commit(s) poussé(s)"
+          else
+            echo "OK Rien à pousser (repo déjà à jour)"
+          fi
