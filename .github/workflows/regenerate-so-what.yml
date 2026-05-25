@@ -5,6 +5,17 @@ name: Regenerate so_what (backfill)
 
 on:
   workflow_dispatch:
+    inputs:
+      days:
+        description: 'Nombre de jours à backfiller (vide = 7 par défaut, "all" = tous)'
+        required: false
+        default: '7'
+        type: string
+      date:
+        description: 'Date précise YYYY-MM-DD (optionnel, override --days)'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   regenerate:
@@ -32,5 +43,24 @@ jobs:
       - name: Regenerate so_what
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL:   ${{ secrets.GEMINI_MODEL || 'gemini-2.0-flash' }}
-        run: python -m scripts.regenerate_so_what
+          GEMINI_MODEL:   ${{ secrets.GEMINI_MODEL || 'gemini-2.5-flash' }}
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          DAYS="${{ github.event.inputs.days || '7' }}"
+          if [ -n "$DATE" ]; then
+            python -m scripts.regenerate_so_what --date "$DATE"
+          elif [ "$DAYS" = "all" ]; then
+            python -m scripts.regenerate_so_what --all
+          else
+            python -m scripts.regenerate_so_what --days "$DAYS"
+          fi
+
+      - name: Commit regenerated briefs
+        run: |
+          git add data/
+          git diff --staged --quiet || (
+            git commit -m "Regenerate so_what ($(date -u +%Y-%m-%d))"
+            git pull --rebase origin master || git pull --rebase origin main || true
+            git push
+          )
+          echo "OK Push terminé"

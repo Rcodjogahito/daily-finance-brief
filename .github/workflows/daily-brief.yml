@@ -76,3 +76,28 @@ jobs:
           git diff --staged --quiet || git commit -m "Brief $(date -u +%Y-%m-%d)"
           git pull --rebase origin master || git pull --rebase origin main || true
           git push
+
+      - name: Enrich so_what via Gemini (si disponible)
+        if: always()
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL:   'gemini-2.5-flash'
+        run: |
+          # Ne tente la régénération que si la clé est définie
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "GEMINI_API_KEY non définie — enrichissement so_what ignoré"
+            exit 0
+          fi
+          echo "Enrichissement so_what du brief d'aujourd'hui..."
+          python -m scripts.regenerate_so_what --days 1 || echo "Enrichissement échoué — pipeline continue"
+
+      - name: Commit enriched so_what
+        if: always()
+        run: |
+          git add data/
+          git diff --staged --quiet || (
+            git commit -m "Enrich so_what $(date -u +%Y-%m-%d)"
+            git pull --rebase origin master || git pull --rebase origin main || true
+            git push
+          )
+          echo "OK Enrichissement so_what terminé"

@@ -1,0 +1,202 @@
+name: Auto-Heal (Gemini + so_what)
+
+# =============================================================================
+# Workflow d'auto-guérison — s'exécute chaque jour à 10:30 UTC (≈ 12:30 Paris)
+# soit ~2h après le brief quotidien.
+#
+# Actions :
+#   1. Teste la clé GEMINI_API_KEY
+#   2. Si OK  → régénère les so_what heuristiques des 3 derniers jours
+#   3. Si KO  → envoie un e-mail d'alerte avec instructions de renouvellement
+#
+# Objectif : fonctionnement 100% autonome, aucune intervention manuelle requise.
+# =============================================================================
+
+on:
+  schedule:
+    - cron: '30 10 * * *'   # 10:30 UTC = 12:30 Paris (2h après le brief)
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Nombre de jours à backfiller (defaut: 3)'
+        required: false
+        default: '3'
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-heal
+  cancel-in-progress: false
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements-pipeline.txt
+
+      - name: Configure git
+        run: |
+          git config user.name  "Auto-Heal Bot"
+          git config user.email "bot@github-actions.local"
+
+      # ── Étape 1 : Test clé Gemini ────────────────────────────────────────
+      - name: Test Gemini API key
+        id: gemini_test
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python - <<'EOF'
+          import os, sys
+
+          key = os.environ.get("GEMINI_API_KEY", "")
+          if not key:
+              print("::warning::GEMINI_API_KEY non définie dans les secrets GitHub.")
+              print("gemini_ok=false", file=open(os.environ["GITHUB_OUTPUT"], "a"))
+              sys.exit(0)
+
+          # Test avec le nouveau SDK
+          try:
+              from google import genai
+              client = genai.Client(api_key=key)
+              resp = client.models.generate_content(
+                  model="gemini-2.5-flash",
+                  contents="Réponds juste: OK"
+              )
+              print(f"Gemini OK (new SDK): {resp.text[:80]}")
+              print("gemini_ok=true", file=open(os.environ["GITHUB_OUTPUT"], "a"))
+              sys.exit(0)
+          except Exception as e1:
+              pass
+
+          # Fallback : legacy SDK
+          try:
+              import google.generativeai as genai_legacy
+              genai_legacy.configure(api_key=key)
+              model = genai_legacy.GenerativeModel("gemini-2.5-flash")
+              resp = model.generate_content("Réponds juste: OK")
+              print(f"Gemini OK (legacy SDK): {resp.text[:80]}")
+              print("gemini_ok=true", file=open(os.environ["GITHUB_OUTPUT"], "a"))
+              sys.exit(0)
+          except Exception as e2:
+              print(f"Gemini FAILED — new SDK: {e1} | legacy SDK: {e2}")
+              print("gemini_ok=false", file=open(os.environ["GITHUB_OUTPUT"], "a"))
+              sys.exit(0)
+          EOF
+
+      # ── Étape 2a : Régénérer so_what si Gemini OK ───────────────────────
+      - name: Regenerate so_what (if Gemini OK)
+        if: steps.gemini_test.outputs.gemini_ok == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL:   'gemini-2.5-flash'
+        run: |
+          DAYS=${{ github.event.inputs.days || '3' }}
+          python -m scripts.regenerate_so_what --days "$DAYS"
+
+      - name: Push regenerated briefs
+        if: steps.gemini_test.outputs.gemini_ok == 'true'
+        run: |
+          git add data/
+          git diff --staged --quiet || (
+            git commit -m "Auto-heal: regenerate so_what ($(date -u +%Y-%m-%d))"
+            git pull --rebase origin master || git pull --rebase origin main || true
+            git push
+          )
+          echo "OK so_what backfill terminé"
+
+      # ── Étape 2b : Alerte e-mail si Gemini KO ───────────────────────────
+      - name: Send Gemini alert email (if Gemini KO)
+        if: steps.gemini_test.outputs.gemini_ok == 'false'
+        env:
+          GMAIL_USER:         ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_RECIPIENT:    ${{ secrets.GMAIL_USER }}
+        run: |
+          python - <<'PYEOF'
+          import os, smtplib, ssl
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          from datetime import datetime
+
+          gmail_user = os.environ.get("GMAIL_USER", "")
+          gmail_pass = os.environ.get("GMAIL_APP_PASSWORD", "")
+          recipient  = os.environ.get("ALERT_RECIPIENT", gmail_user)
+
+          if not gmail_user or not gmail_pass:
+              print("GMAIL_USER ou GMAIL_APP_PASSWORD manquant — alerte non envoyée")
+              exit(0)
+
+          today = datetime.utcnow().strftime("%Y-%m-%d")
+
+          subject = f"[Daily Finance Brief] ⚠ Clé Gemini invalide — Action requise ({today})"
+
+          html = f"""
+          <html><body style="font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto">
+          <div style="background:#0B2545;padding:20px 24px;border-radius:6px 6px 0 0">
+            <div style="color:#C9A84C;font-size:11px;font-weight:700;letter-spacing:2px;
+                        text-transform:uppercase;margin-bottom:6px">Daily Finance Brief</div>
+            <div style="color:#fff;font-size:20px;font-weight:700">⚠ Clé Gemini API invalide</div>
+          </div>
+          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:0 0 6px 6px;
+                      padding:20px 24px">
+            <p style="margin-top:0"><strong>Date :</strong> {today}</p>
+            <p>La clé <code>GEMINI_API_KEY</code> configurée dans les secrets GitHub est
+            <strong>invalide ou expirée</strong>. Le pipeline génère des analyses heuristiques
+            sans valeur au lieu des vraies analyses IA.</p>
+
+            <h3 style="color:#92400E">Actions à effectuer :</h3>
+            <ol>
+              <li>Aller sur <a href="https://aistudio.google.com/app/apikey">
+                  https://aistudio.google.com/app/apikey</a> et générer une nouvelle clé</li>
+              <li>Dans GitHub : <strong>Settings → Secrets and variables → Actions</strong></li>
+              <li>Modifier <code>GEMINI_API_KEY</code> avec la nouvelle valeur</li>
+              <li>Déclencher manuellement le workflow
+                  <em>"Regenerate so_what (backfill)"</em> pour corriger les briefs récents</li>
+            </ol>
+
+            <p style="font-size:12px;color:#92400E;margin-bottom:0">
+            Ce message est automatique. Le workflow <em>Auto-Heal</em> se déclenche
+            chaque jour à 12h30 Paris et renverra cette alerte tant que la clé n'est pas corrigée.
+            </p>
+          </div>
+          </body></html>
+          """
+
+          msg = MIMEMultipart("alternative")
+          msg["Subject"] = subject
+          msg["From"]    = gmail_user
+          msg["To"]      = recipient
+          msg.attach(MIMEText(html, "html", "utf-8"))
+
+          try:
+              ctx = ssl.create_default_context()
+              with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as server:
+                  server.login(gmail_user, gmail_pass)
+                  server.sendmail(gmail_user, [recipient], msg.as_string())
+              print(f"OK Alerte envoyée à {recipient}")
+          except Exception as e:
+              print(f"FAIL envoi email: {e}")
+              exit(1)
+          PYEOF
+
+      # ── Résumé ───────────────────────────────────────────────────────────
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Auto-Heal Summary ==="
+          echo "Gemini OK : ${{ steps.gemini_test.outputs.gemini_ok }}"
+          echo "Date      : $(date -u +%Y-%m-%d)"
