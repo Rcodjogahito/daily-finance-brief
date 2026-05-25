@@ -93,50 +93,68 @@ jobs:
               );
               if (isViewerAuth) {
                 console.log('🔒 VIEWER AUTH DÉTECTÉ (URL: ' + finalUrl.split('?')[0] + ')');
-                console.log('');
-                console.log('⚠ ACTION REQUISE (unique, 30 secondes) :');
-                console.log('   1. Aller sur https://share.streamlit.io');
-                console.log('   2. Cliquer sur l\'app "daily-finance-brief-cib"');
-                console.log('   3. Settings → Sharing → "This app is public"');
-                console.log('   L\'app garde sa sécurité via DASHBOARD_PASSWORD.');
-                console.log('');
+
                 if (!email || !password) {
-                  console.log('❌ Aucun credential configuré — désactiver le viewer auth manuellement.');
+                  console.log('❌ Pas de credentials — keep-alive impossible avec viewer auth actif.');
+                  console.log('   Fix : share.streamlit.io → app → Settings → Sharing → "This app is public"');
                   process.exitCode = 1;
                   await browser.close();
                   return;
                 }
 
-                console.log('Tentative d\'authentification Google...');
+                console.log(`🔑 Credentials trouvés — tentative d'auth (${email})...`);
 
-                // Bouton "Continue with Google"
+                // Chercher le bouton GitHub d'abord (plus fiable que Google dans CI)
+                const githubBtn = page.locator([
+                  'button:has-text("GitHub")',
+                  'a:has-text("GitHub")',
+                  '[data-provider="github"]',
+                  '[aria-label*="GitHub"]',
+                ].join(', ')).first();
+
                 const googleBtn = page.locator([
                   'button:has-text("Google")',
                   'a:has-text("Google")',
                   '[data-provider="google"]',
                   '[aria-label*="Google"]',
                 ].join(', ')).first();
-                if (await googleBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+
+                let authClicked = false;
+
+                // Tenter GitHub OAuth en premier
+                if (await githubBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+                  console.log('  → Clic bouton GitHub...');
+                  await githubBtn.click();
+                  await page.waitForNavigation({ timeout: 15000 }).catch(() => {});
+                  authClicked = true;
+                }
+                // Fallback Google OAuth
+                else if (await googleBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+                  console.log('  → Clic bouton Google...');
                   await googleBtn.click();
                   await page.waitForNavigation({ timeout: 15000 }).catch(() => {});
+                  authClicked = true;
                 }
 
-                // Email
-                const emailField = page.locator('input[type="email"], input[name="identifier"], #identifierId').first();
-                if (await emailField.isVisible({ timeout: 10000 }).catch(() => false)) {
-                  await emailField.fill(email);
-                  await page.keyboard.press('Enter');
-                  await page.waitForTimeout(2000);
+                if (authClicked) {
+                  // Email field
+                  const emailField = page.locator('input[type="email"], input[name="identifier"], input[name="login"], #identifierId').first();
+                  if (await emailField.isVisible({ timeout: 10000 }).catch(() => false)) {
+                    await emailField.fill(email);
+                    await page.keyboard.press('Enter');
+                    await page.waitForTimeout(2000);
+                  }
+
+                  // Password field
+                  const pwdField = page.locator('input[type="password"], input[name="password"], input[name="Passwd"]').first();
+                  if (await pwdField.isVisible({ timeout: 10000 }).catch(() => false)) {
+                    await pwdField.fill(password);
+                    await page.keyboard.press('Enter');
+                    await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
+                  }
                 }
 
-                // Mot de passe
-                const pwdField = page.locator('input[type="password"], input[name="password"], input[name="Passwd"]').first();
-                if (await pwdField.isVisible({ timeout: 10000 }).catch(() => false)) {
-                  await pwdField.fill(password);
-                  await page.keyboard.press('Enter');
-                  await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
-                }
-                console.log(`Après auth : ${page.url()}`);
+                console.log(`  → URL après auth : ${page.url()}`);
                 await page.waitForTimeout(3000);
               }
 
