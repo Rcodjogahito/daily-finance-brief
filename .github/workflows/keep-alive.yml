@@ -1,42 +1,258 @@
 name: Streamlit Keep-Alive
 
-# Ping l'app toutes les 30 minutes — 48 fois/jour.
-# Streamlit Community Cloud endort les apps après 7 jours d'inactivité.
-# 48 pings/jour = impossibilité totale de dormir.
-# Le job dure ~20 secondes → ~16 min/jour de GitHub Actions (dans les limites gratuites).
+# ARCHITECTURE DE KEEP-ALIVE :
+#
+# Ce workflow tourne toutes les 30 minutes et sur chaque push (master/main).
+# Il utilise Playwright (navigateur headless) pour simuler une vraie session,
+# waker l'app si elle dort, et maintenir la connexion WebSocket active.
+#
+# IMPORTANT — Pour que le bot puisse waker l'app sans credentials :
+#   → Désactiver le viewer auth sur Streamlit Cloud :
+#     share.streamlit.io → app Settings → Sharing → "This app is public"
+#   L'app garde sa propre sécurité via DASHBOARD_PASSWORD dans st.secrets.
+#
+# Si vous préférez garder le viewer auth activé, ajouter ces secrets GitHub :
+#   STREAMLIT_EMAIL    : codjogahito@gmail.com
+#   STREAMLIT_PASSWORD : App Password Google (https://myaccount.google.com/apppasswords)
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Toutes les 30 minutes, 24h/24
+    - cron: '*/30 * * * *'   # Toutes les 30 minutes
+  push:
+    branches: [master, main]  # Aussi sur chaque push (re-active le schedule + wake immédiat)
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 10
 
     steps:
-      - name: Ping Streamlit app
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install playwright-chromium
+          npx playwright install --with-deps chromium
+
+      - name: Keep app alive (Playwright)
+        env:
+          APP_URL: "https://daily-finance-brief-cib.streamlit.app"
+          STREAMLIT_EMAIL: ${{ secrets.STREAMLIT_EMAIL }}
+          STREAMLIT_PASSWORD: ${{ secrets.STREAMLIT_PASSWORD }}
+        run: |
+          cat > keep_alive.js << 'EOF'
+          const { chromium } = require('playwright-chromium');
+
+          (async () => {
+            const url = process.env.APP_URL;
+            const email = process.env.STREAMLIT_EMAIL;
+            const password = process.env.STREAMLIT_PASSWORD;
+
+            console.log(`\n=== Streamlit Keep-Alive — ${new Date().toISOString()} ===`);
+            console.log(`Target: ${url}`);
+
+            // ── Pré-check : endpoint santé interne (toujours public)
+            try {
+              const { execSync } = require('child_process');
+              const h = execSync(
+                `curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${url}/_stcore/health" 2>/dev/null || echo "000"`
+              ).toString().trim();
+              console.log(`/_stcore/health → HTTP ${h}`);
+            } catch (e) {
+              console.log(`Health check error: ${e.message}`);
+            }
+
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              viewport: { width: 1280, height: 720 },
+            });
+            const page = await context.newPage();
+
+            try {
+              console.log('Navigating to app...');
+              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForTimeout(2000);  // Laisser le JS s'exécuter
+
+              const finalUrl = page.url();
+              console.log(`Final URL after load: ${finalUrl}`);
+
+              // ── CAS 1 : Viewer auth (share.streamlit.io) ─────────────────
+              if (finalUrl.includes('share.streamlit.io') || finalUrl.includes('accounts.google.com')) {
+                console.log('⚠ VIEWER AUTH DETECTED');
+                if (!email || !password) {
+                  console.log('❌ Aucun credential configuré — deux options :');
+                  console.log('   1. Désactiver viewer auth : Streamlit Cloud → Settings → Sharing → Public');
+                  console.log('   2. Ajouter STREAMLIT_EMAIL + STREAMLIT_PASSWORD dans GitHub Secrets');
+                  process.exitCode = 1;
+                  await browser.close();
+                  return;
+                }
+
+                console.log('Tentative d\'authentification Google...');
+
+                // Bouton "Continue with Google"
+                const googleBtn = page.locator([
+                  'button:has-text("Google")',
+                  'a:has-text("Google")',
+                  '[data-provider="google"]',
+                  '[aria-label*="Google"]',
+                ].join(', ')).first();
+                if (await googleBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+                  await googleBtn.click();
+                  await page.waitForNavigation({ timeout: 15000 }).catch(() => {});
+                }
+
+                // Email
+                const emailField = page.locator('input[type="email"], input[name="identifier"], #identifierId').first();
+                if (await emailField.isVisible({ timeout: 10000 }).catch(() => false)) {
+                  await emailField.fill(email);
+                  await page.keyboard.press('Enter');
+                  await page.waitForTimeout(2000);
+                }
+
+                // Mot de passe
+                const pwdField = page.locator('input[type="password"], input[name="password"], input[name="Passwd"]').first();
+                if (await pwdField.isVisible({ timeout: 10000 }).catch(() => false)) {
+                  await pwdField.fill(password);
+                  await page.keyboard.press('Enter');
+                  await page.waitForNavigation({ timeout: 20000 }).catch(() => {});
+                }
+                console.log(`Après auth : ${page.url()}`);
+                await page.waitForTimeout(3000);
+              }
+
+              // ── CAS 2 : App endormie ──────────────────────────────────
+              // Récupérer le texte complet de la page pour détecter l'état
+              const bodyText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+              const pageHtml = await page.content().catch(() => '');
+
+              const sleepingPatterns = [
+                /gone to sleep/i, /has gone to sleep/i, /app.*sleep/i,
+                /inactivit/i, /wake.*up/i, /get this app back/i,
+                /zzzz/i, /dormant/i,
+              ];
+              const isSleeping = sleepingPatterns.some(p => p.test(bodyText) || p.test(pageHtml));
+
+              if (isSleeping) {
+                console.log('💤 App DORMANTE détectée — lancement du réveil...');
+
+                // Sélecteurs larges pour le bouton "wake up"
+                const wakeBtnSelectors = [
+                  'button:has-text("Yes, get this app back")',
+                  'button:has-text("Yes")',
+                  'button:has-text("Wake")',
+                  'button:has-text("Get this app back")',
+                  'button:has-text("Oui")',
+                  'button:has-text("Réveiller")',
+                  'button:has-text("Reactivate")',
+                  'button[class*="wake"]',
+                  'button[class*="primary"]',
+                  '[data-testid*="wake"]',
+                  // Fallback : n'importe quel bouton visible
+                  'button:visible',
+                ];
+
+                let woke = false;
+                for (const sel of wakeBtnSelectors) {
+                  try {
+                    const btn = page.locator(sel).first();
+                    if (await btn.isVisible({ timeout: 2000 }).catch(() => false)) {
+                      const btnText = await btn.textContent().catch(() => '?');
+                      await btn.click();
+                      console.log(`✓ Bouton cliqué : "${btnText.trim()}" (sélecteur: ${sel})`);
+                      woke = true;
+                      break;
+                    }
+                  } catch {}
+                }
+
+                if (!woke) {
+                  console.log('Aucun bouton trouvé — clic sur body + attente...');
+                  await page.click('body').catch(() => {});
+                }
+
+                // Attendre le démarrage de l'app (peut prendre 30-90s)
+                console.log('Attente du démarrage (60s max)...');
+                await page.waitForTimeout(15000);  // Premier délai
+
+                // Tentative de navigation après réveil
+                try {
+                  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                  await page.waitForTimeout(15000);
+                  console.log(`URL après réveil : ${page.url()}`);
+                } catch (e) {
+                  console.log(`Navigation post-réveil : ${e.message}`);
+                }
+              } else {
+                console.log('App active — pas en veille');
+              }
+
+              // ── ATTENTE LONGUE pour maintien WebSocket ────────────────
+              // Streamlit maintient l'app active tant qu'un WebSocket est connecté.
+              // On attend 30s pour que la session soit bien enregistrée.
+              console.log('Maintien de la connexion WebSocket (30s)...');
+              try {
+                await page.waitForSelector(
+                  '[data-testid="stApp"], [data-testid="stAppViewContainer"], .stApp',
+                  { timeout: 30000 }
+                );
+                console.log('✅ Élément Streamlit détecté');
+              } catch {
+                console.log('⚠ Élément Streamlit non trouvé (app peut-être encore en cours de boot)');
+              }
+              await page.waitForTimeout(10000);
+
+              const title = await page.title().catch(() => 'N/A');
+              const endUrl = page.url();
+              console.log(`\n=== RÉSULTAT ===`);
+              console.log(`Titre    : ${title}`);
+              console.log(`URL      : ${endUrl}`);
+              console.log(`Statut   : ✅ Keep-alive terminé avec succès`);
+
+            } catch (err) {
+              console.error(`❌ Erreur Playwright : ${err.message}`);
+              process.exitCode = 1;
+            } finally {
+              await browser.close();
+            }
+          })();
+          EOF
+
+          node keep_alive.js
+
+      - name: Fallback curl + diagnostic
+        if: always()
         run: |
           URL="https://daily-finance-brief-cib.streamlit.app"
-
-          # Ping principal avec suivi de redirects (-L) + headers navigateur
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -L --max-time 45 --retry 2 --retry-delay 5 \
+          echo "=== Fallback curl + diagnostic ==="
+          STATUS=$(curl -s -o /tmp/resp.html -w "%{http_code}" -L --max-time 45 \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
             -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
             -H "Accept-Language: fr-FR,fr;q=0.9,en;q=0.8" \
-            -H "Cache-Control: no-cache" \
-            "$URL" || echo "000")
+            "$URL" 2>/dev/null || echo "000")
 
-          echo "$(date -u +%H:%M:%SZ) — HTTP $STATUS — $URL"
+          echo "HTTP status : $STATUS"
+          RESP_BYTES=$(wc -c < /tmp/resp.html 2>/dev/null || echo 0)
+          echo "Response size : ${RESP_BYTES} bytes"
 
-          # Ping secondaire health endpoint
-          curl -s -o /dev/null -L --max-time 15 \
-            -H "User-Agent: Mozilla/5.0 (compatible)" \
-            "$URL/_stcore/health" || true
-
-          # Alerte si l'app ne répond plus
-          if [ "$STATUS" = "000" ]; then
-            echo "::warning::App non joignable — vérifier le déploiement Streamlit Cloud"
+          if [ -f /tmp/resp.html ]; then
+            if grep -qiE "gone to sleep|sleeping|inactivit|wake.*up" /tmp/resp.html; then
+              echo "::warning::💤 App DORMANTE — le bot Playwright devrait la waker dans ce run"
+            elif grep -qiE "share\.streamlit\.io/login|viewer.*auth|sign in to view" /tmp/resp.html; then
+              echo "::error::🔒 VIEWER AUTH ACTIVE — désactiver dans Streamlit Cloud → Settings → Sharing → Public"
+              echo "::error::   OU configurer STREAMLIT_EMAIL + STREAMLIT_PASSWORD dans GitHub Secrets"
+            elif [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
+              echo "✅ App accessible — HTTP $STATUS"
+            elif [ "$STATUS" = "000" ]; then
+              echo "::error::App non joignable (timeout/erreur réseau)"
+            else
+              echo "HTTP $STATUS — vérifier Streamlit Cloud"
+            fi
           fi

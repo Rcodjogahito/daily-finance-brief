@@ -10,7 +10,7 @@ import streamlit as st
 # Empêche Streamlit Cloud de détecter l'inactivité WebSocket et d'endormir l'app.
 try:
     from streamlit_autorefresh import st_autorefresh
-    _count = st_autorefresh(interval=30 * 60 * 1000, key="keepalive_refresh")  # 30 min
+    _count = st_autorefresh(interval=10 * 60 * 1000, key="keepalive_refresh")  # 10 min
 except ImportError:
     pass  # Module optionnel — le keep-alive GitHub Actions prend le relais
 

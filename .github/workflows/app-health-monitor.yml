@@ -1,8 +1,8 @@
 name: App Health Monitor
 
 # Surveille l'état de l'app toutes les 2h + à chaque push.
-# Détecte si l'app dort et envoie une séquence de réveil.
-# Se déclenche aussi sur push → vérifie que chaque déploiement est OK.
+# Sur push → le keep-alive.yml se charge du wake (il est aussi déclenché sur push).
+# Ici : diagnostics, détection sleeping, alertes GitHub.
 
 on:
   push:
@@ -17,37 +17,49 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Check and wake app
+      - name: Check app health
         run: |
           URL="https://daily-finance-brief-cib.streamlit.app"
-          echo "Health check — $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          HEALTH_URL="${URL}/_stcore/health"
+          echo "=== App Health Monitor — $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-          # Requête avec suivi de redirects
+          # 1. Health endpoint interne (toujours public, même si viewer auth activé)
+          HEALTH=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" 2>/dev/null || echo "000")
+          echo "/_stcore/health → HTTP $HEALTH"
+
+          # 2. Page principale avec User-Agent browser
           HTTP_CODE=$(curl -s -o /tmp/resp.html -w "%{http_code}" \
-            -L --max-time 60 --retry 3 --retry-delay 10 \
+            -L --max-time 60 --retry 2 --retry-delay 5 \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
             -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
             -H "Accept-Language: fr-FR,fr;q=0.9" \
             -H "Cache-Control: no-cache" \
-            "$URL" || echo "000")
+            "$URL" 2>/dev/null || echo "000")
 
-          echo "HTTP final: $HTTP_CODE"
+          echo "Page principale → HTTP $HTTP_CODE"
           RESP_SIZE=$(wc -c < /tmp/resp.html 2>/dev/null || echo 0)
-          echo "Response size: $RESP_SIZE bytes"
+          echo "Taille réponse : ${RESP_SIZE} bytes"
 
-          # Détecter page sleeping Streamlit
-          if grep -qiE "gone to sleep|has gone to sleep|wake up|wakeup|app is sleeping" /tmp/resp.html 2>/dev/null; then
-            echo "::warning::⚠ APP SLEEPING — lancement séquence de réveil"
-            for i in $(seq 1 8); do
-              curl -s -o /dev/null -L --max-time 90 \
-                -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-                "$URL" || true
-              echo "Tentative de réveil $i/8"
-              sleep 15
-            done
-            echo "Séquence de réveil terminée"
-          elif [ "$HTTP_CODE" = "000" ]; then
-            echo "::error::App non joignable (timeout) — vérifier Streamlit Cloud"
-          else
-            echo "✅ App active — HTTP $HTTP_CODE"
+          # 3. Diagnostic de la réponse
+          if [ -f /tmp/resp.html ]; then
+            if grep -qiE "gone to sleep|has gone to sleep|sleeping|wake.*up|inactivit" /tmp/resp.html 2>/dev/null; then
+              echo "::warning::💤 APP DORMANTE — keep-alive.yml devrait la waker (déclenché aussi sur push)"
+              echo "Si l'app reste endormie : visiter manuellement ${URL} et cliquer 'Wake up'"
+
+            elif grep -qiE "share\.streamlit\.io/login|viewer.*auth|sign in to view|protected" /tmp/resp.html 2>/dev/null; then
+              echo "::error::🔒 VIEWER AUTH ACTIVE"
+              echo "::error::Le keep-alive ne peut pas waker l'app sans credentials."
+              echo "::error::Solution recommandée : Streamlit Cloud → app Settings → Sharing → Public"
+
+            elif [ "$HTTP_CODE" = "000" ]; then
+              echo "::error::❌ App non joignable (timeout) — vérifier Streamlit Cloud"
+
+            elif [ "$HEALTH" = "200" ] || echo "$HTTP_CODE" | grep -qE "^[23]"; then
+              echo "✅ App ACTIVE — HTTP $HTTP_CODE | health $HEALTH"
+
+            else
+              echo "::warning::Statut inattendu — HTTP $HTTP_CODE | health $HEALTH"
+              echo "Début de la réponse :"
+              head -c 500 /tmp/resp.html || true
+            fi
           fi
