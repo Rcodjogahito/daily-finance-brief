@@ -18,7 +18,7 @@ from src.archiver import list_brief_dates, list_alert_dates, load_brief, load_al
 from src.enrichment import REGION_GEO_MAP
 from src.styles import (
     inject_css, sidebar_brand, news_card, section_header, status_badge,
-    CATEGORY_COLORS, CATEGORY_LABELS, ALL_CATEGORIES,
+    CATEGORY_COLORS, CATEGORY_LABELS, ALL_CATEGORIES, _is_real_so_what,
 )
 
 _ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
@@ -240,7 +240,7 @@ if market:
 st.markdown("---")
 _gen = brief.get("generated_at", "")
 _gen_display = f"{_gen[:10]} à {_gen[11:16]}" if len(_gen) >= 16 else _gen[:10]
-_has_analysis = sum(1 for n in news if (n.get("so_what") or "").strip() and "[Analyse LLM indisponible" not in (n.get("so_what") or ""))
+_has_analysis = sum(1 for n in news if _is_real_so_what(n.get("so_what", "")))
 
 mcol1, mcol2, mcol3 = st.columns(3)
 with mcol1:

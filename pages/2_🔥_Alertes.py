@@ -6,7 +6,7 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
-from src.styles import inject_css, sidebar_brand, section_header
+from src.styles import inject_css, sidebar_brand, section_header, _is_real_so_what
 
 st.set_page_config(
     page_title="Alertes — Daily Finance Brief",
@@ -175,7 +175,8 @@ for alert in sorted(filtered_alerts, key=lambda a: a.get("_date", ""), reverse=T
         f'<span style="color:#9CA3AF">{p}</span>' for p in meta_parts if p
     )
     url = alert.get("url", "")
-    so_what = (alert.get("so_what", "") or "").strip()
+    _sw_raw = (alert.get("so_what", "") or "").strip()
+    so_what = _sw_raw if _is_real_so_what(_sw_raw) else ""
 
     st.markdown(
         f'<div style="background:#FFFFFF;border-left:4px solid {color};'

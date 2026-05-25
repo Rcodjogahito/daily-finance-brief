@@ -9,15 +9,23 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 logger = logging.getLogger(__name__)
 
-# Model fallback chain: essaie le meilleur modèle, se replie sur les suivants
+# Model fallback chain — du plus récent au plus ancien
+# Mise à jour 2026 : Gemini 2.5 en tête, 2.0/1.5 en fallback de dernier recours
 _MODEL_PREFERENCE = [
-    os.environ.get("GEMINI_MODEL", ""),
-    "gemini-2.0-flash",
+    os.environ.get("GEMINI_MODEL", ""),           # Override env var (priorité absolue)
+    "gemini-2.5-flash",                            # Stable 2026 (meilleur rapport perf/coût)
+    "gemini-2.5-flash-preview-05-20",              # Preview daté
+    "gemini-2.5-flash-preview-04-17",              # Preview daté antérieur
+    "gemini-2.5-pro",                              # Plus capable si quota disponible
+    "gemini-2.0-flash",                            # Génération précédente
     "gemini-2.0-flash-lite",
+    "gemini-2.0-flash-latest",
+    "gemini-2.0-flash-exp",
     "gemini-1.5-flash",
     "gemini-1.5-flash-latest",
+    "gemini-1.5-pro",
 ]
-_MODEL_NAME = next((m for m in _MODEL_PREFERENCE if m), "gemini-2.0-flash")
+_MODEL_NAME = next((m for m in _MODEL_PREFERENCE if m), "gemini-2.5-flash")
 
 SYSTEM_PROMPT = """Tu es un analyste senior en banque d'investissement (Leveraged Finance / M&A / Energy / DCM) au sein d'un CIB Tier-1 européen.
 Tu prépares un brief quotidien pour ton équipe deal team et tes seniors.
@@ -306,23 +314,42 @@ def _generate_item_so_what(item: dict) -> str:
 def enrich_so_what(items: list[dict]) -> list[dict]:
     """For each item whose so_what is a heuristic fallback, regenerate via Gemini.
 
-    Called after the main batch selection so failures are isolated per item —
-    a single API error only affects one card, not all ten.
+    Fail-fast: if the first attempt fails, marks Gemini as unavailable and
+    skips further calls (avoids 10× useless retries if the API key is invalid).
     """
     import time
     result = []
+    gemini_available = True   # Présumé disponible jusqu'à preuve du contraire
+
     for item in items:
         if _is_heuristic(item.get("so_what", "")):
-            try:
-                item = {**item, "so_what": _generate_item_so_what(item)}
-            except Exception as exc:
-                logger.warning(
-                    "so_what enrichment failed for '%s': %s — using heuristic",
-                    item.get("headline", "")[:50], exc,
-                )
+            if gemini_available:
+                try:
+                    item = {**item, "so_what": _generate_item_so_what(item)}
+                    logger.info(
+                        "so_what enriched via Gemini for '%s'",
+                        item.get("headline", "")[:50],
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "so_what enrichment failed for '%s': %s — Gemini indisponible, skip restants",
+                        item.get("headline", "")[:50], str(exc)[:120],
+                    )
+                    item = {**item, "so_what": _heuristic_so_what(item)}
+                    gemini_available = False   # Ne plus appeler Gemini pour ce run
+                else:
+                    time.sleep(1)   # Respecter les rate limits Gemini seulement si succès
+            else:
+                # Gemini déjà échoué — garder l'heuristique directement
                 item = {**item, "so_what": _heuristic_so_what(item)}
-            time.sleep(1)  # respect API rate limits
         result.append(item)
+
+    if not gemini_available:
+        logger.error(
+            "enrich_so_what: Gemini indisponible — %d item(s) avec analyse heuristique. "
+            "Vérifier GEMINI_API_KEY et lancer le workflow 'Regenerate so_what' manuellement.",
+            sum(1 for it in result if _is_heuristic(it.get("so_what", ""))),
+        )
     return result
 
 

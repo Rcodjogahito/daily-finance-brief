@@ -466,6 +466,32 @@ def _search_url(headline: str, source: str) -> str:
     return f"https://www.google.com/search?q={q}"
 
 
+# Marqueurs de texte heuristique (fallback quand Gemini est indisponible)
+# Ces valeurs ne sont PAS de vraies analyses — on les masque dans l'UI.
+_HEURISTIC_PREFIXES = (
+    "[Analyse LLM indisponible",
+    "Développement sectoriel",
+    "Transaction M&A",
+    "Event crédit leveraged",
+    "Event de crédit affectant",
+    "Développement énergétique",
+    "Signal macro (",
+    "Risque géopolitique (",
+    "Développement réglementaire",
+    "Nomination dans le secteur",
+    "Actualité bancaire (",
+    "News ",
+)
+
+
+def _is_real_so_what(text: str) -> bool:
+    """Return True only if text is a real Gemini analysis (not a heuristic fallback)."""
+    t = (text or "").strip()
+    if not t:
+        return False
+    return not any(t.startswith(p) for p in _HEURISTIC_PREFIXES)
+
+
 def news_card(item: dict, highlight_fn=None) -> None:
     """Render a single news card with gold analysis block.
     highlight_fn(text) -> html  for search result highlighting.
@@ -480,8 +506,8 @@ def news_card(item: dict, highlight_fn=None) -> None:
     headline     = hl(raw_headline)
     summary      = hl(item.get("summary", ""))
     _sw_raw      = (item.get("so_what", "") or "").strip()
-    # Show so_what unless it's explicitly marked as unavailable from old code
-    so_what      = hl(_sw_raw) if _sw_raw and "[Analyse LLM indisponible" not in _sw_raw else ""
+    # Masquer le texte heuristique (fallback Gemini indisponible) — ne montrer que la vraie analyse
+    so_what      = hl(_sw_raw) if _is_real_so_what(_sw_raw) else ""
 
     source     = item.get("source", "")
     is_gnews   = "news.google.com" in url or source.lower() in _GNEWS_SOURCES
