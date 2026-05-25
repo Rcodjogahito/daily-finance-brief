@@ -10,7 +10,8 @@
     "returned": 10,
     "post_verified": 10,
     "archive_written": true,
-    "email_sent": true
+    "email_sent": true,
+    "so_what_regenerated": true
   },
   "market_snapshot": {
     "CAC 40": {
@@ -87,7 +88,7 @@
       "source_count": 2,
       "summary": "With SpaceX, OpenAI and Anthropic targeting the same market, investors must decide what qualities they prize most",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — TMT (Global) — corroboré par 2 sources. Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé."
+      "so_what": "The impending \"giant IPO bake-off\" involving SpaceX, OpenAI, and Anthropic signals heightened competition for investor capital within the TMT sector, likely leading to increased investor selectivity and potentially impacting valuation multiples for less differentiated offerings. Investors will face critical allocation decisions, prioritizing specific growth profiles or technological advantages, while the companies themselves will compete fiercely for market attention and optimal pricing. This development represents a significant near-term opportunity for ECM and M&A advisory mandates, particularly for CIBs with robust TMT sector expertise and strong distribution networks, as these high-profile IPOs will drive substantial fee pools and could foreshadow future strategic M&A."
     },
     {
       "rank": 3,
@@ -151,7 +152,7 @@
       "source_count": 1,
       "summary": "What If the Strait of Hormuz Didn’t Reopen? &nbsp;&nbsp; Bloomberg",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Other (Global). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé."
+      "so_what": "La fermeture du Détroit d'Ormuz entraînerait une flambée immédiate des prix du pétrole et du gaz, générant une volatilité macroéconomique intense, un élargissement des spreads de crédit pour les secteurs énergivores et une forte augmentation des primes d'assurance maritime. Les producteurs d'énergie hors Moyen-Orient et les infrastructures alternatives bénéficieraient de cette situation, tandis que les importateurs d'énergie, les compagnies aériennes et le shipping subiraient des pressions de coûts extrêmes, impactant leur rentabilité et leur capacité de service de la dette. Ce scénario représente un risque systémique majeur, créant des opportunités en M&A distressed et en restructuration pour les secteurs vulnérables, tout en stimulant le financement de projets d'énergies alternatives et la diversification des chaînes d'approvisionnement."
     },
     {
       "rank": 7,

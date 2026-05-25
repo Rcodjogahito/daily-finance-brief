@@ -10,7 +10,8 @@
     "returned": 10,
     "post_verified": 10,
     "archive_written": true,
-    "email_sent": true
+    "email_sent": true,
+    "so_what_regenerated": true
   },
   "market_snapshot": {
     "CAC 40": {
@@ -71,7 +72,7 @@
       "source_count": 3,
       "summary": "US Reaches Limit of Sanctions Power in Targeting Iran’s Economy &nbsp;&nbsp; Bloomberg.com",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Energy (USA) — corroboré par 3 sources. Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé."
+      "so_what": "L'atteinte de la limite du pouvoir de sanction américain sur l'économie iranienne suggère un plafond à la pression baissière sur l'offre pétrolière iranienne, stabilisant potentiellement les attentes du marché sur la disponibilité du brut et limitant le risque haussier lié à ce levier géopolitique. Cela implique que l'Iran pourrait bénéficier d'une marge de manœuvre économique relative, tandis que les États-Unis devront potentiellement réévaluer leur stratégie de politique étrangère, avec des implications pour la dynamique géopolitique du secteur énergétique. Pour les CIBs, il est crucial de surveiller les évolutions des relations américano-iraniennes, car cela pourrait, à terme, ouvrir des opportunités en M&A ou DCM dans le secteur de l'énergie si les sanctions venaient à être assouplies, ou, à l'inverse, accroître les risques géopolitiques si d'autres formes de pression sont envisagées."
     },
     {
       "rank": 2,
