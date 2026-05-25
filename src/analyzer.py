@@ -11,20 +11,14 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 logger = logging.getLogger(__name__)
 
 # Model fallback chain — du plus récent au plus ancien
-# Mise à jour 2026 : Gemini 2.5 en tête, 2.0/1.5 en fallback de dernier recours
+# Mise à jour 2026-05-25 : modèles vivants uniquement (404 supprimés)
+# gemini-2.5-flash-preview-*, gemini-1.5-*, gemini-2.0-flash-latest/exp → tous 404
 _MODEL_PREFERENCE = [
-    os.environ.get("GEMINI_MODEL", ""),           # Override env var (priorité absolue)
-    "gemini-2.5-flash",                            # Stable 2026 (meilleur rapport perf/coût)
-    "gemini-2.5-flash-preview-05-20",              # Preview daté
-    "gemini-2.5-flash-preview-04-17",              # Preview daté antérieur
-    "gemini-2.5-pro",                              # Plus capable si quota disponible
-    "gemini-2.0-flash",                            # Génération précédente
-    "gemini-2.0-flash-lite",
-    "gemini-2.0-flash-latest",
-    "gemini-2.0-flash-exp",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-pro",
+    os.environ.get("GEMINI_MODEL", ""),  # Override env var (priorité absolue)
+    "gemini-2.5-flash",                   # Principal — 10 RPM free tier
+    "gemini-2.5-pro",                     # Fallback — quota séparé
+    "gemini-2.0-flash",                   # Fallback — 15 RPM free tier
+    "gemini-2.0-flash-lite",              # Fallback léger
 ]
 _MODEL_NAME = next((m for m in _MODEL_PREFERENCE if m), "gemini-2.5-flash")
 
