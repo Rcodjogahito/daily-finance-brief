@@ -6,6 +6,14 @@ from datetime import datetime
 import pytz
 import streamlit as st
 
+# ── Auto-refresh toutes les 30 min pour maintenir la connexion Streamlit active
+# Empêche Streamlit Cloud de détecter l'inactivité WebSocket et d'endormir l'app.
+try:
+    from streamlit_autorefresh import st_autorefresh
+    _count = st_autorefresh(interval=30 * 60 * 1000, key="keepalive_refresh")  # 30 min
+except ImportError:
+    pass  # Module optionnel — le keep-alive GitHub Actions prend le relais
+
 from src.archiver import list_brief_dates, list_alert_dates, load_brief, load_alerts
 from src.enrichment import REGION_GEO_MAP
 from src.styles import (

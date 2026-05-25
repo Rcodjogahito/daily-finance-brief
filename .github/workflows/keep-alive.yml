@@ -1,76 +1,42 @@
 name: Streamlit Keep-Alive
 
-# Streamlit Community Cloud endort les apps après ~7 jours d'inactivité.
-# Ce workflow ping l'app toutes les 3h avec des headers navigateur réels
-# ET suit les redirects (-L) pour toucher le serveur Streamlit effectivement.
-#
-# En complément, configurer UptimeRobot (gratuit, toutes les 5 min) :
-#   https://uptimerobot.com → New Monitor → HTTP(s) → URL de l'app
-#   Cela garantit que l'app ne dormira JAMAIS.
+# Ping l'app toutes les 30 minutes — 48 fois/jour.
+# Streamlit Community Cloud endort les apps après 7 jours d'inactivité.
+# 48 pings/jour = impossibilité totale de dormir.
+# Le job dure ~20 secondes → ~16 min/jour de GitHub Actions (dans les limites gratuites).
 
 on:
   schedule:
-    - cron: '0 */3 * * *'   # Toutes les 3h : 00h, 03h, 06h, 09h, 12h, 15h, 18h, 21h UTC
-  workflow_dispatch:          # Déclenchement manuel si besoin
+    - cron: '*/30 * * * *'   # Toutes les 30 minutes, 24h/24
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 3
 
     steps:
-      - name: Wake up Streamlit app
+      - name: Ping Streamlit app
         run: |
           URL="https://daily-finance-brief-cib.streamlit.app"
-          echo "=== Keep-alive $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-          # ── Ping 1 : Page principale avec headers navigateur + suivi redirects ──
+          # Ping principal avec suivi de redirects (-L) + headers navigateur
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -L \
-            --max-time 60 \
-            --retry 3 \
-            --retry-delay 15 \
-            --retry-connrefused \
+            -L --max-time 45 --retry 2 --retry-delay 5 \
             -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8" \
-            -H "Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7" \
-            -H "Accept-Encoding: gzip, deflate, br" \
+            -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
+            -H "Accept-Language: fr-FR,fr;q=0.9,en;q=0.8" \
             -H "Cache-Control: no-cache" \
-            -H "Pragma: no-cache" \
-            -H "Connection: keep-alive" \
-            -H "Upgrade-Insecure-Requests: 1" \
             "$URL" || echo "000")
-          echo "✓ Page principale — HTTP $STATUS"
 
-          # ── Ping 2 : Health endpoint (suit les redirects) ──
-          H_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -L \
-            --max-time 30 \
-            -H "User-Agent: Mozilla/5.0 (compatible; keep-alive-bot/1.0)" \
-            "$URL/_stcore/health" || echo "000")
-          echo "✓ Health endpoint — HTTP $H_STATUS"
+          echo "$(date -u +%H:%M:%SZ) — HTTP $STATUS — $URL"
 
-          # ── Ping 3 : WebSocket check (simule l'ouverture d'une page Streamlit) ──
-          WS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -L \
-            --max-time 20 \
+          # Ping secondaire health endpoint
+          curl -s -o /dev/null -L --max-time 15 \
             -H "User-Agent: Mozilla/5.0 (compatible)" \
-            -H "Accept: application/json" \
-            "$URL/_stcore/allowed-message-origins" || echo "000")
-          echo "✓ Streamlit API — HTTP $WS_STATUS"
+            "$URL/_stcore/health" || true
 
-          # ── Ping 4 : Page secondaire pour réchauffer le cache ──
-          curl -s -o /dev/null \
-            -L \
-            --max-time 25 \
-            -H "User-Agent: Mozilla/5.0 (compatible)" \
-            "$URL/Historique" || true
-          echo "✓ Page Historique — done"
-
-          echo "=== Keep-alive complete ==="
-
-          # Alerter si l'app ne répond pas (code 000 = timeout/connexion refusée)
+          # Alerte si l'app ne répond plus
           if [ "$STATUS" = "000" ]; then
-            echo "::warning::App did not respond — may be sleeping or down"
-            exit 1
+            echo "::warning::App non joignable — vérifier le déploiement Streamlit Cloud"
           fi

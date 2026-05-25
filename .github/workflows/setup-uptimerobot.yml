@@ -1,0 +1,78 @@
+name: Setup UptimeRobot Monitor (run once)
+
+# Lance ce workflow UNE SEULE FOIS manuellement depuis GitHub Actions.
+# Prérequis : ajouter le secret UPTIMEROBOT_API_KEY dans GitHub Settings > Secrets.
+# Compte UptimeRobot gratuit : https://uptimerobot.com (ping toutes les 5 min, gratuit)
+# API Key : UptimeRobot Dashboard → My Settings → API Settings → Main API Key
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: true
+        default: 'create'
+        type: choice
+        options:
+          - create
+          - check
+          - list
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Manage UptimeRobot monitor
+        env:
+          API_KEY: ${{ secrets.UPTIMEROBOT_API_KEY }}
+          ACTION: ${{ github.event.inputs.action }}
+        run: |
+          if [ -z "$API_KEY" ]; then
+            echo "::error::Secret UPTIMEROBOT_API_KEY non configuré."
+            echo "1. Créer un compte sur https://uptimerobot.com (gratuit)"
+            echo "2. Dashboard → My Settings → API Settings → copier la Main API Key"
+            echo "3. GitHub repo → Settings → Secrets → New secret : UPTIMEROBOT_API_KEY"
+            exit 1
+          fi
+
+          if [ "$ACTION" = "list" ] || [ "$ACTION" = "check" ]; then
+            echo "=== Moniteurs UptimeRobot existants ==="
+            curl -s -X POST "https://api.uptimerobot.com/v2/getMonitors" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              --data-urlencode "api_key=$API_KEY" \
+              --data-urlencode "format=json" | python3 -c "
+import json,sys
+data=json.load(sys.stdin)
+monitors=data.get('monitors',[])
+print(f'Total: {len(monitors)} moniteur(s)')
+for m in monitors:
+    print(f'  [{m[\"status\"]}] {m[\"friendly_name\"]} — {m[\"url\"]} (interval: {m[\"interval\"]}s)')
+"
+          fi
+
+          if [ "$ACTION" = "create" ]; then
+            echo "=== Création moniteur UptimeRobot ==="
+            RESPONSE=$(curl -s -X POST "https://api.uptimerobot.com/v2/newMonitor" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              --data-urlencode "api_key=$API_KEY" \
+              --data-urlencode "format=json" \
+              --data-urlencode "type=1" \
+              --data-urlencode "url=https://daily-finance-brief-cib.streamlit.app" \
+              --data-urlencode "friendly_name=Daily Finance Brief — Streamlit" \
+              --data-urlencode "interval=300" \
+              --data-urlencode "http_username=" \
+              --data-urlencode "http_password=")
+
+            echo "$RESPONSE" | python3 -c "
+import json,sys
+data=json.load(sys.stdin)
+if data.get('stat') == 'ok':
+    mid = data['monitor']['id']
+    print(f'✅ Moniteur créé avec succès ! ID: {mid}')
+    print('Ping toutes les 5 minutes (300s) — free tier UptimeRobot')
+else:
+    print(f'❌ Erreur: {data}')
+"
+          fi
