@@ -1,8 +1,8 @@
 name: App Health Monitor
 
 # Surveille l'état de l'app toutes les 2h + à chaque push.
-# Sur push → le keep-alive.yml se charge du wake (il est aussi déclenché sur push).
-# Ici : diagnostics, détection sleeping, alertes GitHub.
+# NOTE : /_stcore/health retourne TOUJOURS 303 sur Streamlit Cloud (infra nginx),
+# même pour les apps publiques. On utilise Playwright pour vérifier l'état réel.
 
 on:
   push:
@@ -14,62 +14,114 @@ on:
 jobs:
   health-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
-      - name: Check app health
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
         run: |
-          URL="https://daily-finance-brief-cib.streamlit.app"
-          HEALTH_URL="${URL}/_stcore/health"
-          echo "=== App Health Monitor — $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+          npm install playwright-chromium
+          npx playwright install --with-deps chromium
 
-          # 1. Health endpoint — capture aussi la Location header pour détecter viewer auth
-          HEALTH_RESP=$(curl -sI --max-time 15 "$HEALTH_URL" 2>/dev/null)
-          HEALTH=$(echo "$HEALTH_RESP" | grep -oE "HTTP/[0-9.]+ [0-9]+" | tail -1 | grep -oE "[0-9]+$" || echo "000")
-          HEALTH_LOC=$(echo "$HEALTH_RESP" | grep -i "^Location:" | head -1 || echo "")
-          echo "/_stcore/health → HTTP $HEALTH | Location: ${HEALTH_LOC:-none}"
+      - name: Check app health (Playwright)
+        env:
+          APP_URL: "https://daily-finance-brief-cib.streamlit.app"
+          STREAMLIT_EMAIL: ${{ secrets.STREAMLIT_EMAIL }}
+          STREAMLIT_PASSWORD: ${{ secrets.STREAMLIT_PASSWORD }}
+        run: |
+          cat > health_check.js << 'EOF'
+          const { chromium } = require('playwright-chromium');
 
-          # Détecter viewer auth via le header Location (303 → /-/auth/app ou /-/login)
-          if echo "$HEALTH_LOC" | grep -qE "/-/auth/app|/-/login|share\.streamlit\.io"; then
-            echo "::error::🔒 VIEWER AUTH ACTIVE — l'app redirige vers la page de connexion"
-            echo "::error::Solution : Streamlit Cloud → app Settings → Sharing → 'Anyone' (public)"
-            echo "::error::Sans ça, le keep-alive et les visiteurs externes sont bloqués."
-            exit 0
-          fi
+          (async () => {
+            const url = process.env.APP_URL;
+            const email = process.env.STREAMLIT_EMAIL;
+            const password = process.env.STREAMLIT_PASSWORD;
 
-          # 2. Page principale avec User-Agent browser (sans suivre les redirects — on les analyse)
-          HTTP_HEADERS=$(curl -sI --max-time 15 \
-            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-            "$URL" 2>/dev/null || echo "")
-          HTTP_CODE=$(echo "$HTTP_HEADERS" | grep -oE "HTTP/[0-9.]+ [0-9]+" | tail -1 | grep -oE "[0-9]+$" || echo "000")
-          HTTP_LOC=$(echo "$HTTP_HEADERS"  | grep -i "^Location:" | head -1 || echo "")
+            console.log(`=== App Health Monitor — ${new Date().toISOString()} ===`);
+            console.log(`Target: ${url}`);
 
-          echo "Page principale → HTTP $HTTP_CODE | Location: ${HTTP_LOC:-none}"
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              viewport: { width: 1280, height: 720 },
+            });
+            const page = await context.newPage();
 
-          # 3. Diagnostic
-          if echo "$HTTP_LOC" | grep -qE "/-/auth/app|/-/login|share\.streamlit\.io"; then
-            echo "::error::🔒 VIEWER AUTH ACTIVE — redirection vers login"
-            echo "::error::Solution : Streamlit Cloud → Settings → Sharing → 'Anyone' (public)"
+            try {
+              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+              await page.waitForTimeout(3000);
 
-          elif [ "$HTTP_CODE" = "000" ]; then
-            echo "::error::❌ App non joignable (timeout) — vérifier Streamlit Cloud"
+              const finalUrl = page.url();
 
-          elif [ "$HEALTH" = "200" ] || echo "$HTTP_CODE" | grep -qE "^[23]"; then
-            echo "✅ App ACTIVE — HTTP $HTTP_CODE | health $HEALTH"
+              // Viewer auth = redirigé vers /-/login ou share.streamlit.io ET BLOQUÉ
+              // (pour apps publiques, Playwright passe à travers le check d'auth sans s'arrêter)
+              const isBlockedByAuth = (
+                finalUrl.includes('/-/login') ||
+                (finalUrl.includes('share.streamlit.io') && !finalUrl.includes('redirect_uri'))
+              );
 
-          elif echo "$HTTP_CODE" | grep -qE "^[45]"; then
-            # Récupérer le corps pour diagnostic sleeping
-            BODY=$(curl -sL --max-time 30 \
-              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
-              "$URL" 2>/dev/null | head -c 1000 || echo "")
-            if echo "$BODY" | grep -qiE "gone to sleep|has gone to sleep|sleeping|wake.*up|inactivit"; then
-              echo "::warning::💤 APP DORMANTE — keep-alive.yml devrait la waker (déclenché aussi sur push)"
-              echo "Si l'app reste endormie : visiter manuellement ${URL} et cliquer 'Wake up'"
-            else
-              echo "::warning::Statut inattendu — HTTP $HTTP_CODE | health $HEALTH"
-              echo "$BODY" | head -c 300
-            fi
+              if (isBlockedByAuth) {
+                // Tenter auth avec credentials si disponibles
+                if (email && password) {
+                  console.log('🔑 Auth requise — tentative avec credentials...');
+                  const googleBtn = page.locator('button:has-text("Google"), a:has-text("Google")').first();
+                  if (await googleBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+                    await googleBtn.click();
+                    await page.waitForTimeout(3000);
+                    const emailField = page.locator('input[type="email"], #identifierId').first();
+                    if (await emailField.isVisible({ timeout: 5000 }).catch(() => false)) {
+                      await emailField.fill(email);
+                      await page.keyboard.press('Enter');
+                      await page.waitForTimeout(2000);
+                      const pwdField = page.locator('input[type="password"]').first();
+                      if (await pwdField.isVisible({ timeout: 5000 }).catch(() => false)) {
+                        await pwdField.fill(password);
+                        await page.keyboard.press('Enter');
+                        await page.waitForTimeout(3000);
+                      }
+                    }
+                  }
+                } else {
+                  console.log('::error::🔒 VIEWER AUTH BLOQUANT — app inaccessible sans credentials');
+                  process.exitCode = 1;
+                  await browser.close();
+                  return;
+                }
+              }
 
-          else
-            echo "::warning::Statut inattendu — HTTP $HTTP_CODE | health $HEALTH"
-          fi
+              const bodyText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+              const title = await page.title().catch(() => '');
+              const currentUrl = page.url();
+
+              console.log(`Titre : ${title}`);
+              console.log(`URL   : ${currentUrl}`);
+
+              const sleepingPatterns = [/gone to sleep/i, /has gone to sleep/i, /inactivit/i, /wake.*up/i, /get this app back/i];
+              const isSleeping = sleepingPatterns.some(p => p.test(bodyText));
+
+              if (isSleeping) {
+                console.log('::warning::💤 App DORMANTE — le keep-alive la réveillera dans 30 min');
+              } else if (title.includes('Streamlit') || title.includes('Finance') || title.includes('Brief')) {
+                console.log('✅ App ACTIVE et accessible');
+              } else if (currentUrl.includes('/-/login') || currentUrl.includes('share.streamlit.io/-/auth')) {
+                console.log('::error::🔒 Viewer auth actif et bloquant');
+                process.exitCode = 1;
+              } else {
+                console.log(`::warning::Statut inconnu — titre: "${title}" | URL: ${currentUrl}`);
+              }
+
+            } catch (err) {
+              console.error(`::error::❌ Erreur : ${err.message}`);
+              process.exitCode = 1;
+            } finally {
+              await browser.close();
+            }
+          })();
+          EOF
+          node health_check.js
