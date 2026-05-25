@@ -23,43 +23,53 @@ jobs:
           HEALTH_URL="${URL}/_stcore/health"
           echo "=== App Health Monitor — $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
-          # 1. Health endpoint interne (toujours public, même si viewer auth activé)
-          HEALTH=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" 2>/dev/null || echo "000")
-          echo "/_stcore/health → HTTP $HEALTH"
+          # 1. Health endpoint — capture aussi la Location header pour détecter viewer auth
+          HEALTH_RESP=$(curl -sI --max-time 15 "$HEALTH_URL" 2>/dev/null)
+          HEALTH=$(echo "$HEALTH_RESP" | grep -oE "HTTP/[0-9.]+ [0-9]+" | tail -1 | grep -oE "[0-9]+$" || echo "000")
+          HEALTH_LOC=$(echo "$HEALTH_RESP" | grep -i "^Location:" | head -1 || echo "")
+          echo "/_stcore/health → HTTP $HEALTH | Location: ${HEALTH_LOC:-none}"
 
-          # 2. Page principale avec User-Agent browser
-          HTTP_CODE=$(curl -s -o /tmp/resp.html -w "%{http_code}" \
-            -L --max-time 60 --retry 2 --retry-delay 5 \
-            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-            -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
-            -H "Accept-Language: fr-FR,fr;q=0.9" \
-            -H "Cache-Control: no-cache" \
-            "$URL" 2>/dev/null || echo "000")
+          # Détecter viewer auth via le header Location (303 → /-/auth/app ou /-/login)
+          if echo "$HEALTH_LOC" | grep -qE "/-/auth/app|/-/login|share\.streamlit\.io"; then
+            echo "::error::🔒 VIEWER AUTH ACTIVE — l'app redirige vers la page de connexion"
+            echo "::error::Solution : Streamlit Cloud → app Settings → Sharing → 'Anyone' (public)"
+            echo "::error::Sans ça, le keep-alive et les visiteurs externes sont bloqués."
+            exit 0
+          fi
 
-          echo "Page principale → HTTP $HTTP_CODE"
-          RESP_SIZE=$(wc -c < /tmp/resp.html 2>/dev/null || echo 0)
-          echo "Taille réponse : ${RESP_SIZE} bytes"
+          # 2. Page principale avec User-Agent browser (sans suivre les redirects — on les analyse)
+          HTTP_HEADERS=$(curl -sI --max-time 15 \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+            "$URL" 2>/dev/null || echo "")
+          HTTP_CODE=$(echo "$HTTP_HEADERS" | grep -oE "HTTP/[0-9.]+ [0-9]+" | tail -1 | grep -oE "[0-9]+$" || echo "000")
+          HTTP_LOC=$(echo "$HTTP_HEADERS"  | grep -i "^Location:" | head -1 || echo "")
 
-          # 3. Diagnostic de la réponse
-          if [ -f /tmp/resp.html ]; then
-            if grep -qiE "gone to sleep|has gone to sleep|sleeping|wake.*up|inactivit" /tmp/resp.html 2>/dev/null; then
+          echo "Page principale → HTTP $HTTP_CODE | Location: ${HTTP_LOC:-none}"
+
+          # 3. Diagnostic
+          if echo "$HTTP_LOC" | grep -qE "/-/auth/app|/-/login|share\.streamlit\.io"; then
+            echo "::error::🔒 VIEWER AUTH ACTIVE — redirection vers login"
+            echo "::error::Solution : Streamlit Cloud → Settings → Sharing → 'Anyone' (public)"
+
+          elif [ "$HTTP_CODE" = "000" ]; then
+            echo "::error::❌ App non joignable (timeout) — vérifier Streamlit Cloud"
+
+          elif [ "$HEALTH" = "200" ] || echo "$HTTP_CODE" | grep -qE "^[23]"; then
+            echo "✅ App ACTIVE — HTTP $HTTP_CODE | health $HEALTH"
+
+          elif echo "$HTTP_CODE" | grep -qE "^[45]"; then
+            # Récupérer le corps pour diagnostic sleeping
+            BODY=$(curl -sL --max-time 30 \
+              -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" \
+              "$URL" 2>/dev/null | head -c 1000 || echo "")
+            if echo "$BODY" | grep -qiE "gone to sleep|has gone to sleep|sleeping|wake.*up|inactivit"; then
               echo "::warning::💤 APP DORMANTE — keep-alive.yml devrait la waker (déclenché aussi sur push)"
               echo "Si l'app reste endormie : visiter manuellement ${URL} et cliquer 'Wake up'"
-
-            elif grep -qiE "share\.streamlit\.io/login|viewer.*auth|sign in to view|protected" /tmp/resp.html 2>/dev/null; then
-              echo "::error::🔒 VIEWER AUTH ACTIVE"
-              echo "::error::Le keep-alive ne peut pas waker l'app sans credentials."
-              echo "::error::Solution recommandée : Streamlit Cloud → app Settings → Sharing → Public"
-
-            elif [ "$HTTP_CODE" = "000" ]; then
-              echo "::error::❌ App non joignable (timeout) — vérifier Streamlit Cloud"
-
-            elif [ "$HEALTH" = "200" ] || echo "$HTTP_CODE" | grep -qE "^[23]"; then
-              echo "✅ App ACTIVE — HTTP $HTTP_CODE | health $HEALTH"
-
             else
               echo "::warning::Statut inattendu — HTTP $HTTP_CODE | health $HEALTH"
-              echo "Début de la réponse :"
-              head -c 500 /tmp/resp.html || true
+              echo "$BODY" | head -c 300
             fi
+
+          else
+            echo "::warning::Statut inattendu — HTTP $HTTP_CODE | health $HEALTH"
           fi
