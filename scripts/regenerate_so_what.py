@@ -65,7 +65,7 @@ def regenerate_brief(path: Path, dry_run: bool = False) -> int:
         except Exception as exc:
             logger.error("  FAIL: %s", str(exc)[:120])
 
-        time.sleep(1.5)  # Respecter les rate limits Gemini
+        time.sleep(7)  # Respecter les rate limits Gemini (~8 RPM sécurisé pour gemini-2.5-flash)
 
     if updated > 0 and not dry_run:
         data["news"] = news

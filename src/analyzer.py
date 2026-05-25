@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+import time
 from typing import Optional
 
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -170,14 +171,21 @@ def _call_gemini_legacy_sdk(client, model: str, prompt: str, system: str) -> str
 
 @retry(
     stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=5, max=60),
+    wait=wait_exponential(multiplier=2, min=15, max=120),
     retry=retry_if_exception_type(Exception),
     reraise=True,
 )
 def _call_gemini(prompt: str, system: str = SYSTEM_PROMPT) -> str:
-    """Call Gemini with automatic SDK detection and model fallback chain."""
+    """Call Gemini with automatic SDK detection and model fallback chain.
+
+    Rate limiting strategy:
+    - On 429 (RESOURCE_EXHAUSTED): sleep 12s before trying next model (respects ~5 RPM safety margin)
+    - If all models return 429, raise immediately to let tenacity backoff (15s → 30s → 60s)
+    - On 404 (model not found): skip immediately, no delay needed
+    """
     client, sdk_type = _get_client()
     last_exc = None
+    rate_limited_count = 0
 
     for model in [m for m in _MODEL_PREFERENCE if m]:
         try:
@@ -189,8 +197,17 @@ def _call_gemini(prompt: str, system: str = SYSTEM_PROMPT) -> str:
                 logger.info("Gemini success with model: %s (sdk: %s)", model, sdk_type)
                 return result
         except Exception as exc:
+            exc_str = str(exc)
             last_exc = exc
-            logger.warning("Model %s failed: %s — trying next", model, str(exc)[:100])
+            if "429" in exc_str or "RESOURCE_EXHAUSTED" in exc_str:
+                rate_limited_count += 1
+                logger.warning("Model %s rate-limited (429) — trying next", model)
+                if rate_limited_count >= 3:
+                    # Trop de 429 consécutifs — laisser tenacity gérer le backoff
+                    raise RuntimeError(f"Rate limit (429) on {rate_limited_count} models — backing off. Last: {exc}")
+                time.sleep(12)  # Respecter ~5 RPM avant de tenter le prochain modèle
+            else:
+                logger.warning("Model %s failed: %s — trying next", model, exc_str[:100])
             continue
 
     raise RuntimeError(f"All Gemini models failed. Last error: {last_exc}")
