@@ -83,13 +83,25 @@ jobs:
               const finalUrl = page.url();
               console.log(`Final URL after load: ${finalUrl}`);
 
-              // ── CAS 1 : Viewer auth (share.streamlit.io) ─────────────────
-              if (finalUrl.includes('share.streamlit.io') || finalUrl.includes('accounts.google.com')) {
-                console.log('⚠ VIEWER AUTH DETECTED');
+              // ── CAS 1 : Viewer auth (share.streamlit.io ou /-/login) ──────
+              // Streamlit Cloud redirige vers /-/login puis share.streamlit.io/-/auth
+              const isViewerAuth = (
+                finalUrl.includes('share.streamlit.io') ||
+                finalUrl.includes('accounts.google.com') ||
+                finalUrl.includes('/-/login') ||
+                finalUrl.includes('/-/auth')
+              );
+              if (isViewerAuth) {
+                console.log('🔒 VIEWER AUTH DÉTECTÉ (URL: ' + finalUrl.split('?')[0] + ')');
+                console.log('');
+                console.log('⚠ ACTION REQUISE (unique, 30 secondes) :');
+                console.log('   1. Aller sur https://share.streamlit.io');
+                console.log('   2. Cliquer sur l\'app "daily-finance-brief-cib"');
+                console.log('   3. Settings → Sharing → "This app is public"');
+                console.log('   L\'app garde sa sécurité via DASHBOARD_PASSWORD.');
+                console.log('');
                 if (!email || !password) {
-                  console.log('❌ Aucun credential configuré — deux options :');
-                  console.log('   1. Désactiver viewer auth : Streamlit Cloud → Settings → Sharing → Public');
-                  console.log('   2. Ajouter STREAMLIT_EMAIL + STREAMLIT_PASSWORD dans GitHub Secrets');
+                  console.log('❌ Aucun credential configuré — désactiver le viewer auth manuellement.');
                   process.exitCode = 1;
                   await browser.close();
                   return;
@@ -129,6 +141,16 @@ jobs:
               }
 
               // ── CAS 2 : App endormie ──────────────────────────────────
+              // Ne pas analyser le sleeping si on est sur une page d'auth
+              // (la page /-/login peut contenir "inactivit" pour une raison différente)
+              const currentUrl = page.url();
+              if (currentUrl.includes('/-/login') || currentUrl.includes('share.streamlit.io') || currentUrl.includes('accounts.google.com')) {
+                console.log('Page d\'auth détectée — impossible de waker sans désactiver viewer auth');
+                process.exitCode = 1;
+                await browser.close();
+                return;
+              }
+
               // Récupérer le texte complet de la page pour détecter l'état
               const bodyText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
               const pageHtml = await page.content().catch(() => '');
