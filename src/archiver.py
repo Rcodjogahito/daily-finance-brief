@@ -1,4 +1,6 @@
 """JSON archive writing and git commit/push."""
+from __future__ import annotations  # Python 3.9 compat: defer annotation eval (str|None syntax)
+
 import json
 import logging
 import os
