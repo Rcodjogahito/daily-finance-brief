@@ -58,7 +58,7 @@ inject_css()
 
 # ── Auto-refresh toutes les 10 min pour maintenir la connexion Streamlit active
 # Empêche Streamlit Cloud de détecter l'inactivité WebSocket et d'endormir l'app.
-# Doit être appelé APRÈS set_page_config() (premier appel Streamlit obligatoire).
+# IMPORTANT : doit être appelé APRÈS set_page_config() — premier appel Streamlit obligatoire.
 try:
     from streamlit_autorefresh import st_autorefresh
     st_autorefresh(interval=10 * 60 * 1000, key="keepalive_refresh")
