@@ -494,14 +494,8 @@ def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
 
 
-def inject_all() -> None:
-    """Inject the full design system: CSS + sidebar JS (via components.html)."""
-    inject_css()
-    try:
-        import streamlit.components.v1 as _components
-        _components.html(_SIDEBAR_JS, height=0, scrolling=False)
-    except Exception:
-        pass  # JS optionnel — ne pas crasher si le composant echoue
+# inject_all = alias de inject_css (JS sidebar retire — compatibilite imports)
+inject_all = inject_css
 
 
 def sidebar_brand() -> None:
