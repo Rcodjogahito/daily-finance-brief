@@ -9,7 +9,7 @@ import streamlit as st
 from src.archiver import list_brief_dates, list_alert_dates, load_brief, load_alerts
 from src.enrichment import REGION_GEO_MAP
 from src.styles import (
-    inject_all, sidebar_brand, news_card, section_header, status_badge,
+    inject_css, sidebar_brand, news_card, section_header, status_badge,
     CATEGORY_COLORS, CATEGORY_LABELS, ALL_CATEGORIES, _is_real_so_what,
 )
 
@@ -54,7 +54,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-inject_all()
+inject_css()
 
 # ── Auto-refresh toutes les 10 min pour maintenir la connexion Streamlit active
 # Empêche Streamlit Cloud de détecter l'inactivité WebSocket et d'endormir l'app.
