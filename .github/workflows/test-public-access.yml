@@ -28,7 +28,7 @@ jobs:
             const redirects = [];
             page.on('response', r => { if (r.status() >= 300 && r.status() < 400) redirects.push(`${r.status()} ${r.url().substring(0,100)}`); });
             await page.goto('https://daily-finance-brief-cib.streamlit.app', { waitUntil: 'domcontentloaded', timeout: 30000 });
-            await page.waitForTimeout(8000);
+            await page.waitForTimeout(15000);
             const url = page.url();
             const title = await page.title().catch(() => 'N/A');
             const body = await page.evaluate(() => document.body ? document.body.innerText.substring(0, 2000) : '').catch(() => '');
