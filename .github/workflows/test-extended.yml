@@ -1,0 +1,64 @@
+name: Test Extended (title + stApp element)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright
+        run: |
+          npm install playwright-chromium
+          npx playwright install --with-deps chromium
+      - name: Test étendu
+        run: |
+          cat > test_ext.js << 'JSEOF'
+          const { chromium } = require('playwright-chromium');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+            const page = await ctx.newPage();
+            await page.goto('https://daily-finance-brief-cib.streamlit.app', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            // Attendre titre mis à jour (set_page_config exécuté)
+            let titleOk = false;
+            try {
+              await page.waitForFunction(
+                () => !document.title.includes('streamlit app') && document.title.length > 10,
+                { timeout: 30000 }
+              );
+              titleOk = true;
+            } catch(e) {}
+            // Attendre élément Streamlit
+            let stAppFound = false;
+            try {
+              await page.waitForSelector('[data-testid="stApp"],[data-testid="stAppViewContainer"],.stApp', { timeout: 10000 });
+              stAppFound = true;
+            } catch(e) {}
+            const title = await page.title();
+            const body = await page.evaluate(() => document.body ? document.body.innerText.substring(0,800) : '').catch(() => '');
+            const stApp = await page.evaluate(() => {
+              const el = document.querySelector('[data-testid="stApp"]') || document.querySelector('[data-testid="stAppViewContainer"]');
+              return el ? 'PRESENT: ' + el.innerText.substring(0,300) : 'ABSENT';
+            }).catch(() => 'error');
+            const errors = await page.evaluate(() => {
+              const err = document.querySelector('[data-testid="stException"],[data-testid="stError"]');
+              return err ? err.innerText.substring(0,200) : 'aucune erreur visible';
+            }).catch(() => 'check error');
+            console.log('=== TITRE ==='); console.log(title);
+            console.log('=== TITRE MIS A JOUR ===', titleOk);
+            console.log('=== stApp element ==='); console.log(stApp);
+            console.log('=== ERREURS STREAMLIT ==='); console.log(errors);
+            console.log('=== BODY ==='); console.log(body || '(vide)');
+            console.log('=== DIAGNOSTIC ===');
+            if (title.includes('Finance') || title.includes('Brief')) console.log('✅ TITRE OK — APP FONCTIONNELLE');
+            else if (stApp.startsWith('PRESENT')) console.log('✅ ELEMENT STREAMLIT PRESENT');
+            else if (body.includes('Error running') || body.includes('Oh no')) console.log('❌ CRASH PYTHON');
+            else console.log('⚠ APP EN DEMARRAGE OU PROBLEME INCONNU');
+            await browser.close();
+          })();
+          JSEOF
+          node test_ext.js
