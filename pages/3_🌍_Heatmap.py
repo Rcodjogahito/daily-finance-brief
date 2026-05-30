@@ -6,15 +6,15 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
-from src.styles import inject_css, sidebar_brand, section_header
+from src.styles import inject_all, sidebar_brand, section_header
 
 st.set_page_config(
     page_title="Heatmap — Daily Finance Brief",
     page_icon="🌍",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-inject_css()
+inject_all()
 sidebar_brand()
 
 # ── Sidebar nav ────────────────────────────────────────────────────────────

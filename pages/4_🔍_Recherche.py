@@ -8,15 +8,15 @@ import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
 from src.enrichment import REGION_GEO_MAP
-from src.styles import inject_css, sidebar_brand, news_card, section_header, CATEGORY_LABELS
+from src.styles import inject_all, sidebar_brand, news_card, section_header, CATEGORY_LABELS
 
 st.set_page_config(
     page_title="Recherche — Daily Finance Brief",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-inject_css()
+inject_all()
 sidebar_brand()
 
 _ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]

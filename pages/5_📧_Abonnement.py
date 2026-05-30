@@ -1,16 +1,16 @@
 """Page 5 — Gestion des abonnements email."""
 import streamlit as st
 
-from src.styles import inject_css, sidebar_brand, section_header
+from src.styles import inject_all, sidebar_brand, section_header
 from src.subscribers import add_subscriber, remove_subscriber, load_subscribers
 
 st.set_page_config(
     page_title="Abonnement — Daily Finance Brief",
     page_icon="📧",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-inject_css()
+inject_all()
 sidebar_brand()
 
 # ── Sidebar nav ────────────────────────────────────────────────────────────

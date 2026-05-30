@@ -122,7 +122,9 @@ header { display: none !important; }
     background: rgba(201,168,76,0.08) !important;
 }
 [data-testid="stSidebar"] [data-testid="stPageLink"][aria-current="page"] a,
-[data-testid="stSidebar"] [data-testid="stPageLink"].active a {
+[data-testid="stSidebar"] [data-testid="stPageLink"].active a,
+[data-testid="stSidebar"] [data-testid="stPageLink"] a[aria-current="page"],
+[data-testid="stSidebar"] [data-testid="stPageLink"] a.active {
     border-left-color: #C9A84C !important;
     color: #F0F8FF !important;
     background: rgba(201,168,76,0.12) !important;
@@ -368,12 +370,34 @@ hr {
 ::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
+/* ── News card hover ────────────────────────────── */
+[data-testid="stMarkdownContainer"] a:focus-visible {
+    outline: 2px solid #C9A84C !important;
+    outline-offset: 2px !important;
+}
+
 /* ── Responsive: tablette ───────────────────────── */
 @media (max-width: 900px) {
     .main .block-container {
         padding: 1rem 1.2rem 2rem !important;
+        max-width: 100% !important;
     }
     h1 { font-size: 1.6rem !important; }
+    h2 { font-size: 1.2rem !important; }
+    [data-testid="stSidebar"] {
+        min-width: 80vw !important;
+        max-width: 85vw !important;
+    }
+}
+
+/* ── Responsive: mobile ─────────────────────────── */
+@media (max-width: 640px) {
+    .main .block-container {
+        padding: 0.75rem 0.9rem 1.5rem !important;
+    }
+    h1 { font-size: 1.4rem !important; }
+    [data-testid="stMetric"] { padding: 10px 12px !important; }
+    [data-testid="stMetricValue"] { font-size: 1.3rem !important; }
 }
 </style>
 """
@@ -396,8 +420,95 @@ _SIDEBAR_BRAND_HTML = """
 """
 
 
+_SIDEBAR_JS = """
+<script>
+(function() {
+  var doc = window.parent.document;
+
+  function closeSidebarIfOpen() {
+    try {
+      var sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+      if (!sidebar) return;
+      if (sidebar.getBoundingClientRect().width <= 80) return;
+      var closeBtn = sidebar.querySelector(
+        '[data-testid="stSidebarCollapseButton"] button, '
+        + 'button[data-testid="stSidebarCollapseButton"], '
+        + 'button[aria-label*="lose"], button[aria-label*="ollapse"]'
+      );
+      if (closeBtn) { closeBtn.click(); return; }
+      var header = doc.querySelector('header[data-testid="stHeader"]');
+      if (header) {
+        var hb = header.querySelectorAll('button');
+        for (var i = 0; i < hb.length; i++) {
+          if (hb[i].getBoundingClientRect().left < 300) { hb[i].click(); return; }
+        }
+      }
+      var sb = sidebar.querySelectorAll('button');
+      if (sb.length) sb[0].click();
+    } catch (e) {}
+  }
+
+  function markActive() {
+    try {
+      var path = window.parent.location.pathname.replace(/\\/+$/, '');
+      var links = doc.querySelectorAll(
+        'section[data-testid="stSidebar"] [data-testid="stPageLink"] a'
+      );
+      links.forEach(function(a) {
+        a.classList.remove('active');
+        a.removeAttribute('aria-current');
+        var href = '';
+        try { href = new URL(a.href).pathname.replace(/\\/+$/, ''); } catch (e) {}
+        var isHome = (href === '' || href === '/') && (path === '' || path === '/');
+        if (isHome || (href && href === path)) {
+          a.classList.add('active');
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+    } catch (e) {}
+  }
+
+  try {
+    if (!doc._dfbNavClose) {
+      doc._dfbNavClose = true;
+      doc.addEventListener('click', function(e) {
+        var link = e.target.closest(
+          '[data-testid="stPageLink"] a, a[data-testid="stPageLink-NavLink"]'
+        );
+        if (link) { closeSidebarIfOpen(); }
+      }, true);
+    }
+  } catch (e) {}
+
+  [100, 400, 900, 2000].forEach(function(d) { setTimeout(markActive, d); });
+  try {
+    var obs = new MutationObserver(function() { markActive(); });
+    obs.observe(doc.body, { childList: true, subtree: true });
+  } catch (e) {}
+})();
+</script>
+"""
+
+
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
+
+
+def _sidebar_autohide_js() -> None:
+    """Inject JS: auto-collapse sidebar on nav click + highlight active link.
+
+    Uses components.html (not st.markdown) because Streamlit strips <script>
+    tags from markdown. The script targets window.parent.document so it acts
+    on the real app DOM, not the isolated component iframe.
+    """
+    import streamlit.components.v1 as _components
+    _components.html(_SIDEBAR_JS, height=0, scrolling=False)
+
+
+def inject_all() -> None:
+    """Inject the full design system: shared CSS + sidebar behaviour JS."""
+    inject_css()
+    _sidebar_autohide_js()
 
 
 def sidebar_brand() -> None:

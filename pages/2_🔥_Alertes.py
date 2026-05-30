@@ -6,15 +6,15 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
-from src.styles import inject_css, sidebar_brand, section_header, _is_real_so_what
+from src.styles import inject_all, sidebar_brand, section_header, _is_real_so_what
 
 st.set_page_config(
     page_title="Alertes — Daily Finance Brief",
     page_icon="🔥",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-inject_css()
+inject_all()
 sidebar_brand()
 
 ALERT_COLORS = {

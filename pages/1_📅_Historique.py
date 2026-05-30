@@ -5,15 +5,15 @@ import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
 from src.enrichment import REGION_GEO_MAP
-from src.styles import inject_css, sidebar_brand, news_card, section_header, CATEGORY_LABELS
+from src.styles import inject_all, sidebar_brand, news_card, section_header, CATEGORY_LABELS
 
 st.set_page_config(
     page_title="Historique — Daily Finance Brief",
     page_icon="📅",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-inject_css()
+inject_all()
 sidebar_brand()
 
 _ALL_REGIONS = ["Europe", "EMEA", "Afrique", "APAC", "Amériques", "Global"]
@@ -24,8 +24,6 @@ dates = list_brief_dates()
 with st.sidebar:
     st.markdown("---")
     st.markdown("### Navigation")
-
-with st.sidebar:
     st.page_link("streamlit_app.py",              label="📰  Brief du jour")
     st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
     st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
