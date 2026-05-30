@@ -1,0 +1,49 @@
+name: Test Public Access (No Auth)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Playwright
+        run: |
+          npm install playwright-chromium
+          npx playwright install --with-deps chromium
+      - name: Test app (contexte vierge)
+        run: |
+          cat > test.js << 'JSEOF'
+          const { chromium } = require('playwright-chromium');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
+              viewport: { width: 1280, height: 900 },
+            });
+            const page = await context.newPage();
+            const redirects = [];
+            page.on('response', r => { if (r.status() >= 300 && r.status() < 400) redirects.push(`${r.status()} ${r.url().substring(0,100)}`); });
+            await page.goto('https://daily-finance-brief-cib.streamlit.app', { waitUntil: 'domcontentloaded', timeout: 30000 });
+            await page.waitForTimeout(8000);
+            const url = page.url();
+            const title = await page.title().catch(() => 'N/A');
+            const body = await page.evaluate(() => document.body ? document.body.innerText.substring(0, 2000) : '').catch(() => '');
+            console.log('=== REDIRECTIONS ==='); redirects.forEach(r => console.log(r));
+            console.log('\n=== ETAT FINAL ===');
+            console.log('URL   :', url);
+            console.log('Titre :', title);
+            console.log('\n=== BODY (2000 chars) ===');
+            console.log(body || '(vide)');
+            console.log('\n=== DIAGNOSTIC ===');
+            if (body.includes('Error running app') || body.includes('Oh no')) { console.log('❌ CRASH PYTHON'); }
+            else if (body.includes('Daily Finance') || body.includes('Brief') || body.includes('Coffee') || title.includes('Finance')) { console.log('✅ APP OK'); }
+            else if (body.length < 80) { console.log('⚠ PAGE VIDE OU EN DEMARRAGE'); }
+            else { console.log('? STATUT INCONNU'); }
+            await browser.close();
+          })();
+          JSEOF
+          node test.js
