@@ -1,7 +1,7 @@
 """Page 5 — Gestion des abonnements email."""
 import streamlit as st
 
-from src.styles import inject_all, sidebar_brand, section_header
+from src.styles import inject_all, sidebar_nav, section_header
 from src.subscribers import add_subscriber, remove_subscriber, load_subscribers
 
 st.set_page_config(
@@ -11,19 +11,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 inject_all()
-sidebar_brand()
+sidebar_nav()
 
-# ── Sidebar nav ────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
-    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
-    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
-    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
-    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
-    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
-    st.markdown("---")
+
+def _mask_email(email: str) -> str:
+    """Masque partiellement un email : ab***@domain.com."""
+    if "@" not in email:
+        return email
+    local, domain = email.split("@", 1)
+    masked = local[:2] + "***" if len(local) > 2 else "***"
+    return f"{masked}@{domain}"
 
 # ── Handle unsubscribe via query param (?page=abonnement&unsubscribe=email)
 params = st.query_params
@@ -137,7 +134,7 @@ if subscribers:
             f'<div style="display:flex;align-items:center;justify-content:space-between;'
             f'padding:10px 14px;background:#FFFFFF;border:1px solid #E8EEF5;'
             f'border-radius:4px;margin-bottom:4px">'
-            f'<span style="font-size:13px;color:#374151;font-weight:500">{email}</span>'
+            f'<span style="font-size:13px;color:#374151;font-weight:500">{_mask_email(email)}</span>'
             f'<span style="font-size:10px;color:#9CA3AF;font-weight:500">#{i+1}</span>'
             f'</div>',
             unsafe_allow_html=True,

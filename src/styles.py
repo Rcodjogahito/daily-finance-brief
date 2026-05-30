@@ -156,9 +156,9 @@ h3 {
 
 /* ── Overline label ─────────────────────────────── */
 .overline {
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     color: #C9A84C;
     margin-bottom: 6px;
@@ -375,6 +375,47 @@ hr {
     }
     h1 { font-size: 1.6rem !important; }
 }
+
+/* ── Responsive: mobile ─────────────────────────── */
+@media (max-width: 640px) {
+    .main .block-container {
+        padding: 0.6rem 0.8rem 2rem !important;
+    }
+    h1 { font-size: 1.35rem !important; }
+    h2 { font-size: 1.15rem !important; }
+    [data-testid="stMetricValue"] {
+        font-size: 1.3rem !important;
+    }
+    [data-testid="stMetric"] {
+        padding: 10px 12px !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.55rem !important;
+    }
+}
+
+/* ── News card hover ────────────────────────────── */
+.dfb-card {
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.dfb-card:hover {
+    box-shadow: 0 6px 20px rgba(11,37,69,0.11),
+                0 0 0 1px rgba(11,37,69,0.07) !important;
+    transform: translateY(-1px);
+}
+
+/* ── Sidebar active page indicator ─────────────── */
+[data-testid="stSidebar"] [data-testid="stPageLink"] a[aria-current="page"] {
+    border-left-color: #C9A84C !important;
+    color: #F0F8FF !important;
+    background: rgba(201,168,76,0.12) !important;
+    font-weight: 600 !important;
+}
+
+/* ── Sidebar smooth open/close ──────────────────── */
+[data-testid="stSidebar"] > div:first-child {
+    transition: transform 0.25s ease-out !important;
+}
 </style>
 """
 
@@ -396,6 +437,66 @@ _SIDEBAR_BRAND_HTML = """
 """
 
 
+_SIDEBAR_NAV_JS = """
+<script>
+(function() {
+    var doc = window.parent.document;
+
+    function markActive() {
+        var path = window.parent.location.pathname;
+        var links = doc.querySelectorAll(
+            '[data-testid="stSidebar"] [data-testid="stPageLink"] a'
+        );
+        links.forEach(function(a) {
+            var href = a.getAttribute('href') || '';
+            try {
+                var hrefPath = new URL(href, window.parent.location.href).pathname;
+                var pathBase = path.replace(/^[/]/, '');
+                var hrefBase = hrefPath.replace(/^[/]/, '');
+                var isActive = (path === hrefPath)
+                    || (hrefBase === '' && pathBase === '')
+                    || (hrefBase !== '' && pathBase.toLowerCase()
+                          .endsWith(hrefBase.toLowerCase()));
+                if (isActive) {
+                    a.setAttribute('aria-current', 'page');
+                } else {
+                    a.removeAttribute('aria-current');
+                }
+            } catch(e) {}
+        });
+    }
+
+    function closeSidebarIfOpen() {
+        var sidebar = doc.querySelector('[data-testid="stSidebar"]');
+        if (sidebar && sidebar.getBoundingClientRect().width > 80) {
+            var btn = doc.querySelector('[data-testid="stSidebarCollapsedControl"]')
+                   || doc.querySelector('[data-testid="collapsedControl"]')
+                   || doc.querySelector('[aria-label="Close sidebar"]');
+            if (btn) btn.click();
+        }
+    }
+
+    if (!doc._dfbNavClose) {
+        doc._dfbNavClose = true;
+        doc.addEventListener('click', function(e) {
+            if (e.target.closest('[data-testid="stPageLink"] a')) {
+                setTimeout(closeSidebarIfOpen, 60);
+            }
+        }, true);
+    }
+
+    [0, 100, 400, 900, 2000].forEach(function(t) { setTimeout(markActive, t); });
+
+    if (!doc._dfbNavMut) {
+        doc._dfbNavMut = true;
+        new MutationObserver(function() { markActive(); })
+            .observe(doc.body, {subtree: true, childList: true});
+    }
+})();
+</script>
+"""
+
+
 def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
 
@@ -407,10 +508,26 @@ def sidebar_brand() -> None:
     st.sidebar.markdown(_SIDEBAR_BRAND_HTML, unsafe_allow_html=True)
 
 
-def overline(text: str, color: str = "#C9A84C", spacing: str = "3px") -> str:
+def sidebar_nav() -> None:
+    """Sidebar complète : brand + liens navigation + JS indicateur page active + auto-close."""
+    import streamlit.components.v1 as components
+    sidebar_brand()
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### Navigation")
+    st.sidebar.page_link("streamlit_app.py",            label="📰  Brief du jour")
+    st.sidebar.page_link("pages/1_📅_Historique.py",    label="📅  Historique")
+    st.sidebar.page_link("pages/2_🔥_Alertes.py",       label="🔥  Alertes intraday")
+    st.sidebar.page_link("pages/3_🌍_Heatmap.py",       label="🌍  Heatmap deals")
+    st.sidebar.page_link("pages/4_🔍_Recherche.py",     label="🔍  Recherche")
+    st.sidebar.page_link("pages/5_📧_Abonnement.py",    label="📧  Abonnement")
+    st.sidebar.markdown("---")
+    components.html(_SIDEBAR_NAV_JS, height=0)
+
+
+def overline(text: str, color: str = "#C9A84C", spacing: str = "2.5px") -> str:
     """Return an HTML overline label string."""
     return (
-        f'<div style="font-size:8px;font-weight:700;letter-spacing:{spacing};'
+        f'<div style="font-size:10px;font-weight:700;letter-spacing:{spacing};'
         f'text-transform:uppercase;color:{color};margin-bottom:8px">{text}</div>'
     )
 
@@ -422,12 +539,19 @@ def section_header(label: str) -> None:
 
 def status_badge(pipeline_ok: bool, last_date: str) -> None:
     """Render a small pipeline health badge in the sidebar."""
+    from datetime import datetime as _dt
     color = "#059669" if pipeline_ok else "#DC2626"
-    dot = "●"
-    status_text = f"Actif · {last_date}" if pipeline_ok else "En attente"
+    _months_fr = ["jan","fév","mars","avr","mai","juin",
+                  "juil","août","sep","oct","nov","déc"]
+    try:
+        d = _dt.strptime(last_date, "%Y-%m-%d")
+        date_display = f"{d.day} {_months_fr[d.month - 1]}"
+    except Exception:
+        date_display = last_date
+    status_text = f"Actif · {date_display}" if pipeline_ok else "En attente"
     st.sidebar.markdown(
         f'<div style="font-size:10px;color:{color};padding:4px 0">'
-        f'{dot} <span style="color:{color};font-weight:600">{status_text}</span>'
+        f'● <span style="color:{color};font-weight:600">{status_text}</span>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -607,12 +731,9 @@ def news_card(item: dict, highlight_fn=None) -> None:
             'border-left:3px solid #C9A84C;padding:14px 18px 12px;'
             'border-radius:0 4px 4px 0;margin-top:14px;'
             'box-shadow:inset 0 0 0 1px rgba(201,168,76,0.1)">'
-            '<div style="font-size:7.5px;font-weight:700;letter-spacing:2.5px;'
-            'text-transform:uppercase;color:#C9A84C;margin-bottom:9px;'
-            'display:flex;align-items:center;gap:6px">'
-            '<span style="width:12px;height:1px;background:#C9A84C;display:inline-block"></span>'
+            '<div style="font-size:9px;font-weight:700;letter-spacing:2px;'
+            'text-transform:uppercase;color:#C9A84C;margin-bottom:9px">'
             'Analyse d\'impact &amp; conséquences'
-            '<span style="width:12px;height:1px;background:#C9A84C;display:inline-block"></span>'
             '</div>'
             f'<div style="font-size:13px;line-height:1.8;color:#1E3A5F;'
             f'font-weight:400">{so_what}</div>'
@@ -620,20 +741,19 @@ def news_card(item: dict, highlight_fn=None) -> None:
         )
     else:
         analysis_html = (
-            '<div style="margin-top:12px;padding:10px 14px;background:#F9FAFB;'
-            'border-radius:4px;border:1px dashed #E2E8F0">'
+            '<div style="margin-top:12px;padding:9px 14px;background:#F9FAFB;'
+            'border-radius:4px;border-left:3px solid #E2E8F0">'
             '<span style="font-size:11px;color:#B0BAC7;font-style:italic">'
-            'Analyse non disponible pour cette édition.'
+            'Analyse Gemini non disponible pour cette édition.'
             '</span>'
             '</div>'
         )
 
     # ── Full card ─────────────────────────────────────────────────────────
     card = (
-        f'<div style="background:#FFFFFF;border-left:4px solid {color};'
+        f'<div class="dfb-card" style="background:#FFFFFF;border-left:4px solid {color};'
         f'padding:20px 24px 18px;margin-bottom:12px;border-radius:0 6px 6px 0;'
-        f'box-shadow:0 2px 8px rgba(11,37,69,0.06),0 0 0 1px rgba(11,37,69,0.04);'
-        f'transition:box-shadow 0.2s ease">'
+        f'box-shadow:0 2px 8px rgba(11,37,69,0.06),0 0 0 1px rgba(11,37,69,0.04)">'
 
         # Header row: rank + category badge + extras
         f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:11px">'

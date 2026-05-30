@@ -5,7 +5,7 @@ import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
 from src.enrichment import REGION_GEO_MAP
-from src.styles import inject_all, sidebar_brand, news_card, section_header, CATEGORY_LABELS
+from src.styles import inject_all, sidebar_nav, news_card, section_header, CATEGORY_LABELS
 
 st.set_page_config(
     page_title="Historique — Daily Finance Brief",
@@ -14,23 +14,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 inject_all()
-sidebar_brand()
+sidebar_nav()
 
 _ALL_REGIONS = ["Europe", "EMEA", "Afrique", "APAC", "Amériques", "Global"]
 
-# ── Sidebar ────────────────────────────────────────────────────────────────
+# ── Sidebar — filtres page ─────────────────────────────────────────────────
 dates = list_brief_dates()
-
-with st.sidebar:
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
-    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
-    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
-    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
-    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
-    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
-    st.markdown("---")
 
 if not dates:
     st.warning("Aucun brief archivé.")

@@ -6,7 +6,7 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
-from src.styles import inject_all, sidebar_brand, section_header
+from src.styles import inject_all, sidebar_nav, section_header
 
 st.set_page_config(
     page_title="Heatmap — Daily Finance Brief",
@@ -15,20 +15,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 inject_all()
-sidebar_brand()
+sidebar_nav()
 
-# ── Sidebar nav ────────────────────────────────────────────────────────────
+# ── Sidebar — paramètres page ──────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
-    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
-    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
-    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
-    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
-    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
-    st.markdown("---")
-
     st.markdown("### Paramètres")
     mode = st.radio("Mode", ["Volume (nb news)", "Valeur (Md€ deals)"], index=0)
     mode_key = "count" if "Volume" in mode else "value"
@@ -198,12 +188,27 @@ st.caption(f"{len(df_detail)} news correspondantes")
 
 if not df_detail.empty:
     for _, row in df_detail.head(30).iterrows():
-        deal_str = f" — **{row['deal_size_eur']/1e9:.1f} Md€**" if pd.notna(row.get("deal_size_eur")) else ""
         url = row.get("url", "")
-        hl  = (row.get("headline", "") or "")[:80]
+        headline = (row.get("headline", "") or "")[:90]
+        deal_str = (
+            f'<span style="display:inline-block;background:#EBF4FF;color:#0B2545;'
+            f'padding:2px 7px;border-radius:2px;font-size:9px;font-weight:700;margin-left:6px">'
+            f'{row["deal_size_eur"]/1e9:.1f} Md€</span>'
+            if pd.notna(row.get("deal_size_eur")) else ""
+        )
+        href = f'href="{url}" target="_blank"' if url else ""
         st.markdown(
-            f"- [**{hl}**]({url}){deal_str}  \n"
-            f"  {row['source']} · {row['geography']} · {str(row['date'])[:10]}"
+            f'<div style="padding:10px 14px;background:#FFFFFF;border:1px solid #E8EEF5;'
+            f'border-radius:4px;margin-bottom:6px">'
+            f'<div style="margin-bottom:5px">'
+            f'<a {href} style="font-size:13.5px;font-weight:600;color:#071828;'
+            f'text-decoration:none">{headline}</a>{deal_str}'
+            f'</div>'
+            f'<div style="font-size:10.5px;color:#9CA3AF">'
+            f'{row["source"]} · {row["geography"]} · {str(row["date"])[:10]}'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True,
         )
 
 # ── Top 10 deals ───────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ import streamlit as st
 
 from src.archiver import list_brief_dates, load_brief
 from src.enrichment import REGION_GEO_MAP
-from src.styles import inject_all, sidebar_brand, news_card, section_header, CATEGORY_LABELS
+from src.styles import inject_all, sidebar_nav, news_card, section_header, CATEGORY_LABELS
 
 st.set_page_config(
     page_title="Recherche — Daily Finance Brief",
@@ -17,22 +17,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 inject_all()
-sidebar_brand()
+sidebar_nav()
 
 _ALL_REGIONS = ["Europe", "EMEA", "APAC", "Afrique", "Amériques", "Global"]
 
-# ── Sidebar nav ────────────────────────────────────────────────────────────
+# ── Sidebar — filtres page ─────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
-    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
-    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
-    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
-    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
-    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
-    st.markdown("---")
-
     st.markdown("### Filtres")
     date_min = st.date_input("Date min", value=datetime.now() - timedelta(days=90))
     date_max = st.date_input("Date max", value=datetime.now())
@@ -122,11 +112,6 @@ with st.sidebar:
         st.rerun()
 
 # ── Search bar ─────────────────────────────────────────────────────────────
-st.markdown(
-    '<div style="background:#FFFFFF;border-radius:8px;padding:20px 20px 16px;'
-    'border:1px solid #E8EEF5;box-shadow:0 1px 4px rgba(11,37,69,0.04);margin-bottom:16px">',
-    unsafe_allow_html=True,
-)
 scol1, scol2 = st.columns([4, 1])
 with scol1:
     query = st.text_input(
@@ -136,8 +121,8 @@ with scol1:
         key="query",
     )
 with scol2:
-    st.caption(f"{len(all_news)} news\nindexées")
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+    st.caption(f"{len(all_news)} news indexées")
 
 # Build allowed geos
 allowed_geos: set[str] = set()

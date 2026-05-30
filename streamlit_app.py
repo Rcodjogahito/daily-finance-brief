@@ -9,7 +9,7 @@ import streamlit as st
 from src.archiver import list_brief_dates, list_alert_dates, load_brief, load_alerts
 from src.enrichment import REGION_GEO_MAP
 from src.styles import (
-    inject_css, sidebar_brand, news_card, section_header, status_badge,
+    inject_css, sidebar_nav, news_card, section_header, status_badge,
     CATEGORY_COLORS, CATEGORY_LABELS, ALL_CATEGORIES, _is_real_so_what,
 )
 
@@ -110,9 +110,9 @@ total_alerts = sum(
 )
 
 # ── Sidebar ────────────────────────────────────────────────────────────────
-sidebar_brand()
+sidebar_nav()
 
-# Status pipeline
+# Status pipeline + métriques (spécifiques à la page d'accueil)
 if dates:
     last_date = dates[0]
     try:
@@ -122,16 +122,6 @@ if dates:
     except Exception:
         pipeline_ok = True
     status_badge(pipeline_ok, last_date)
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### Navigation")
-st.sidebar.page_link("streamlit_app.py",              label="📰  Brief du jour")
-st.sidebar.page_link("pages/1_📅_Historique.py",     label="📅  Historique")
-st.sidebar.page_link("pages/2_🔥_Alertes.py",        label="🔥  Alertes intraday")
-st.sidebar.page_link("pages/3_🌍_Heatmap.py",        label="🌍  Heatmap deals")
-st.sidebar.page_link("pages/4_🔍_Recherche.py",      label="🔍  Recherche")
-st.sidebar.page_link("pages/5_📧_Abonnement.py",     label="📧  Abonnement")
-st.sidebar.markdown("---")
 
 c1, c2, c3 = st.sidebar.columns(3)
 c1.metric("Briefs", len(dates))
@@ -268,27 +258,27 @@ if st.session_state.get("_reset_filters"):
     st.session_state.pop("_reset_filters", None)
 
 st.markdown("---")
-with st.expander("🔧 Filtres", expanded=False):
-    fcol1, fcol2, fcol3, fcol_reset = st.columns([1, 1, 1, 0.3])
-    with fcol1:
-        selected_regions = st.multiselect(
-            "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region",
-        )
-    with fcol2:
-        selected_labels = st.multiselect(
-            "Type d'information", list(cat_options.keys()),
-            default=list(cat_options.keys()), key="main_cat",
-        )
-        selected_cats = [cat_options[l] for l in selected_labels]
-    with fcol3:
-        selected_sectors = st.multiselect(
-            "Secteur", sectors_present, default=sectors_present, key="main_sector",
-        )
-    with fcol_reset:
-        st.markdown("<div style='height:22px'></div>", unsafe_allow_html=True)
-        if st.button("↺", help="Réinitialiser tous les filtres", use_container_width=True):
-            st.session_state["_reset_filters"] = True
-            st.rerun()
+section_header("Filtres")
+fcol1, fcol2, fcol3, fcol_reset = st.columns([1, 1, 1, 0.28])
+with fcol1:
+    selected_regions = st.multiselect(
+        "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region",
+    )
+with fcol2:
+    selected_labels = st.multiselect(
+        "Type d'information", list(cat_options.keys()),
+        default=list(cat_options.keys()), key="main_cat",
+    )
+    selected_cats = [cat_options[l] for l in selected_labels]
+with fcol3:
+    selected_sectors = st.multiselect(
+        "Secteur", sectors_present, default=sectors_present, key="main_sector",
+    )
+with fcol_reset:
+    st.markdown("<div style='height:22px'></div>", unsafe_allow_html=True)
+    if st.button("↺ Reset", help="Réinitialiser tous les filtres", use_container_width=True):
+        st.session_state["_reset_filters"] = True
+        st.rerun()
 
 # Apply filters
 allowed_geos = _geos_for_regions(selected_regions) if selected_regions else set()

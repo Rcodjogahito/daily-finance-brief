@@ -6,7 +6,7 @@ import plotly.express as px
 import streamlit as st
 
 from src.archiver import list_alert_dates, load_alerts
-from src.styles import inject_all, sidebar_brand, section_header, _is_real_so_what
+from src.styles import inject_all, sidebar_nav, section_header, _is_real_so_what
 
 st.set_page_config(
     page_title="Alertes — Daily Finance Brief",
@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 inject_all()
-sidebar_brand()
+sidebar_nav()
 
 ALERT_COLORS = {
     "MEGA_DEAL":      "#1A5F8C",
@@ -33,18 +33,8 @@ ALERT_ICONS = {
     "PROFIT_WARNING": "⚠️",
 }
 
-# ── Sidebar nav ────────────────────────────────────────────────────────────
+# ── Sidebar — filtres page ─────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.page_link("streamlit_app.py",              label="📰  Brief du jour")
-    st.page_link("pages/1_📅_Historique.py",      label="📅  Historique")
-    st.page_link("pages/2_🔥_Alertes.py",         label="🔥  Alertes intraday")
-    st.page_link("pages/3_🌍_Heatmap.py",         label="🌍  Heatmap deals")
-    st.page_link("pages/4_🔍_Recherche.py",        label="🔍  Recherche")
-    st.page_link("pages/5_📧_Abonnement.py",       label="📧  Abonnement")
-    st.markdown("---")
-
     st.markdown("### Filtres")
     alert_types    = ["MEGA_DEAL", "FALLEN_ANGEL", "PROFIT_WARNING"]
     selected_types = st.multiselect("Type", alert_types, default=alert_types,
