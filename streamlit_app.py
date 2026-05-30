@@ -259,7 +259,7 @@ if st.session_state.get("_reset_filters"):
 
 st.markdown("---")
 section_header("Filtres")
-fcol1, fcol2, fcol3, fcol_reset = st.columns([1, 1, 1, 0.28])
+fcol1, fcol2, fcol3, fcol_reset = st.columns([1, 1, 1, 0.35])
 with fcol1:
     selected_regions = st.multiselect(
         "Région", _ALL_REGIONS, default=_ALL_REGIONS, key="main_region",
