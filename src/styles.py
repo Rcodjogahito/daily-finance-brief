@@ -494,21 +494,14 @@ def inject_css() -> None:
     st.markdown(_CSS, unsafe_allow_html=True)
 
 
-def _sidebar_autohide_js() -> None:
-    """Inject JS: auto-collapse sidebar on nav click + highlight active link.
-
-    Uses components.html (not st.markdown) because Streamlit strips <script>
-    tags from markdown. The script targets window.parent.document so it acts
-    on the real app DOM, not the isolated component iframe.
-    """
-    import streamlit.components.v1 as _components
-    _components.html(_SIDEBAR_JS, height=0, scrolling=False)
-
-
 def inject_all() -> None:
-    """Inject the full design system: shared CSS + sidebar behaviour JS."""
+    """Inject the full design system: CSS + sidebar JS (via components.html)."""
     inject_css()
-    _sidebar_autohide_js()
+    try:
+        import streamlit.components.v1 as _components
+        _components.html(_SIDEBAR_JS, height=0, scrolling=False)
+    except Exception:
+        pass  # JS optionnel — ne pas crasher si le composant echoue
 
 
 def sidebar_brand() -> None:
