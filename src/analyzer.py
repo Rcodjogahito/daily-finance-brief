@@ -464,6 +464,7 @@ def post_verify_llm_output(llm_news: list[dict], original_news: list[dict]) -> l
             )
             item["source_count"] = item.get("source_count", 1)
             item.setdefault("alert_flags", [])
+            item.setdefault("region", "Global")
             verified.append(item)
             continue
 
@@ -477,6 +478,7 @@ def post_verify_llm_output(llm_news: list[dict], original_news: list[dict]) -> l
 
         item["source_count"] = original.get("source_count", 1)
         item["alert_flags"] = original.get("alert_flags", [])
+        item["region"] = original.get("region", "Global")
 
         verified.append(item)
 

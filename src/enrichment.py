@@ -3,8 +3,8 @@ import re
 from typing import Optional
 
 SECTOR_MAP: dict[str, list[str]] = {
-    "Real Estate":   ["real estate", "reit", "property fund", "immobilier", "mortgage",
-                      "commercial property", "office space", "logistics park"],
+    "Real Estate":   ["real estate", "reit", "property fund", "property", "immobilier", "mortgage",
+                      "commercial property", "office space", "office", "logistics park"],
     "Energy":        ["oil", "gas", "lng", "renewable", "solar", "wind", "energy",
                       "hydrogen", "power", "utility", "nuclear", "petrochemi"],
     "Financials":    ["bank", "insurance", "asset manager", "fintech", "lender",
@@ -28,8 +28,6 @@ SECTOR_MAP: dict[str, list[str]] = {
                       "cartier", "dior", "gucci", "prada", "chanel"],
     "Entertainment": ["disney", "netflix", "streaming", "studio", "entertainment",
                       "warner", "universal", "music", "gaming", "videogam"],
-    "Real Estate":   ["real estate", "reit", "property", "immobilier", "mortgage",
-                      "commercial property", "office", "logistics park"],
     "Commodities":   ["gold price", "silver price", "copper price", "commodity price",
                       "crude oil price", "brent crude", "wti", "opec", "oil market",
                       "lng price", "natural gas price", "coal price",

@@ -13,9 +13,11 @@ _TICKERS: dict[str, dict] = {
     "^TNX":     {"label": "UST 10Y",     "format": "rate",     "unit": "%"},
 }
 
-_OAT_ECB_URL = (
+_OAT_ECB_URLS = (
     "https://data-api.ecb.europa.eu/service/data/FM/D.FR.EUR.FR2.BB.3L.YLD"
-    "?lastNObservations=3&format=jsondata"
+    "?lastNObservations=5&format=jsondata",
+    "https://data-api.ecb.europa.eu/service/data/IRS/D.FR.L.L40.CI.0.EUR.N.Z"
+    "?lastNObservations=5&format=jsondata",
 )
 
 
@@ -24,11 +26,6 @@ def _fetch_yf_price(ticker: str) -> Optional[float]:
     try:
         import yfinance as yf
         t = yf.Ticker(ticker)
-        hist = t.fast_info
-        price = hist.get("last_price") or hist.get("regularMarketPrice")
-        if price is not None:
-            return float(price)
-        # Fallback: download 2d history
         df = t.history(period="2d")
         if not df.empty:
             return float(df["Close"].iloc[-1])
@@ -39,20 +36,29 @@ def _fetch_yf_price(ticker: str) -> Optional[float]:
 
 
 def _fetch_oat_10y() -> Optional[float]:
-    """Fetch French OAT 10Y yield from ECB free SDMX API."""
-    try:
-        import requests
-        resp = requests.get(_OAT_ECB_URL, timeout=8, headers={"Accept": "application/json"})
-        resp.raise_for_status()
-        data = resp.json()
-        series = data["dataSets"][0]["series"]
-        # Extract last observation value
-        obs = list(series.values())[0]["observations"]
-        last_val = list(obs.values())[-1][0]
-        return float(last_val) if last_val is not None else None
-    except Exception as exc:
-        logger.debug("OAT 10Y fetch failed: %s", exc)
-        return None
+    """Fetch French OAT 10Y yield from ECB free SDMX API.
+
+    Tries multiple SDMX endpoints (the primary FM series has been returning
+    null); falls back to an alternative IRS series. Returns None silently if
+    all endpoints fail.
+    """
+    import requests
+
+    for url in _OAT_ECB_URLS:
+        try:
+            resp = requests.get(url, timeout=8, headers={"Accept": "application/json"})
+            resp.raise_for_status()
+            data = resp.json()
+            series = data["dataSets"][0]["series"]
+            obs = list(series.values())[0]["observations"]
+            # Walk observations from the most recent backwards for a non-null value
+            for val in reversed(list(obs.values())):
+                if val and val[0] is not None:
+                    return float(val[0])
+        except Exception as exc:
+            logger.debug("OAT 10Y fetch failed for %s: %s", url, exc)
+            continue
+    return None
 
 
 def _fmt_change(current: float, prev: float) -> str:

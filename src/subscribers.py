@@ -3,7 +3,7 @@ import json
 import re
 from pathlib import Path
 
-_FILE = Path("data/subscribers.json")
+_FILE = Path(__file__).parent.parent / "data" / "subscribers.json"
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
