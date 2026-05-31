@@ -47,9 +47,21 @@ html, body, [data-testid="stAppViewContainer"],
     font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-#MainMenu, footer, [data-testid="stToolbar"],
-[data-testid="manage-app-button"],
-header { display: none !important; }
+#MainMenu, footer, [data-testid="manage-app-button"] { display: none !important; }
+/* En Streamlit 1.40+, stExpandSidebarButton est DANS stToolbar/header.
+   Ne pas masquer header ni stToolbar — masquer seulement le fond et les actions. */
+[data-testid="stHeader"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+/* Masquer les boutons Streamlit inutiles mais garder stExpandSidebarButton */
+[data-testid="stAppDeployButton"],
+[data-testid="stMainMenuButton"],
+[data-testid="stStatusWidget"],
+[data-testid="stToolbarActions"] { display: none !important; }
+/* Masquer la nav auto-générée par Streamlit (doublon de notre sidebar_nav custom) */
+[data-testid="stSidebarNav"] { display: none !important; }
 
 /* ── App background ─────────────────────────────── */
 [data-testid="stAppViewContainer"] {
