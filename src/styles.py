@@ -93,18 +93,38 @@ span[data-testid="stIconMaterial"],
 }
 
 /* ── Bouton de fermeture dans la sidebar ────────────── */
+/* Streamlit masque ce bouton (visibility:hidden) par défaut — on le force visible */
 [data-testid="stBaseButton-headerNoPadding"] {
-    color: #7FAACC !important;
-    transition: color 0.15s ease !important;
+    visibility: visible !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    background: rgba(201,168,76,0.15) !important;
+    border: 1px solid rgba(201,168,76,0.35) !important;
+    border-radius: 5px !important;
+    color: #C9A84C !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease, border-color 0.15s ease !important;
+    font-family: 'Material Symbols Rounded' !important;
+    font-size: 18px !important;
 }
 [data-testid="stBaseButton-headerNoPadding"]:hover {
-    color: #C9A84C !important;
+    background: rgba(201,168,76,0.28) !important;
+    border-color: #C9A84C !important;
 }
 
-/* ── Sidebar header (zone du bouton fermer) ──────────── */
+/* ── Sidebar header (contient le bouton fermer) ──────── */
 [data-testid="stSidebarHeader"] {
-    background: transparent !important;
-    padding: 6px 8px !important;
+    background: rgba(7,25,46,0.6) !important;
+    border-bottom: 1px solid rgba(201,168,76,0.12) !important;
+    padding: 8px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    min-height: 48px !important;
 }
 
 /* ── App background ─────────────────────────────── */
