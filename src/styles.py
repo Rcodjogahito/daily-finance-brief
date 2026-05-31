@@ -76,20 +76,36 @@ span[data-testid="stIconMaterial"],
     border: 1px solid #D8E2EE !important;
     border-radius: 6px !important;
     box-shadow: 0 1px 6px rgba(11,37,69,0.10) !important;
-    color: #0B2545 !important;
     width: 36px !important;
     height: 36px !important;
-    padding: 4px !important;
+    padding: 0 !important;
     cursor: pointer !important;
     transition: box-shadow 0.15s ease, border-color 0.15s ease !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    position: relative !important;
 }
 [data-testid="stExpandSidebarButton"]:hover {
     box-shadow: 0 2px 10px rgba(11,37,69,0.16) !important;
     border-color: #C9A84C !important;
     background: #FFFFFF !important;
+}
+/* Masquer le texte Material Symbols (risque de non-chargement de la fonte) */
+[data-testid="stExpandSidebarButton"] span[data-testid="stIconMaterial"] {
+    font-size: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+}
+/* Remplacer par un symbole Unicode fiable (Inter, pas de dépendance réseau) */
+[data-testid="stExpandSidebarButton"]::after {
+    content: "›› " !important;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #0B2545 !important;
+    line-height: 1 !important;
+    letter-spacing: -1px !important;
 }
 
 /* ── Bouton de fermeture dans la sidebar ────────────── */
@@ -105,15 +121,28 @@ span[data-testid="stIconMaterial"],
     background: rgba(201,168,76,0.15) !important;
     border: 1px solid rgba(201,168,76,0.35) !important;
     border-radius: 5px !important;
-    color: #C9A84C !important;
     cursor: pointer !important;
     transition: background 0.15s ease, border-color 0.15s ease !important;
-    font-family: 'Material Symbols Rounded' !important;
-    font-size: 18px !important;
+    position: relative !important;
 }
 [data-testid="stBaseButton-headerNoPadding"]:hover {
     background: rgba(201,168,76,0.28) !important;
     border-color: #C9A84C !important;
+}
+/* Masquer le texte Material Symbols, remplacer par « Unicode */
+[data-testid="stBaseButton-headerNoPadding"] span[data-testid="stIconMaterial"] {
+    font-size: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+}
+[data-testid="stBaseButton-headerNoPadding"]::after {
+    content: "‹‹ " !important;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #C9A84C !important;
+    line-height: 1 !important;
+    letter-spacing: -1px !important;
 }
 
 /* ── Sidebar header (contient le bouton fermer) ──────── */
