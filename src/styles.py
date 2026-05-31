@@ -40,11 +40,18 @@ ALL_CATEGORIES = list(CATEGORY_COLORS.keys())
 _CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block');
 
 /* ── Reset & globals ──────────────────────────────── */
 html, body, [data-testid="stAppViewContainer"],
 [data-testid="stAppViewContainer"] * {
     font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+/* Préserver la fonte icône Material Symbols (ne pas écraser avec Inter) */
+span[data-testid="stIconMaterial"],
+.material-symbols-rounded {
+    font-family: 'Material Symbols Rounded' !important;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20 !important;
 }
 
 #MainMenu, footer, [data-testid="manage-app-button"] { display: none !important; }
@@ -62,6 +69,43 @@ html, body, [data-testid="stAppViewContainer"],
 [data-testid="stToolbarActions"] { display: none !important; }
 /* Masquer la nav auto-générée par Streamlit (doublon de notre sidebar_nav custom) */
 [data-testid="stSidebarNav"] { display: none !important; }
+
+/* ── Bouton d'ouverture de la sidebar ───────────────── */
+[data-testid="stExpandSidebarButton"] {
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid #D8E2EE !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 6px rgba(11,37,69,0.10) !important;
+    color: #0B2545 !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 4px !important;
+    cursor: pointer !important;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+[data-testid="stExpandSidebarButton"]:hover {
+    box-shadow: 0 2px 10px rgba(11,37,69,0.16) !important;
+    border-color: #C9A84C !important;
+    background: #FFFFFF !important;
+}
+
+/* ── Bouton de fermeture dans la sidebar ────────────── */
+[data-testid="stBaseButton-headerNoPadding"] {
+    color: #7FAACC !important;
+    transition: color 0.15s ease !important;
+}
+[data-testid="stBaseButton-headerNoPadding"]:hover {
+    color: #C9A84C !important;
+}
+
+/* ── Sidebar header (zone du bouton fermer) ──────────── */
+[data-testid="stSidebarHeader"] {
+    background: transparent !important;
+    padding: 6px 8px !important;
+}
 
 /* ── App background ─────────────────────────────── */
 [data-testid="stAppViewContainer"] {
@@ -105,13 +149,13 @@ html, body, [data-testid="stAppViewContainer"],
 [data-testid="stSidebar"] [data-testid="stMetricValue"] {
     color: #EEF5FF !important;
     font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 1.2rem !important;
+    font-size: 0.95rem !important;
     font-weight: 700 !important;
 }
 [data-testid="stSidebar"] [data-testid="stMetricLabel"] {
     color: #4A7FA5 !important;
-    font-size: 0.58rem !important;
-    letter-spacing: 0.1em !important;
+    font-size: 0.50rem !important;
+    letter-spacing: 0.06em !important;
     text-transform: uppercase !important;
 }
 
@@ -481,8 +525,10 @@ _SIDEBAR_NAV_JS = """
     function closeSidebarIfOpen() {
         var sidebar = doc.querySelector('[data-testid="stSidebar"]');
         if (sidebar && sidebar.getBoundingClientRect().width > 80) {
-            var btn = doc.querySelector('[data-testid="stSidebarCollapsedControl"]')
-                   || doc.querySelector('[data-testid="collapsedControl"]')
+            // Streamlit 1.40+: bouton dans stSidebarHeader
+            var btn = doc.querySelector('[data-testid="stBaseButton-headerNoPadding"]')
+                   || doc.querySelector('[data-testid="stSidebarCollapseButton"] button')
+                   || doc.querySelector('[data-testid="stSidebarCollapsedControl"]')
                    || doc.querySelector('[aria-label="Close sidebar"]');
             if (btn) btn.click();
         }

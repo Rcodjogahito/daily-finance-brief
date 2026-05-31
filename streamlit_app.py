@@ -123,10 +123,14 @@ if dates:
         pipeline_ok = True
     status_badge(pipeline_ok, last_date)
 
-c1, c2, c3 = st.sidebar.columns(3)
+c1, c2 = st.sidebar.columns(2)
 c1.metric("Briefs", len(dates))
 c2.metric("Alertes", total_alerts)
-c3.metric("Sources", "80+")
+st.sidebar.markdown(
+    f'<div style="font-size:9px;color:#4A7FA5;letter-spacing:0.06em;'
+    f'text-transform:uppercase;padding:2px 0 6px">80+ sources · Gemini + RSS</div>',
+    unsafe_allow_html=True,
+)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
