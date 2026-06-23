@@ -11,7 +11,8 @@
     "returned": 10,
     "post_verified": 10,
     "archive_written": true,
-    "email_sent": true
+    "email_sent": true,
+    "so_what_regenerated": true
   },
   "market_snapshot": {
     "CAC 40": {
@@ -174,7 +175,7 @@
       "source_count": 1,
       "summary": "Entrepreneurs, exchange operators and AI firms are creating tradable instruments backed by processing power",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Energy (Global). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "L'émergence d'instruments financiers adossés à la puissance de calcul marque la financiarisation du \"compute\", créant de nouvelles classes d'actifs et potentiellement des marchés dérivés, ce qui pourrait réorienter les allocations de capitaux vers les infrastructures de données énergivores. Pour les CIB, cela génère des opportunités immédiates en structuration de produits financiers innovants (DCM/Structured Finance), en conseil M&A pour les infrastructures de calcul et les entreprises d'IA, et potentiellement de nouvelles formes de financement adossé à des actifs (LevFin). Cette tendance signale une augmentation du deal flow en M&A pour la consolidation des data centers et des infrastructures IA, des levées de capitaux pour les entreprises développant ces instruments, et des opportunités de financement de projets dans le secteur de l'énergie pour soutenir la demande croissante en puissance.",
       "region": "Global"
     },
     {
@@ -191,7 +192,7 @@
       "source_count": 1,
       "summary": "La maison mère du géant de la tech, Alphabet, dévisse en Bourse, alors que les surinvestissements se poursuivent et qu’une guerre des prix dans l’intelligence artificielle, avec l’aide de modèles chinois, menace les leaders du secteur.",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — TMT (Global). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "La dévisse boursière d'Alphabet reflète une préoccupation immédiate du marché quant à la rétention des talents et la pression sur les marges due à une guerre des prix en IA, impactant potentiellement les valorisations et les spreads des géants technologiques. Cette dynamique favorise les pure-players agiles comme OpenAI et Anthropic en matière d'acquisition de talents, tout en augmentant le risque opérationnel et financier pour les acteurs établis contraints à des surinvestissements. Pour le CIB, cela signale un potentiel accru d'opérations M&A (acquisitions stratégiques pour talent/IP, consolidation) et d'opportunités de financement pour les challengers IA différenciés, tout en nécessitant une surveillance accrue des profils de crédit TMT exposés à cette guerre des prix.",
       "region": "Global"
     },
     {
@@ -208,7 +209,7 @@
       "source_count": 1,
       "summary": "Les activités de marché se sont largement développées en France, mais ce succès reste fragile. Les autres métiers financiers se sont plutôt déployés ailleurs en Europe. Aucune place financière européenne n’a su remplacer la City.",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Other (France). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "Le développement des activités de marché à Paris, bien que fragile, suggère une légère augmentation de la liquidité locale et potentiellement des conditions de pricing plus compétitives pour certains services de trading et de clearing domiciliés en France. Cela bénéficie principalement aux institutions financières françaises et aux fournisseurs d'infrastructures de marché. Cependant, le déploiement d'autres activités financières ailleurs en Europe confirme une fragmentation persistante du paysage financier continental, sans déplacement significatif des flux de M&A, Leveraged Finance ou DCM vers Paris. Les CIBs doivent donc maintenir une couverture européenne diversifiée plutôt que de centraliser les activités non-marché dans un hub continental unique, Paris n'offrant que des opportunités incrémentales sur des mandats spécifiquement liés aux marchés.",
       "region": "Europe"
     },
     {
