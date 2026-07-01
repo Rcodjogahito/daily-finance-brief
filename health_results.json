@@ -113,6 +113,14 @@
       "status": "DEAD"
     },
     {
+      "name": "CNBC Finance",
+      "url": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
+      "attempts": 3,
+      "failures": 1,
+      "failure_rate": 0.3333333333333333,
+      "status": "DEGRADED"
+    },
+    {
       "name": "FT Companies",
       "url": "https://www.ft.com/companies?format=rss",
       "attempts": 3,
@@ -163,14 +171,6 @@
     {
       "name": "Bloomberg (GNews)",
       "url": "https://news.google.com/rss/search?q=site:bloomberg.com+when:1d&hl=en-US&gl=US&ceid=US:en",
-      "attempts": 3,
-      "failures": 0,
-      "failure_rate": 0.0,
-      "status": "OK"
-    },
-    {
-      "name": "CNBC Finance",
-      "url": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
       "attempts": 3,
       "failures": 0,
       "failure_rate": 0.0,

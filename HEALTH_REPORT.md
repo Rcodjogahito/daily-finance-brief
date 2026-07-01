@@ -1,5 +1,5 @@
 # RSS Source Health Report
-Generated: 2026-06-01 21:56 UTC
+Generated: 2026-07-01 17:27 UTC
 
 | Status | Source | Failure Rate | URL |
 |--------|--------|:------------:|-----|
@@ -17,6 +17,7 @@ Generated: 2026-06-01 21:56 UTC
 | 🔴 DEAD | BIS Research | 100% | https://www.bis.org/doclist/bis_rss.xml... |
 | 🔴 DEAD | IMF News | 100% | https://www.imf.org/en/News/rss... |
 | 🔴 DEAD | Reuters Commodities | 100% | https://www.reutersagency.com/feed/?best-topics=commodities... |
+| 🟡 DEGRADED | CNBC Finance | 33% | https://www.cnbc.com/id/10000664/device/rss/rss.html... |
 | 🟢 OK | FT Companies | 0% | https://www.ft.com/companies?format=rss... |
 | 🟢 OK | FT Markets | 0% | https://www.ft.com/markets?format=rss... |
 | 🟢 OK | WSJ Business | 0% | https://feeds.a.dj.com/rss/RSSWSJD.xml... |
@@ -24,7 +25,6 @@ Generated: 2026-06-01 21:56 UTC
 | 🟢 OK | Economist Finance | 0% | https://www.economist.com/finance-and-economics/rss.xml... |
 | 🟢 OK | Economist Business | 0% | https://www.economist.com/business/rss.xml... |
 | 🟢 OK | Bloomberg (GNews) | 0% | https://news.google.com/rss/search?q=site:bloomberg.com+when... |
-| 🟢 OK | CNBC Finance | 0% | https://www.cnbc.com/id/10000664/device/rss/rss.html... |
 | 🟢 OK | MarketWatch | 0% | https://feeds.marketwatch.com/marketwatch/topstories/... |
 | 🟢 OK | Le Monde Économie | 0% | https://www.lemonde.fr/economie/rss_full.xml... |
 | 🟢 OK | Le Figaro Eco | 0% | https://www.lefigaro.fr/rss/figaro_economie.xml... |
