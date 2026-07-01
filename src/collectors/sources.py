@@ -1,10 +1,10 @@
 SOURCES: dict[str, str] = {
     # ── Anglo-saxonnes premium ─────────────────────────────────────────────
-    "Reuters Business":    "https://www.reutersagency.com/feed/?best-topics=business-finance",
-    "Reuters Markets":     "https://www.reutersagency.com/feed/?best-topics=markets",
-    "Reuters Energy":      "https://www.reutersagency.com/feed/?best-topics=energy",
-    "Reuters Deals":       "https://www.reutersagency.com/feed/?best-topics=deals",
-    "Reuters Tech":        "https://www.reutersagency.com/feed/?best-topics=tech",
+    # [DEAD]     "Reuters Business":    "https://www.reutersagency.com/feed/?best-topics=business-finance",
+    # [DEAD]     "Reuters Markets":     "https://www.reutersagency.com/feed/?best-topics=markets",
+    # [DEAD]     "Reuters Energy":      "https://www.reutersagency.com/feed/?best-topics=energy",
+    # [DEAD]     "Reuters Deals":       "https://www.reutersagency.com/feed/?best-topics=deals",
+    # [DEAD]     "Reuters Tech":        "https://www.reutersagency.com/feed/?best-topics=tech",
 
     "FT Companies":        "https://www.ft.com/companies?format=rss",
     "FT Markets":          "https://www.ft.com/markets?format=rss",
@@ -19,23 +19,23 @@ SOURCES: dict[str, str] = {
 
     "CNBC Finance":        "https://www.cnbc.com/id/10000664/device/rss/rss.html",
     "MarketWatch":         "https://feeds.marketwatch.com/marketwatch/topstories/",
-    "Barron's":            "https://www.barrons.com/feed/rss/markets_real_time",
+    # [DEAD]     "Barron's":            "https://www.barrons.com/feed/rss/markets_real_time",
 
     # ── Françaises ────────────────────────────────────────────────────────
     "Le Monde Économie":   "https://www.lemonde.fr/economie/rss_full.xml",
-    "Les Echos Marchés":   "https://syndication.lesechos.fr/rss/rss_finance-marches.xml",
-    "Les Echos Industrie": "https://syndication.lesechos.fr/rss/rss_industrie-services.xml",
-    "Les Echos Tech":      "https://syndication.lesechos.fr/rss/rss_tech-medias.xml",
-    "L'AGEFI":             "https://www.agefi.fr/rss",
-    "La Tribune":          "https://www.latribune.fr/rss/",
+    # [DEAD]     "Les Echos Marchés":   "https://syndication.lesechos.fr/rss/rss_finance-marches.xml",
+    # [DEAD]     "Les Echos Industrie": "https://syndication.lesechos.fr/rss/rss_industrie-services.xml",
+    # [DEAD]     "Les Echos Tech":      "https://syndication.lesechos.fr/rss/rss_tech-medias.xml",
+    # [DEAD]     "L'AGEFI":             "https://www.agefi.fr/rss",
+    # [DEAD]     "La Tribune":          "https://www.latribune.fr/rss/",
     "Le Figaro Eco":       "https://www.lefigaro.fr/rss/figaro_economie.xml",
 
     # ── Institutions financières internationales ───────────────────────────
     "ECB Press":           "https://www.ecb.europa.eu/rss/press.html",
     "Fed Press":           "https://www.federalreserve.gov/feeds/press_all.xml",
     "BoE":                 "https://www.bankofengland.co.uk/rss/news",
-    "BIS Research":        "https://www.bis.org/doclist/bis_rss.xml",
-    "IMF News":            "https://www.imf.org/en/News/rss",
+    # [DEAD]     "BIS Research":        "https://www.bis.org/doclist/bis_rss.xml",
+    # [DEAD]     "IMF News":            "https://www.imf.org/en/News/rss",
     "ESM/ESRB (GNews)":    "https://news.google.com/rss/search?q=(ESM+OR+ESRB+OR+%22European+Stability+Mechanism%22)+when:2d&hl=en",
 
     # ── Ratings — flux directs et via Google News ─────────────────────────
@@ -76,7 +76,7 @@ SOURCES: dict[str, str] = {
     "ESG / Green Finance": "https://news.google.com/rss/search?q=(%22green+bond%22+OR+%22sustainability-linked%22+OR+ESG+OR+%22transition+bond%22+OR+CSRD)+when:1d&hl=en",
 
     # ── Commodities ───────────────────────────────────────────────────────
-    "Reuters Commodities":       "https://www.reutersagency.com/feed/?best-topics=commodities",
+    # [DEAD]     "Reuters Commodities":       "https://www.reutersagency.com/feed/?best-topics=commodities",
     "Commodities / Métaux":      "https://news.google.com/rss/search?q=(gold+OR+silver+OR+copper+OR+nickel+OR+aluminium+OR+zinc+OR+%22iron+ore%22+OR+platinum+OR+LME)+(price+OR+market+OR+rally+OR+slump+OR+demand+OR+supply+OR+shortage)+when:1d&hl=en",
     "Commodities / Agri":        "https://news.google.com/rss/search?q=(wheat+OR+corn+OR+soybean+OR+sugar+OR+cocoa+OR+coffee+OR+%22palm+oil%22+OR+%22agricultural+commodity%22+OR+CBOT)+price+when:1d&hl=en",
     "Commodities / Énergie Prix":"https://news.google.com/rss/search?q=(WTI+OR+%22Brent+crude%22+OR+%22natural+gas+price%22+OR+%22crude+oil+price%22+OR+%22LNG+price%22+OR+%22coal+price%22)+when:1d&hl=en",
