@@ -41,6 +41,14 @@
       "status": "DEAD"
     },
     {
+      "name": "CNBC Finance",
+      "url": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
+      "attempts": 3,
+      "failures": 3,
+      "failure_rate": 1.0,
+      "status": "DEAD"
+    },
+    {
       "name": "Barron's",
       "url": "https://www.barrons.com/feed/rss/markets_real_time",
       "attempts": 3,
@@ -111,14 +119,6 @@
       "failures": 3,
       "failure_rate": 1.0,
       "status": "DEAD"
-    },
-    {
-      "name": "CNBC Finance",
-      "url": "https://www.cnbc.com/id/10000664/device/rss/rss.html",
-      "attempts": 3,
-      "failures": 1,
-      "failure_rate": 0.3333333333333333,
-      "status": "DEGRADED"
     },
     {
       "name": "FT Companies",
@@ -463,6 +463,7 @@
     "Reuters Energy",
     "Reuters Deals",
     "Reuters Tech",
+    "CNBC Finance",
     "Barron's",
     "Les Echos March\u00e9s",
     "Les Echos Industrie",
