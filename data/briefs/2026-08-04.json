@@ -11,7 +11,8 @@
     "returned": 10,
     "post_verified": 10,
     "archive_written": true,
-    "email_sent": true
+    "email_sent": true,
+    "so_what_regenerated": true
   },
   "market_snapshot": {
     "CAC 40": {
@@ -208,7 +209,7 @@
       "source_count": 1,
       "summary": "Cet avion, plus petite version de la famille des 737 MAX, dont la livraison devait commencer en 2019, devrait pouvoir entrer en service en 2027.",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Aviation (USA). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "Certification of the 737 MAX 7, albeit 7 years late (2027 service entry vs. 2019 target), provides limited relief for Boeing by addressing a regulatory hurdle for this variant, yet it highlights persistent program execution challenges impacting investor confidence and potentially BA's cost of capital. Airlines with existing orders face further fleet planning disruptions and potential operational inefficiencies, likely increasing demand for interim leasing solutions or accelerating shifts towards competitor models, thereby strengthening Airbus's market position. For CIB, this implies potential opportunities in aircraft leasing financing and bridge facilities for airlines, while Boeing's delayed revenue recognition from this variant will continue to pressure its free cash flow generation and overall credit profile, warranting close monitoring of its capital markets activity.",
       "region": "Amériques"
     },
     {
