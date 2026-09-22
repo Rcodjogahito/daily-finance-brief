@@ -11,7 +11,8 @@
     "returned": 10,
     "post_verified": 10,
     "archive_written": true,
-    "email_sent": true
+    "email_sent": true,
+    "so_what_regenerated": true
   },
   "market_snapshot": {
     "CAC 40": {
@@ -106,7 +107,7 @@
       "source_count": 2,
       "summary": "ECB’s Lane Says New Energy Shock to Lead to Longer Inflation &nbsp;&nbsp; Bloomberg.com",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Energy (Other Europe) — corroboré par 2 sources. Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "Le signal de la BCE d'une inflation prolongée due à un nouveau choc énergétique implique le maintien d'une politique monétaire restrictive, entraînant des taux d'intérêt plus élevés et potentiellement un élargissement des spreads de crédit, notamment pour les entreprises à forte intensité énergétique ou fortement endettées. Les emprunteurs feront face à des coûts de financement accrus et des défis de refinancement, tandis que les investisseurs exigeront des rendements plus élevés, impactant les valorisations. Pour le CIB, cela anticipe un ralentissement des activités M&A et Leveraged Finance en raison de la cherté de la dette et des écarts de valorisation, mais pourrait générer des mandats en restructuration, liability management et des opportunités de consolidation stratégique dans le secteur de l'énergie.",
       "region": "Europe"
     },
     {
@@ -123,7 +124,7 @@
       "source_count": 1,
       "summary": "‘Dismal’ £18bn figure for August comes as inflation drives up government spending",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Other (UK) (21.1 Md€). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "The 'dismal' £18bn UK government borrowing figure for August, driven by inflation, signals immediate upward pressure on Gilt yields and wider credit spreads for UK issuers, tightening funding conditions across the board. UK corporates and financial institutions will likely face elevated borrowing costs, impacting their debt service capacity and investment plans, while investors will demand higher risk premiums for UK exposure. For CIB, this presents a risk of reduced M&A and leveraged finance activity in the UK due to higher cost of capital, but could create opportunities in liability management advisory and potentially increased Gilt issuance mandates for DCM.",
       "region": "Europe"
     },
     {
@@ -140,7 +141,7 @@
       "source_count": 1,
       "summary": "Brent crude sinks amid speculation Donald Trump could meet Iran’s president this week",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — Energy (Global). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "La chute significative du Brent, alimentée par des spéculations sur une rencontre US-Iran, exerce une pression immédiate sur les valorisations et les flux de trésorerie des producteurs Oil & Gas upstream, risquant d'élargir leurs spreads de crédit et d'accroître le risque de refinancement. Cette dynamique bénéficie aux secteurs énergivores via la réduction des coûts d'intrants, améliorant ainsi leurs profils de crédit. Pour les CIB, cela signale des opportunités potentielles de M&A dans le secteur énergétique (consolidation, actifs distressed) et une demande accrue en liability management ou en conseil en restructuration pour les producteurs, tout en créant un environnement plus favorable pour le financement de la croissance dans les industries consommatrices d'énergie.",
       "region": "Global"
     },
     {
@@ -157,7 +158,7 @@
       "source_count": 1,
       "summary": "AI Cloud Startup Verda Raises $189 Million in Funding Round &nbsp;&nbsp; Bloomberg.com",
       "alert_flags": [],
-      "so_what": "Développement sectoriel — TMT (Global) (0.2 Md€). Analyser les implications concurrentielles, l'impact sur les marges et le deal flow associé.",
+      "so_what": "Le financement de 189 M$ pour Verda, une startup AI Cloud, confirme la forte appétence des investisseurs et la liquidité disponible pour les entreprises TMT à forte croissance dans le secteur de l'IA. Cela valide les valorisations actuelles et les conditions de financement pour des opérations de capital-risque et de croissance similaires, maintenant une pression sur les multiples pour les cibles attractives. Pour les CIB, bien qu'il s'agisse d'un tour de financement en capital, cela signale un pipeline M&A et de futurs besoins en financement (equity/debt) robustes dans l'écosystème AI/Cloud, notamment pour les acteurs atteignant une taille critique. Il est crucial de surveiller les développements dans l'infrastructure et les applications AI pour des mandats de conseil futurs.",
       "region": "Global"
     },
     {
