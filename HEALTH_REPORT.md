@@ -1,5 +1,5 @@
 # RSS Source Health Report
-Generated: 2026-10-01 16:09 UTC
+Generated: 2026-11-01 15:52 UTC
 
 | Status | Source | Failure Rate | URL |
 |--------|--------|:------------:|-----|
@@ -8,7 +8,6 @@ Generated: 2026-10-01 16:09 UTC
 | 🔴 DEAD | Reuters Energy | 100% | https://www.reutersagency.com/feed/?best-topics=energy... |
 | 🔴 DEAD | Reuters Deals | 100% | https://www.reutersagency.com/feed/?best-topics=deals... |
 | 🔴 DEAD | Reuters Tech | 100% | https://www.reutersagency.com/feed/?best-topics=tech... |
-| 🔴 DEAD | FT Markets | 100% | https://www.ft.com/markets?format=rss... |
 | 🔴 DEAD | Barron's | 100% | https://www.barrons.com/feed/rss/markets_real_time... |
 | 🔴 DEAD | Les Echos Marchés | 100% | https://syndication.lesechos.fr/rss/rss_finance-marches.xml... |
 | 🔴 DEAD | Les Echos Industrie | 100% | https://syndication.lesechos.fr/rss/rss_industrie-services.x... |
@@ -19,6 +18,7 @@ Generated: 2026-10-01 16:09 UTC
 | 🔴 DEAD | IMF News | 100% | https://www.imf.org/en/News/rss... |
 | 🔴 DEAD | Reuters Commodities | 100% | https://www.reutersagency.com/feed/?best-topics=commodities... |
 | 🟢 OK | FT Companies | 0% | https://www.ft.com/companies?format=rss... |
+| 🟢 OK | FT Markets | 0% | https://www.ft.com/markets?format=rss... |
 | 🟢 OK | WSJ Business | 0% | https://feeds.a.dj.com/rss/RSSWSJD.xml... |
 | 🟢 OK | WSJ Markets | 0% | https://feeds.a.dj.com/rss/RSSMarketsMain.xml... |
 | 🟢 OK | Economist Finance | 0% | https://www.economist.com/finance-and-economics/rss.xml... |
@@ -70,7 +70,6 @@ These sources failed in ≥80% of attempts and will be proposed for removal:
 - **Reuters Energy**: https://www.reutersagency.com/feed/?best-topics=energy
 - **Reuters Deals**: https://www.reutersagency.com/feed/?best-topics=deals
 - **Reuters Tech**: https://www.reutersagency.com/feed/?best-topics=tech
-- **FT Markets**: https://www.ft.com/markets?format=rss
 - **Barron's**: https://www.barrons.com/feed/rss/markets_real_time
 - **Les Echos Marchés**: https://syndication.lesechos.fr/rss/rss_finance-marches.xml
 - **Les Echos Industrie**: https://syndication.lesechos.fr/rss/rss_industrie-services.xml
